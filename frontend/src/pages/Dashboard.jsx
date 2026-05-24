@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getHazards } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import HazardTable from '../components/HazardTable.jsx';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [hazards, setHazards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true);
     getHazards()
       .then(setHazards)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const counts = {
     Open:        hazards.filter(h => h.status === 'Open').length,
@@ -68,7 +73,7 @@ export default function Dashboard() {
 
       {loading && <p className="text-center text-gray-500 py-10">טוען נתונים...</p>}
       {error   && <p className="text-center text-red-500 py-4">שגיאה: {error}</p>}
-      {!loading && !error && <HazardTable hazards={hazards} />}
+      {!loading && !error && <HazardTable hazards={hazards} currentUser={user} onStatusUpdate={load} />}
     </div>
   );
 }

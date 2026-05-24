@@ -17,6 +17,8 @@
     "pg": "^8.11.5"
   },
   "devDependencies": {
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
     "supertest": "^7.0.0",
     "vitest": "^1.6.0"
   }

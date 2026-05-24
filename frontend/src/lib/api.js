@@ -1,3 +1,82 @@
+// ── Auth helpers ─────────────────────────────────────────────────────────────
+function authHeader() {
+  const token = localStorage.getItem('safetyos_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function login(username, password) {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Login failed');
+  return res.json();
+}
+
+export async function getMe() {
+  const res = await fetch('/api/auth/me', { headers: authHeader() });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  const res = await fetch('/api/auth/password', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to change password');
+  return res.json();
+}
+
+// ── Users (admin) ─────────────────────────────────────────────────────────────
+export async function getUsers() {
+  const res = await fetch('/api/users', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch users');
+  return res.json();
+}
+
+export async function addUser(data) {
+  const res = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to create user');
+  return res.json();
+}
+
+export async function updateUser(id, data) {
+  const res = await fetch(`/api/users/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to update user');
+  return res.json();
+}
+
+export async function deleteUser(id) {
+  const res = await fetch(`/api/users/${id}`, {
+    method: 'DELETE',
+    headers: authHeader()
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to delete user');
+  return res.json();
+}
+
+// ── Hazard status update ──────────────────────────────────────────────────────
+export async function updateHazardStatus(id, data) {
+  const res = await fetch(`/api/hazards/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to update hazard status');
+  return res.json();
+}
+
 export async function reportHazard(formData) {
   const res = await fetch('/api/hazards/report', { method: 'POST', body: formData });
   if (!res.ok) throw new Error(await res.text());

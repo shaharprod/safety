@@ -1,10 +1,14 @@
 import pg from 'pg';
 import 'dotenv/config';
+import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
 
 // ── In-memory demo store ─────────────────────────────────────────────────────
 const store = {
+  users: [
+    { id: 1, username: 'admin', password_hash: bcrypt.hashSync('1234', 10), full_name: 'ממונה בטיחות', role: 'safety_officer', created_at: new Date() },
+  ],
   subcontractors: [
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
   ],
@@ -21,9 +25,9 @@ const store = {
     { id: 10, first_name: 'איתי', last_name: 'חדד',       id_number: '889900112', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  20 * 86_400_000), google_email: null },
   ],
   safety_hazards: [
-    { id: 1, description: 'גידור חסר בקצה פיגום בקומה שלישית', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'High', status: 'Open', created_at: new Date(Date.now() - 2 * 86_400_000), resolved_at: null },
-    { id: 2, description: 'מטף כיבוי אש פג תוקף ביציאת חירום', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'רינה בטיחות', severity: 'Medium', status: 'In_Progress', created_at: new Date(Date.now() - 5 * 86_400_000), resolved_at: null },
-    { id: 3, description: 'כבל חשמל חשוף ליד אזור הרטבה', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'Urgent', status: 'Open', created_at: new Date(Date.now() - 1 * 86_400_000), resolved_at: null },
+    { id: 1, description: 'גידור חסר בקצה פיגום בקומה שלישית', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'High', status: 'Open', created_at: new Date(Date.now() - 2 * 86_400_000), resolved_at: null, treated_by_id: null, treated_at: null, treatment_notes: null, resolved_by_id: null, resolved_notes: null },
+    { id: 2, description: 'מטף כיבוי אש פג תוקף ביציאת חירום', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'רינה בטיחות', severity: 'Medium', status: 'In_Progress', created_at: new Date(Date.now() - 5 * 86_400_000), resolved_at: null, treated_by_id: 1, treated_at: new Date(Date.now() - 3 * 86_400_000), treatment_notes: 'בוצע חידוש מטף', resolved_by_id: null, resolved_notes: null },
+    { id: 3, description: 'כבל חשמל חשוף ליד אזור הרטבה', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'Urgent', status: 'Open', created_at: new Date(Date.now() - 1 * 86_400_000), resolved_at: null, treated_by_id: null, treated_at: null, treatment_notes: null, resolved_by_id: null, resolved_notes: null },
   ],
   site_access_logs: [],
   safety_audits: [],
@@ -47,18 +51,74 @@ const store = {
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 11, tool_inspections: 1, tool_inspection_items: 1, projects: 11, worker_certifications: 1 }
+  _id: { users: 2, safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 11, tool_inspections: 1, tool_inspection_items: 1, projects: 11, worker_certifications: 1 }
 };
 
 function memQuery(sql, params = []) {
   const s = sql.replace(/\s+/g, ' ').trim().toUpperCase();
 
+  // ── users ────────────────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM USERS WHERE USERNAME')) {
+    const u = store.users.find(u => u.username === params[0]);
+    return { rows: u ? [u] : [] };
+  }
+  if (s.startsWith('SELECT ID, USERNAME, FULL_NAME, ROLE') && s.includes('FROM USERS WHERE ID')) {
+    const u = store.users.find(u => u.id === params[0]);
+    if (!u) return { rows: [] };
+    return { rows: [{ id: u.id, username: u.username, full_name: u.full_name, role: u.role }] };
+  }
+  if (s.startsWith('SELECT ID, USERNAME, FULL_NAME, ROLE') && s.includes('FROM USERS ORDER')) {
+    return { rows: store.users.map(u => ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, created_at: u.created_at })) };
+  }
+  if (s.startsWith('INSERT INTO USERS')) {
+    const [username, password_hash, full_name, role] = params;
+    const row = { id: store._id.users++, username, password_hash, full_name, role, created_at: new Date() };
+    store.users.push(row);
+    return { rows: [{ id: row.id, username, full_name, role, created_at: row.created_at }] };
+  }
+  if (s.startsWith('UPDATE USERS SET') && s.includes('PASSWORD_HASH')) {
+    const [password_hash, id] = params;
+    const u = store.users.find(u => u.id === id);
+    if (u) u.password_hash = password_hash;
+    return { rows: u ? [u] : [] };
+  }
+  if (s.startsWith('UPDATE USERS SET') && !s.includes('PASSWORD_HASH')) {
+    const [full_name, role, id] = params;
+    const u = store.users.find(u => u.id === id);
+    if (!u) return { rows: [] };
+    Object.assign(u, { full_name, role });
+    return { rows: [{ id: u.id, username: u.username, full_name: u.full_name, role: u.role }] };
+  }
+  if (s.startsWith('DELETE FROM USERS WHERE ID')) {
+    const idx = store.users.findIndex(u => u.id === params[0]);
+    if (idx !== -1) store.users.splice(idx, 1);
+    return { rows: [{ id: params[0] }] };
+  }
+
   // ── safety_hazards ──────────────────────────────────────────────────────────
+  if (s.includes('FROM SAFETY_HAZARDS WHERE ID =') || s.includes('FROM SAFETY_HAZARDS WHERE ID=')) {
+    const h = store.safety_hazards.find(h => h.id === params[0]);
+    return { rows: h ? [h] : [] };
+  }
   if (s.startsWith('SELECT * FROM SAFETY_HAZARDS') && !s.includes('WHERE STATUS')) {
     return { rows: [...store.safety_hazards].sort((a, b) => b.created_at - a.created_at) };
   }
   if (s.includes('FROM SAFETY_HAZARDS WHERE STATUS')) {
     return { rows: store.safety_hazards.filter(h => h.status === 'Open') };
+  }
+  if (s.includes('UPDATE SAFETY_HAZARDS SET STATUS') && s.includes('TREATED_BY_ID')) {
+    const [status, treated_by_id, treated_at, treatment_notes, id] = params;
+    const h = store.safety_hazards.find(h => h.id === id);
+    if (!h) return { rows: [] };
+    Object.assign(h, { status, treated_by_id, treated_at, treatment_notes });
+    return { rows: [h] };
+  }
+  if (s.includes('UPDATE SAFETY_HAZARDS SET STATUS') && s.includes('RESOLVED_BY_ID')) {
+    const [status, resolved_by_id, resolved_at, resolved_notes, id] = params;
+    const h = store.safety_hazards.find(h => h.id === id);
+    if (!h) return { rows: [] };
+    Object.assign(h, { status, resolved_by_id, resolved_at, resolved_notes });
+    return { rows: [h] };
   }
   if (s.startsWith('INSERT INTO SAFETY_HAZARDS')) {
     const [description, image_url, supervisor_email, supervisor_name, severity] = params;

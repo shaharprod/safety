@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import FieldReport from './pages/FieldReport.jsx';
 import GateControl from './pages/GateControl.jsx';
@@ -14,6 +16,8 @@ import ToolInspections from './pages/ToolInspections.jsx';
 import ToolInspectionSession from './pages/ToolInspectionSession.jsx';
 import Projects from './pages/Projects.jsx';
 import WorkerCertifications from './pages/WorkerCertifications.jsx';
+import Login from './pages/Login.jsx';
+import ChangePasswordModal from './components/ChangePasswordModal.jsx';
 
 const NAV = [
   { to: '/',         label: 'בקרה',     icon: '🏠', end: true },
@@ -27,6 +31,11 @@ const NAV = [
   { to: '/reports',  label: 'דוחות',    icon: '📊'            },
   { to: '/admin',    label: 'אדמין',    icon: '⚙️'            },
 ];
+
+const ROLE_LABELS = {
+  safety_officer: 'ממונה בטיחות',
+  foreman: 'מנהל עבודה',
+};
 
 function BottomNav() {
   return (
@@ -54,15 +63,24 @@ function BottomNav() {
   );
 }
 
-export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
+function AppLayout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showChangePw, setShowChangePw] = useState(false);
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Top nav — desktop only */}
+      {/* Top nav */}
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="text-xl font-bold tracking-wide">🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v1.8</span></span>
+          <span className="text-xl font-bold tracking-wide">
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.0</span>
+          </span>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
@@ -78,12 +96,37 @@ export default function App() {
             ))}
           </div>
 
-          {/* Mobile: title only (nav is bottom bar) */}
+          {/* User info + actions */}
+          <div className="flex items-center gap-2">
+            {user && (
+              <div className="hidden md:flex items-center gap-2 text-sm">
+                <span className="text-blue-200">{user.full_name}</span>
+                <span className="bg-blue-700 text-blue-100 text-xs px-2 py-0.5 rounded-full">
+                  {ROLE_LABELS[user.role] || user.role}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={() => setShowChangePw(true)}
+              className="text-blue-200 hover:text-white transition text-sm px-2 py-1 rounded hover:bg-blue-800"
+              title="שנה סיסמה"
+            >
+              🔐
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-blue-200 hover:text-white transition text-sm px-2 py-1 rounded hover:bg-blue-800"
+              title="התנתק"
+            >
+              ⬅️ יציאה
+            </button>
+          </div>
+
+          {/* Mobile title */}
           <span className="md:hidden text-sm text-blue-200">מערכת ניהול בטיחות</span>
         </div>
       </nav>
 
-      {/* Page content — extra bottom padding on mobile for bottom nav */}
       <main className="max-w-6xl mx-auto px-4 py-5 pb-24 md:pb-6">
         <Routes>
           <Route path="/"                element={<Dashboard />} />
@@ -95,17 +138,31 @@ export default function App() {
           <Route path="/audit/:id"       element={<AuditSession />} />
           <Route path="/incident"        element={<IncidentReport />} />
           <Route path="/activity"        element={<ActivityLog />} />
-          <Route path="/reports"                  element={<ReportsViewer />} />
-          <Route path="/tools"                   element={<ToolInspections />} />
-          <Route path="/tool-inspection/:id"     element={<ToolInspectionSession />} />
-          <Route path="/projects"                element={<Projects />} />
-          <Route path="/certs"                   element={<WorkerCertifications />} />
-          <Route path="/admin"                   element={<AdminWorkers />} />
+          <Route path="/reports"         element={<ReportsViewer />} />
+          <Route path="/tools"           element={<ToolInspections />} />
+          <Route path="/tool-inspection/:id" element={<ToolInspectionSession />} />
+          <Route path="/projects"        element={<Projects />} />
+          <Route path="/certs"           element={<WorkerCertifications />} />
+          <Route path="/admin"           element={<AdminWorkers />} />
         </Routes>
       </main>
 
-      {/* Bottom nav — mobile only */}
       <BottomNav />
+
+      {showChangePw && <ChangePasswordModal onClose={() => setShowChangePw(false)} />}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
 }
