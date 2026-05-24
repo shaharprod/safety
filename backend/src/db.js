@@ -12,13 +12,19 @@ const store = {
     { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'moshe.levi@gmail.com' },
     { id: 2, first_name: 'שרה', last_name: 'כהן',  id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' }
   ],
-  safety_hazards: [],
+  safety_hazards: [
+    { id: 1, description: 'גידור חסר בקצה פיגום בקומה שלישית', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'High', status: 'Open', created_at: new Date(Date.now() - 2 * 86_400_000), resolved_at: null },
+    { id: 2, description: 'מטף כיבוי אש פג תוקף ביציאת חירום', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'רינה בטיחות', severity: 'Medium', status: 'In_Progress', created_at: new Date(Date.now() - 5 * 86_400_000), resolved_at: null },
+    { id: 3, description: 'כבל חשמל חשוף ליד אזור הרטבה', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'Urgent', status: 'Open', created_at: new Date(Date.now() - 1 * 86_400_000), resolved_at: null },
+  ],
   site_access_logs: [],
   safety_audits: [],
   audit_items: [],
-  safety_incidents: [],
+  safety_incidents: [
+    { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
+  ],
   activity_logs: [],
-  _id: { safety_hazards: 1, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 1, activity_logs: 1 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1 }
 };
 
 function memQuery(sql, params = []) {

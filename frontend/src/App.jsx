@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, NavLink } from 'react-router-dom';
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import Dashboard from './pages/Dashboard.jsx';
 import FieldReport from './pages/FieldReport.jsx';
 import GateControl from './pages/GateControl.jsx';
@@ -11,71 +11,88 @@ import ActivityLog from './pages/ActivityLog.jsx';
 import ReportsViewer from './pages/ReportsViewer.jsx';
 
 const NAV = [
-  { to: '/',          label: 'לוח בקרה',       end: true },
-  { to: '/audits',    label: 'בקרות בטיחות'             },
-  { to: '/report',    label: 'דיווח מפגע'               },
-  { to: '/incident',  label: 'בירור אירוע'              },
-  { to: '/gate',      label: 'בקרת כניסה'               },
-  { to: '/reports',   label: 'דוחות'                     },
-  { to: '/activity',  label: 'יומן פעילות'              }
+  { to: '/',         label: 'בקרה',     icon: '🏠', end: true },
+  { to: '/audits',   label: 'בקרות',    icon: '📋'            },
+  { to: '/report',   label: 'מפגע',     icon: '⚠️'            },
+  { to: '/incident', label: 'אירוע',    icon: '🔍'            },
+  { to: '/gate',     label: 'כניסה',    icon: '🔑'            },
+  { to: '/reports',  label: 'דוחות',    icon: '📊'            },
+  { to: '/activity', label: 'יומן',     icon: '📅'            },
 ];
+
+function BottomNav() {
+  return (
+    <nav className="md:hidden fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
+      <div className="grid grid-cols-7">
+        {NAV.map(({ to, label, icon, end }) => (
+          <NavLink key={to} to={to} end={end}
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center py-2 text-[10px] font-medium transition ${
+                isActive ? 'text-blue-700' : 'text-gray-500'
+              }`
+            }>
+            {({ isActive }) => (
+              <>
+                <span className={`text-xl leading-none mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>
+                  {icon}
+                </span>
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  );
+}
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
+      {/* Top nav — desktop only */}
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">🦺 SafetyOS</span>
 
-          {/* Desktop nav */}
+          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            {NAV.map(({ to, label, end }) => (
+            {NAV.map(({ to, label, icon, end }) => (
               <NavLink key={to} to={to} end={end}
                 className={({ isActive }) =>
-                  `px-3 py-1.5 rounded-lg text-sm font-medium transition ${isActive ? 'bg-white text-blue-900' : 'hover:bg-blue-800'}`
+                  `px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1 ${
+                    isActive ? 'bg-white text-blue-900' : 'hover:bg-blue-800'
+                  }`
                 }>
-                {label}
+                <span>{icon}</span> {label}
               </NavLink>
             ))}
           </div>
 
-          {/* Mobile hamburger */}
-          <button className="md:hidden p-2" onClick={() => setMenuOpen(o => !o)}>
-            <span className="text-xl">{menuOpen ? '✕' : '☰'}</span>
-          </button>
+          {/* Mobile: title only (nav is bottom bar) */}
+          <span className="md:hidden text-sm text-blue-200">מערכת ניהול בטיחות</span>
         </div>
-
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-blue-800 px-4 pb-3 grid grid-cols-2 gap-1">
-            {NAV.map(({ to, label, end }) => (
-              <NavLink key={to} to={to} end={end} onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `px-3 py-2 rounded-lg text-sm text-center font-medium transition ${isActive ? 'bg-white text-blue-900' : 'hover:bg-blue-700'}`
-                }>
-                {label}
-              </NavLink>
-            ))}
-          </div>
-        )}
       </nav>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      {/* Page content — extra bottom padding on mobile for bottom nav */}
+      <main className="max-w-6xl mx-auto px-4 py-5 pb-24 md:pb-6">
         <Routes>
-          <Route path="/"             element={<Dashboard />} />
-          <Route path="/dashboard"    element={<Dashboard />} />
-          <Route path="/report"       element={<FieldReport />} />
-          <Route path="/gate"         element={<GateControl />} />
-          <Route path="/audits"       element={<AuditsList />} />
+          <Route path="/"                element={<Dashboard />} />
+          <Route path="/dashboard"       element={<Dashboard />} />
+          <Route path="/report"          element={<FieldReport />} />
+          <Route path="/gate"            element={<GateControl />} />
+          <Route path="/audits"          element={<AuditsList />} />
           <Route path="/audit/new/:type" element={<AuditNew />} />
-          <Route path="/audit/:id"    element={<AuditSession />} />
-          <Route path="/incident"     element={<IncidentReport />} />
-          <Route path="/activity"     element={<ActivityLog />} />
-          <Route path="/reports"      element={<ReportsViewer />} />
+          <Route path="/audit/:id"       element={<AuditSession />} />
+          <Route path="/incident"        element={<IncidentReport />} />
+          <Route path="/activity"        element={<ActivityLog />} />
+          <Route path="/reports"         element={<ReportsViewer />} />
         </Routes>
       </main>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav />
     </div>
   );
 }
