@@ -41,7 +41,7 @@ export default function WorkerPortal() {
   const now = new Date().toLocaleString('he-IL');
 
   return (
-    <div className="min-h-screen bg-blue-950 flex flex-col items-center justify-start px-4 py-8" dir="rtl">
+    <div className="min-h-dvh bg-blue-950 flex flex-col items-center justify-start px-4 py-8 overflow-y-auto" dir="rtl">
       <div className="w-full max-w-sm space-y-4">
 
         {/* Header */}
@@ -107,7 +107,7 @@ export default function WorkerPortal() {
           ← סיים וחזור לדף הכניסה
         </button>
 
-        <p className="text-center text-blue-800 text-xs">SafetyOS v2.5</p>
+        <p className="text-center text-blue-800 text-xs">SafetyOS v2.6</p>
       </div>
     </div>
   );

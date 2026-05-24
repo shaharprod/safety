@@ -155,67 +155,69 @@ export default function Projects() {
 
       {/* Add/Edit modal */}
       {editId !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={closeForm}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4" onClick={closeForm}>
+          <div className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[92dvh]" onClick={e => e.stopPropagation()}>
+            <div className="shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">{editId === 0 ? 'פרוייקט חדש' : 'עריכת פרוייקט'}</h2>
-              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
-            <form onSubmit={handleSave} className="px-6 py-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">שם הפרוייקט *</label>
-                <input required value={form.name} onChange={e => f('name', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">מיקום</label>
-                <input value={form.location} onChange={e => f('location', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">תאריך התחלה</label>
-                  <input type="date" value={form.start_date} onChange={e => f('start_date', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">שם הפרוייקט *</label>
+                  <input required value={form.name} onChange={e => f('name', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">תאריך סיום</label>
-                  <input type="date" value={form.end_date} onChange={e => f('end_date', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">מיקום</label>
+                  <input value={form.location} onChange={e => f('location', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">מנהל אחראי *</label>
-                <input required value={form.manager_name} onChange={e => f('manager_name', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">תאריך התחלה</label>
+                    <input type="date" value={form.start_date} onChange={e => f('start_date', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">תאריך סיום</label>
+                    <input type="date" value={form.end_date} onChange={e => f('end_date', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">טלפון</label>
-                  <input type="tel" value={form.manager_phone} onChange={e => f('manager_phone', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">מנהל אחראי *</label>
+                  <input required value={form.manager_name} onChange={e => f('manager_name', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">טלפון</label>
+                    <input type="tel" value={form.manager_phone} onChange={e => f('manager_phone', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">אימייל</label>
+                    <input type="email" value={form.manager_email} onChange={e => f('manager_email', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">אימייל</label>
-                  <input type="email" value={form.manager_email} onChange={e => f('manager_email', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">סטטוס</label>
+                  <select value={form.status} onChange={e => f('status', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="active">פעיל</option>
+                    <option value="on_hold">מושהה</option>
+                    <option value="completed">הושלם</option>
+                  </select>
                 </div>
+                {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">סטטוס</label>
-                <select value={form.status} onChange={e => f('status', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="active">פעיל</option>
-                  <option value="on_hold">מושהה</option>
-                  <option value="completed">הושלם</option>
-                </select>
-              </div>
-              {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-              <div className="flex gap-3 pt-1">
+              <div className="shrink-0 px-5 pb-6 pt-3 border-t border-gray-100 flex gap-3">
                 <button type="button" onClick={closeForm}
-                  className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
+                  className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
                 <button type="submit" disabled={saving}
-                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50">
                   {saving ? 'שומר...' : editId === 0 ? 'הוסף' : 'שמור שינויים'}
                 </button>
               </div>

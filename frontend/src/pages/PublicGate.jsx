@@ -70,7 +70,7 @@ function GateForm() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-950 flex flex-col items-center justify-center px-4 py-8" dir="rtl">
+    <div className="min-h-dvh bg-blue-950 flex flex-col items-center justify-center px-4 py-8 overflow-y-auto" dir="rtl">
       <div className="w-full max-w-sm">
         {/* Branding */}
         <div className="text-center mb-8">
@@ -153,7 +153,7 @@ function GateForm() {
           </Link>
         </div>
 
-        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v2.5</p>
+        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v2.6</p>
       </div>
     </div>
   );

@@ -34,43 +34,49 @@ export default function HazardStatusModal({ hazard, mode, onClose, onSuccess }) 
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 px-4 pb-safe" dir="rtl">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 overflow-y-auto max-h-[90dvh]">
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:px-4" dir="rtl">
+      <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[92dvh]">
+
+        {/* Header — never scrolls */}
+        <div className="shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             {isInProgress ? '🔧' : '✅'} {title}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4 bg-gray-50 rounded-lg px-3 py-2">
-          {hazard.description}
-        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <p className="text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+              {hazard.description}
+            </p>
 
-        {error && (
-          <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">
-            {error}
+            {error && (
+              <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+              <textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={4}
+                required
+                placeholder="תאר את הטיפול שבוצע..."
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              rows={3}
-              required
-              placeholder="תאר את הטיפול שבוצע..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
-
-          <div className="flex gap-2 pt-1">
+          {/* Pinned action buttons — always visible above keyboard */}
+          <div className="shrink-0 px-5 pb-6 pt-3 border-t border-gray-100 flex gap-2">
             <button
               type="submit"
               disabled={loading}
-              className={`flex-1 py-2.5 rounded-lg text-white font-medium transition disabled:opacity-60 ${
+              className={`flex-1 py-3 rounded-xl text-white font-medium transition disabled:opacity-60 ${
                 isInProgress ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'
               }`}
             >
@@ -79,7 +85,7 @@ export default function HazardStatusModal({ hazard, mode, onClose, onSuccess }) 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
+              className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
             >
               ביטול
             </button>

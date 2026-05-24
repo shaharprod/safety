@@ -165,45 +165,47 @@ function WorkersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 pb-safe" onClick={closeForm}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-y-auto max-h-[90dvh]" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4" onClick={closeForm}>
+          <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[92dvh]" onClick={e => e.stopPropagation()}>
+            <div className="shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">{editId === 0 ? 'הוסף עובד חדש' : 'עריכת עובד'}</h2>
-              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
-            <form onSubmit={handleSave} className="px-6 py-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">שם פרטי *</label>
-                  <input required value={form.first_name} onChange={e => f('first_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">שם פרטי *</label>
+                    <input required value={form.first_name} onChange={e => f('first_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">שם משפחה *</label>
+                    <input required value={form.last_name} onChange={e => f('last_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">שם משפחה *</label>
-                  <input required value={form.last_name} onChange={e => f('last_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">תעודת זהות *</label>
+                  <input required value={form.id_number} onChange={e => f('id_number', e.target.value)} inputMode="numeric" maxLength={9} placeholder="9 ספרות" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">אימייל Google (לכניסה)</label>
+                  <input type="email" value={form.google_email} onChange={e => f('google_email', e.target.value)} placeholder="name@gmail.com" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <p className="text-xs text-gray-400 mt-0.5">ריק = אין כניסה עם Google</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">תאריך הדרכת בטיחות אחרונה</label>
+                  <input type="date" value={form.last_training_date} onChange={e => f('last_training_date', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <p className="text-xs text-gray-400 mt-0.5">תוקף: 365 יום מתאריך זה</p>
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer py-1">
+                  <input type="checkbox" checked={form.has_height_clearance} onChange={e => f('has_height_clearance', e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <span className="text-sm text-gray-700">אישור עבודה בגובה</span>
+                </label>
+                {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">תעודת זהות *</label>
-                <input required value={form.id_number} onChange={e => f('id_number', e.target.value)} inputMode="numeric" maxLength={9} placeholder="9 ספרות" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">אימייל Google (לכניסה)</label>
-                <input type="email" value={form.google_email} onChange={e => f('google_email', e.target.value)} placeholder="name@gmail.com" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <p className="text-xs text-gray-400 mt-0.5">ריק = אין כניסה עם Google</p>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">תאריך הדרכת בטיחות אחרונה</label>
-                <input type="date" value={form.last_training_date} onChange={e => f('last_training_date', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <p className="text-xs text-gray-400 mt-0.5">תוקף: 365 יום מתאריך זה</p>
-              </div>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.has_height_clearance} onChange={e => f('has_height_clearance', e.target.checked)} className="w-4 h-4 accent-blue-600" />
-                <span className="text-sm text-gray-700">אישור עבודה בגובה</span>
-              </label>
-              {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={closeForm} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
-                <button type="submit" disabled={saving} className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+              <div className="shrink-0 px-5 pb-6 pt-3 border-t border-gray-100 flex gap-3">
+                <button type="button" onClick={closeForm} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
+                <button type="submit" disabled={saving} className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50">
                   {saving ? 'שומר...' : editId === 0 ? 'הוסף' : 'שמור שינויים'}
                 </button>
               </div>
@@ -319,38 +321,40 @@ function UsersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 pb-safe" onClick={closeForm}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-y-auto max-h-[90dvh]" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:px-4" onClick={closeForm}>
+          <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[92dvh]" onClick={e => e.stopPropagation()}>
+            <div className="shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">{editId === 0 ? 'הוסף משתמש חדש' : 'עריכת משתמש'}</h2>
-              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
-            <form onSubmit={handleSave} className="px-6 py-4 space-y-4">
-              {editId === 0 && (
+            <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                {editId === 0 && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">שם משתמש *</label>
+                    <input required value={form.username} onChange={e => f('username', e.target.value)} placeholder="כניסה למערכת" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                )}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">שם משתמש *</label>
-                  <input required value={form.username} onChange={e => f('username', e.target.value)} placeholder="כניסה למערכת" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">שם מלא *</label>
+                  <input required value={form.full_name} onChange={e => f('full_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-              )}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">שם מלא *</label>
-                <input required value={form.full_name} onChange={e => f('full_name', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">תפקיד *</label>
+                  <select required value={form.role} onChange={e => f('role', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="foreman">מנהל עבודה</option>
+                    <option value="safety_officer">ממונה בטיחות</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{editId === 0 ? 'סיסמה *' : 'סיסמה חדשה (ריק = ללא שינוי)'}</label>
+                  <input type="password" required={editId === 0} value={form.password} onChange={e => f('password', e.target.value)} placeholder={editId === 0 ? 'הכנס סיסמה' : 'השאר ריק לאי-שינוי'} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">תפקיד *</label>
-                <select required value={form.role} onChange={e => f('role', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="foreman">מנהל עבודה</option>
-                  <option value="safety_officer">ממונה בטיחות</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">{editId === 0 ? 'סיסמה *' : 'סיסמה חדשה (ריק = ללא שינוי)'}</label>
-                <input type="password" required={editId === 0} value={form.password} onChange={e => f('password', e.target.value)} placeholder={editId === 0 ? 'הכנס סיסמה' : 'השאר ריק לאי-שינוי'} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={closeForm} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
-                <button type="submit" disabled={saving} className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+              <div className="shrink-0 px-5 pb-6 pt-3 border-t border-gray-100 flex gap-3">
+                <button type="button" onClick={closeForm} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
+                <button type="submit" disabled={saving} className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50">
                   {saving ? 'שומר...' : editId === 0 ? 'הוסף' : 'שמור'}
                 </button>
               </div>
