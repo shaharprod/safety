@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getAuditItems, updateAuditItem, closeAudit } from '../lib/api.js';
+import { PERMIT_CATEGORIES } from '../lib/checklists.js';
 import SafetyCheckItem from '../components/SafetyCheckItem.jsx';
 
 export default function AuditSession() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [closing, setClosing] = useState(false);
+  const [items,       setItems]       = useState([]);
+  const [loading,     setLoading]     = useState(true);
+  const [closing,     setClosing]     = useState(false);
+  const [showPermits, setShowPermits] = useState(true);
 
   useEffect(() => {
     getAuditItems(id).then(setItems).finally(() => setLoading(false));
   }, [id]);
 
-  const done   = items.filter(i => i.status !== 'pending').length;
-  const fails  = items.filter(i => i.status === 'fail').length;
-  const passes = items.filter(i => i.status === 'pass').length;
-  const pct    = items.length ? Math.round((done / items.length) * 100) : 0;
+  const permitItems = items.filter(i => PERMIT_CATEGORIES.has(i.category));
+  const checkItems  = items.filter(i => !PERMIT_CATEGORIES.has(i.category));
+
+  const donePermits = permitItems.filter(i => i.status !== 'pending').length;
+  const doneChecks  = checkItems.filter(i => i.status !== 'pending').length;
+  const done        = items.filter(i => i.status !== 'pending').length;
+  const fails       = items.filter(i => i.status === 'fail').length;
+  const passes      = items.filter(i => i.status === 'pass').length;
+  const pct         = items.length ? Math.round((done / items.length) * 100) : 0;
 
   async function handleUpdate(itemId, formData) {
     const updated = await updateAuditItem(id, itemId, formData);
@@ -50,19 +57,85 @@ export default function AuditSession() {
         </div>
       </div>
 
-      {/* Items */}
-      <div className="space-y-1">
-        {items.map((item, idx) => (
-          <SafetyCheckItem key={item.id} item={item} auditId={id} onUpdate={handleUpdate} num={idx + 1} />
-        ))}
-      </div>
+      {/* ── Permits / Approvals section ───────────────────────────────── */}
+      {permitItems.length > 0 && (
+        <div className="mb-5">
+          <button
+            onClick={() => setShowPermits(p => !p)}
+            className="w-full flex items-center justify-between bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 mb-2 text-right"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📋</span>
+              <span className="font-semibold text-amber-900">אישורים ונהלים מוקדמים</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                donePermits === permitItems.length
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-amber-100 text-amber-800'
+              }`}>
+                {donePermits}/{permitItems.length}
+              </span>
+              <span className="text-amber-600 text-xs">{showPermits ? '▲' : '▼'}</span>
+            </div>
+          </button>
+
+          {showPermits && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+              <p className="text-xs text-amber-700 mb-3 px-1">
+                ודא שכל ההיתרים, הנהלים והתיעוד הנדרשים קיימים ובתוקף לפני תחילת הבקרה.
+              </p>
+              {permitItems.map((item, idx) => (
+                <SafetyCheckItem
+                  key={item.id}
+                  item={item}
+                  auditId={id}
+                  onUpdate={handleUpdate}
+                  num={idx + 1}
+                  variant="permit"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Checklist items ───────────────────────────────────────────── */}
+      {checkItems.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🔍</span>
+              <span className="font-semibold text-gray-700">סעיפי הבקרה</span>
+            </div>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              doneChecks === checkItems.length
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-100 text-gray-500'
+            }`}>
+              {doneChecks}/{checkItems.length}
+            </span>
+          </div>
+          <div className="space-y-1">
+            {checkItems.map((item, idx) => (
+              <SafetyCheckItem
+                key={item.id}
+                item={item}
+                auditId={id}
+                onUpdate={handleUpdate}
+                num={idx + 1}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Close audit */}
       {done === items.length && items.length > 0 && (
         <button
           onClick={handleClose}
           disabled={closing}
-          className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-50"
+          className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-50"
         >
           {closing ? 'סוגר...' : '✔ סיים וסגור בקרה'}
         </button>

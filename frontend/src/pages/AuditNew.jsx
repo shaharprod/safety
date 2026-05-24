@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createAudit, getWorkers, getProjects } from '../lib/api.js';
-import { CHECKLIST_ITEMS, AUDIT_TYPES } from '../lib/checklists.js';
+import { CHECKLIST_ITEMS, PERMIT_ITEMS, AUDIT_TYPES } from '../lib/checklists.js';
 
 export default function AuditNew() {
   const { type } = useParams();
@@ -18,8 +18,10 @@ export default function AuditNew() {
     getProjects().then(setProjects).catch(() => {});
   }, []);
 
-  const auditType = AUDIT_TYPES[type];
-  const items = CHECKLIST_ITEMS[type] || [];
+  const auditType   = AUDIT_TYPES[type];
+  const permitItems = PERMIT_ITEMS[type]    || [];
+  const checkItems  = CHECKLIST_ITEMS[type] || [];
+  const allItems    = [...permitItems, ...checkItems];
 
   if (!auditType) return <p className="text-red-500 p-4">סוג בקרה לא מוכר</p>;
 
@@ -32,7 +34,7 @@ export default function AuditNew() {
         audit_type: type,
         inspector_name: inspectorName,
         project_name: projectName,
-        items: items.map(i => ({ ...i, status: 'pending' }))
+        items: allItems.map(i => ({ ...i, status: 'pending' }))
       });
       navigate(`/audit/${audit.id}`);
     } catch (err) {
@@ -44,7 +46,11 @@ export default function AuditNew() {
   return (
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-1">{auditType.icon} {auditType.label}</h1>
-      <p className="text-gray-500 mb-6">{items.length} סעיפים לבדיקה</p>
+      <div className="flex gap-3 mb-6 text-sm text-gray-500">
+        <span>📋 {permitItems.length} אישורים נדרשים</span>
+        <span>·</span>
+        <span>🔍 {checkItems.length} סעיפי בקרה</span>
+      </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <form onSubmit={handleStart} className="space-y-4">

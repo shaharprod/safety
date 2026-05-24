@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-export default function SafetyCheckItem({ item, auditId, onUpdate, num }) {
+export default function SafetyCheckItem({ item, auditId, onUpdate, num, variant }) {
+  const isPermit = variant === 'permit';
   const [status, setStatus] = useState(item.status || 'pending');
   const [note, setNote] = useState(item.notes || '');
   const [image, setImage] = useState(null);
@@ -42,14 +43,14 @@ export default function SafetyCheckItem({ item, auditId, onUpdate, num }) {
           className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
             status === 'pass' ? 'bg-green-600 text-white shadow' : 'bg-green-100 text-green-700 hover:bg-green-200'
           }`}
-        >✓ תקין</button>
+        >{isPermit ? '✓ קיים' : '✓ תקין'}</button>
         <button
           onClick={() => save('fail')}
           disabled={saving}
           className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
             status === 'fail' ? 'bg-red-600 text-white shadow' : 'bg-red-100 text-red-700 hover:bg-red-200'
           }`}
-        >✗ ליקוי</button>
+        >{isPermit ? '✗ חסר' : '✗ ליקוי'}</button>
         <button
           onClick={() => save('na')}
           disabled={saving}

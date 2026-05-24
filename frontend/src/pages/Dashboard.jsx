@@ -3,6 +3,24 @@ import { Link } from 'react-router-dom';
 import { getHazards } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import HazardTable from '../components/HazardTable.jsx';
+import { downloadCsv } from '../lib/csv.js';
+
+const STATUS_HE = { Open: 'פתוח', In_Progress: 'בטיפול', Resolved: 'טופל' };
+const SEV_HE    = { Low: 'נמוכה', Medium: 'בינונית', High: 'גבוהה', Urgent: 'דחוף' };
+
+function exportHazards(hazards) {
+  const headers = ['#', 'תיאור', 'דחיפות', 'סטטוס', 'ממונה', 'תאריך דיווח', 'הערות טיפול'];
+  const rows = hazards.map(h => [
+    `HAZ-${String(h.id).padStart(3,'0')}`,
+    h.description,
+    SEV_HE[h.severity] || h.severity,
+    STATUS_HE[h.status] || h.status,
+    h.supervisor_name,
+    h.created_at ? new Date(h.created_at).toLocaleDateString('he-IL') : '',
+    h.treatment_notes || '',
+  ]);
+  downloadCsv(`מפגעים_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -31,11 +49,15 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gray-800">לוח בקרה</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Link to="/reports"
             className="flex-1 sm:flex-none text-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-1.5 transition">
             📊 דוחות
           </Link>
+          <button onClick={() => exportHazards(hazards)} disabled={!hazards.length}
+            className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-1.5 transition">
+            📊 ייצוא Sheets
+          </button>
           <a href="/api/reports/hazards" download
             className="flex-1 sm:flex-none text-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-1.5 transition">
             📄 PDF

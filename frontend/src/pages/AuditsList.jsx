@@ -2,6 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAudits } from '../lib/api.js';
 import { AUDIT_TYPES } from '../lib/checklists.js';
+import { downloadCsv } from '../lib/csv.js';
+
+function exportAudits(audits) {
+  const headers = ['#', 'סוג בקרה', 'מפקח', 'פרויקט', 'סטטוס', 'תאריך'];
+  const rows = audits.map(a => [
+    `AUD-${String(a.id).padStart(3,'0')}`,
+    (AUDIT_TYPES[a.audit_type] || {}).label || a.audit_type,
+    a.inspector_name,
+    a.project_name || '',
+    a.status === 'Open' ? 'פתוח' : 'הושלם',
+    a.created_at ? new Date(a.created_at).toLocaleDateString('he-IL') : '',
+  ]);
+  downloadCsv(`בקרות_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+}
 
 export default function AuditsList() {
   const [audits, setAudits] = useState([]);
@@ -15,6 +29,10 @@ export default function AuditsList() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800">בקרות בטיחות</h1>
+        <button onClick={() => exportAudits(audits)} disabled={!audits.length}
+          className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+          📊 ייצוא Sheets
+        </button>
       </div>
 
       {/* Start new audit */}

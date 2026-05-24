@@ -1,6 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { getWorkers, addWorker, updateWorker, deleteWorker, getUsers, addUser, updateUser, deleteUser } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { downloadCsv } from '../lib/csv.js';
+
+function exportWorkers(workers) {
+  const headers = ['שם פרטי', 'שם משפחה', 'תעודת זהות', 'אימייל Google', 'אישור גובה', 'הדרכה אחרונה', 'ימים מהדרכה'];
+  const rows = workers.map(w => {
+    const days = w.last_training_date
+      ? Math.floor((Date.now() - new Date(w.last_training_date).getTime()) / 86_400_000)
+      : '';
+    return [
+      w.first_name, w.last_name, w.id_number,
+      w.google_email || '',
+      w.has_height_clearance ? 'כן' : 'לא',
+      w.last_training_date ? new Date(w.last_training_date).toLocaleDateString('he-IL') : '',
+      days,
+    ];
+  });
+  downloadCsv(`עובדים_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+}
 
 const EMPTY_WORKER = { first_name: '', last_name: '', id_number: '', google_email: '', has_height_clearance: false, last_training_date: '' };
 const EMPTY_USER   = { username: '', password: '', full_name: '', role: 'foreman' };
@@ -61,12 +79,18 @@ function WorkersTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <p className="text-sm text-gray-500">בקרת גישה לאתר — Google ו-תעודת זהות</p>
-        <button onClick={openNew}
-          className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-          + הוסף עובד
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => exportWorkers(workers)} disabled={!workers.length}
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition">
+            📊 Sheets
+          </button>
+          <button onClick={openNew}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+            + הוסף עובד
+          </button>
+        </div>
       </div>
 
       {loading && <p className="text-center text-gray-400 py-10">טוען...</p>}
