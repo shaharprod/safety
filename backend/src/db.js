@@ -9,8 +9,16 @@ const store = {
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
   ],
   site_workers: [
-    { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'shaharprod@gmail.com' },
-    { id: 2, first_name: 'שרה', last_name: 'כהן',  id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' }
+    { id: 1, first_name: 'משה',   last_name: 'לוי',      id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'shaharprod@gmail.com' },
+    { id: 2, first_name: 'שרה',   last_name: 'כהן',      id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' },
+    { id: 3, first_name: 'דני',   last_name: 'אברהם',    id_number: '112233445', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  80 * 86_400_000), google_email: null },
+    { id: 4, first_name: 'רחל',   last_name: 'פרץ',      id_number: '556677889', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 200 * 86_400_000), google_email: null },
+    { id: 5, first_name: 'יוסי',  last_name: 'מזרחי',    id_number: '223344556', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 310 * 86_400_000), google_email: null },
+    { id: 6, first_name: 'אורן',  last_name: 'שפירא',    id_number: '334455667', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  45 * 86_400_000), google_email: null },
+    { id: 7, first_name: 'מיכל',  last_name: 'גולדברג',  id_number: '445566778', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 150 * 86_400_000), google_email: null },
+    { id: 8, first_name: 'עמית',  last_name: 'בן-דוד',   id_number: '667788990', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 260 * 86_400_000), google_email: null },
+    { id: 9, first_name: 'נועה',  last_name: 'רוזנברג',  id_number: '778899001', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 500 * 86_400_000), google_email: null },
+    { id: 10, first_name: 'איתי', last_name: 'חדד',       id_number: '889900112', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  20 * 86_400_000), google_email: null },
   ],
   safety_hazards: [
     { id: 1, description: 'גידור חסר בקצה פיגום בקומה שלישית', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'High', status: 'Open', created_at: new Date(Date.now() - 2 * 86_400_000), resolved_at: null },
@@ -31,7 +39,7 @@ const store = {
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3, tool_inspections: 1, tool_inspection_items: 1, projects: 3, worker_certifications: 1 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 11, tool_inspections: 1, tool_inspection_items: 1, projects: 3, worker_certifications: 1 }
 };
 
 function memQuery(sql, params = []) {
