@@ -48,7 +48,10 @@ export default function AuditsList() {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{t.icon}</span>
                 <div>
-                  <p className="font-medium text-gray-800">{t.label}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-semibold text-gray-400">{`AUD-${String(a.id).padStart(3,'0')}`}</span>
+                    <p className="font-medium text-gray-800">{t.label}</p>
+                  </div>
                   <p className="text-xs text-gray-400">{a.inspector_name} {a.project_name ? `• ${a.project_name}` : ''}</p>
                 </div>
               </div>

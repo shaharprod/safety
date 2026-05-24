@@ -98,7 +98,10 @@ export default function ToolInspections() {
                 <button key={insp.id} onClick={() => navigate(`/tool-inspection/${insp.id}`)}
                   className="w-full bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition text-right flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 text-sm">{insp.inspector_name}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-semibold text-gray-400">{`TOOL-${String(insp.id).padStart(3,'0')}`}</span>
+                      <p className="font-semibold text-gray-800 text-sm">{insp.inspector_name}</p>
+                    </div>
                     <p className="text-xs text-gray-400 mt-0.5">{insp.location || '—'}  ·  {new Date(insp.created_at).toLocaleDateString('he-IL')}</p>
                     {(() => { const b = expiryBadge(insp.expiry_date); return b ? <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${b.cls}`}>{b.label}</span> : null; })()}
                   </div>

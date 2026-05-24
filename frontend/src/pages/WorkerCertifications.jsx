@@ -207,6 +207,7 @@ export default function WorkerCertifications() {
                 <div key={cert.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-mono font-semibold text-gray-400">{`CERT-${String(cert.id).padStart(3,'0')}`}</span>
                       <span className="text-base">{typeInfo.icon}</span>
                       <span className="font-semibold text-gray-800 text-sm">{typeInfo.label}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.cls}`}>{status.label}</span>

@@ -11,6 +11,8 @@ const STATUS_LABELS   = { Open: 'פתוח', In_Progress: 'בטיפול', Resolve
 const STATUS_COLORS   = { Open: 'text-red-600', In_Progress: 'text-yellow-600', Resolved: 'text-green-600' };
 const STATUS_BG       = { Open: 'bg-red-50 border-red-200', In_Progress: 'bg-yellow-50 border-yellow-200', Resolved: 'bg-green-50 border-green-200' };
 
+const docNum = (prefix, id) => `${prefix}-${String(id).padStart(3, '0')}`;
+
 export default function HazardTable({ hazards }) {
   if (!hazards || hazards.length === 0) {
     return <p className="text-center text-gray-500 py-10">אין מפגעים להצגה</p>;
@@ -23,9 +25,12 @@ export default function HazardTable({ hazards }) {
         {hazards.map(h => (
           <div key={h.id} className={`rounded-xl border p-4 ${STATUS_BG[h.status] || 'bg-white border-gray-200'}`}>
             <div className="flex items-start justify-between gap-2 mb-2">
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${SEVERITY_COLORS[h.severity]}`}>
-                {SEVERITY_LABELS[h.severity] || h.severity}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-gray-400 font-semibold">{docNum('HAZ', h.id)}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${SEVERITY_COLORS[h.severity]}`}>
+                  {SEVERITY_LABELS[h.severity] || h.severity}
+                </span>
+              </div>
               <span className={`text-sm font-semibold ${STATUS_COLORS[h.status]}`}>
                 {STATUS_LABELS[h.status] || h.status}
               </span>
@@ -55,7 +60,7 @@ export default function HazardTable({ hazards }) {
           <tbody className="divide-y divide-gray-100">
             {hazards.map(h => (
               <tr key={h.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-400 text-xs">{h.id}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs font-mono font-semibold">{docNum('HAZ', h.id)}</td>
                 <td className="px-4 py-3 max-w-xs truncate" title={h.description}>{h.description}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${SEVERITY_COLORS[h.severity]}`}>
