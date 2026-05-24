@@ -2,8 +2,8 @@ import PDFDocument from 'pdfkit';
 import https from 'https';
 import http from 'http';
 
-const FONT_REGULAR = 'C:\\Windows\\Fonts\\Alef-Regular.ttf';
-const FONT_BOLD    = 'C:\\Windows\\Fonts\\Alef-Bold.ttf';
+const FONT_REGULAR = new URL('./fonts/Alef-Regular.ttf', import.meta.url).pathname;
+const FONT_BOLD    = new URL('./fonts/Alef-Bold.ttf',    import.meta.url).pathname;
 
 // Page geometry (A4)
 const MARGIN  = 40;

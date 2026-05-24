@@ -4,23 +4,10 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: |
-      cd frontend && npm install && npm run build
-      cd ../backend && npm install
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
     startCommand: node backend/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 4000
-      # Optional — leave unset to use the in-memory demo store
-      # - key: DATABASE_URL
-      #   sync: false
-      # - key: SMTP_HOST
-      #   sync: false
-      # - key: SMTP_PORT
-      #   sync: false
-      # - key: SMTP_USER
-      #   sync: false
-      # - key: SMTP_PASS
-      #   sync: false
