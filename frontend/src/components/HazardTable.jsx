@@ -50,11 +50,11 @@ function ActionButtons({ hazard, currentUser, onAction }) {
   if (!canMarkInProgress && !canResolve) return null;
 
   return (
-    <div className="flex gap-1 mt-2">
+    <div className="flex gap-2 mt-2">
       {canMarkInProgress && (
         <button
           onClick={() => onAction(hazard, 'in_progress')}
-          className="text-xs px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-medium transition"
+          className="flex-1 text-xs px-3 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 active:bg-blue-300 rounded-lg font-medium transition"
         >
           🔧 סמן בטיפול
         </button>
@@ -62,7 +62,7 @@ function ActionButtons({ hazard, currentUser, onAction }) {
       {canResolve && (
         <button
           onClick={() => onAction(hazard, 'resolved')}
-          className="text-xs px-2 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-medium transition"
+          className="flex-1 text-xs px-3 py-2 bg-green-100 text-green-700 hover:bg-green-200 active:bg-green-300 rounded-lg font-medium transition"
         >
           ✅ אשר טופל
         </button>

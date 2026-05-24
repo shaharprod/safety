@@ -124,11 +124,11 @@ export default function ToolInspectionSession() {
 
       {/* Stats */}
       {items.length > 0 && (
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           {[['תקין', pass, 'bg-green-50 text-green-700'], ['דורש תיקון', repair, 'bg-yellow-50 text-yellow-700'], ['לא תקין', fail, 'bg-red-50 text-red-700'], ['ממתין', pending, 'bg-gray-50 text-gray-500']].map(([l,n,cls]) => (
-            <div key={l} className={`rounded-xl p-2 text-center ${cls}`}>
-              <div className="text-xl font-bold">{n}</div>
-              <div className="text-[10px] font-medium">{l}</div>
+            <div key={l} className={`rounded-xl p-3 text-center ${cls}`}>
+              <div className="text-2xl font-bold">{n}</div>
+              <div className="text-xs font-medium mt-0.5">{l}</div>
             </div>
           ))}
         </div>
@@ -138,10 +138,10 @@ export default function ToolInspectionSession() {
       {!isClosed && presets.filter(p => !addedNames.has(p)).length > 0 && (
         <div className="mb-4">
           <p className="text-xs font-medium text-gray-500 mb-2">הוסף מרשימה מהירה:</p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {presets.filter(p => !addedNames.has(p)).map(name => (
               <button key={name} onClick={() => addItem(name)}
-                className="text-xs border border-blue-200 text-blue-600 px-2 py-1 rounded-full hover:bg-blue-50 transition">
+                className="text-sm border border-blue-200 text-blue-600 px-3 py-1.5 rounded-full hover:bg-blue-50 active:bg-blue-100 transition">
                 + {name}
               </button>
             ))}
@@ -151,25 +151,23 @@ export default function ToolInspectionSession() {
 
       {/* Manual add */}
       {!isClosed && (
-        <div className="bg-gray-50 rounded-xl p-3 mb-4 flex gap-2 items-end">
-          <div className="flex-1 space-y-1.5">
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 mb-0.5">שם הכלי / מתקן *</label>
-              <input value={newName} onChange={e => setNewName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addItem(newName, newSerial)}
-                placeholder="לדוגמה: מקדחה, מנוף, מדחס..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-medium text-gray-500 mb-0.5">מספר סידורי 🔖</label>
-              <input value={newSerial} onChange={e => setNewSerial(e.target.value)}
-                placeholder="לדוגמה: SN-12345 / EQ-001"
-                className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
+        <div className="bg-gray-50 rounded-xl p-3 mb-4 space-y-2">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">שם הכלי / מתקן *</label>
+            <input value={newName} onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addItem(newName, newSerial)}
+              placeholder="לדוגמה: מקדחה, מנוף, מדחס..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">מספר סידורי 🔖</label>
+            <input value={newSerial} onChange={e => setNewSerial(e.target.value)}
+              placeholder="לדוגמה: SN-12345 / EQ-001"
+              className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <button onClick={() => addItem(newName, newSerial)} disabled={!newName.trim() || adding}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-40 self-end">
-            הוסף
+            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 rounded-lg text-sm font-medium transition disabled:opacity-40">
+            + הוסף כלי
           </button>
         </div>
       )}

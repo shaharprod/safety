@@ -39,18 +39,18 @@ const ROLE_LABELS = {
 
 function BottomNav() {
   return (
-    <nav className="md:hidden fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
+    <nav className="md:hidden fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 z-50 pb-safe">
       <div className="flex overflow-x-auto scrollbar-none">
         {NAV.map(({ to, label, icon, end }) => (
           <NavLink key={to} to={to} end={end}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center py-2 px-2 text-[9px] font-medium transition shrink-0 flex-1 min-w-[54px] ${
+              `flex flex-col items-center justify-center py-2.5 px-1 text-[10px] font-medium transition shrink-0 flex-1 min-w-[52px] min-h-[52px] ${
                 isActive ? 'text-blue-700' : 'text-gray-500'
               }`
             }>
             {({ isActive }) => (
               <>
-                <span className={`text-xl leading-none mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>
+                <span className={`text-[22px] leading-none mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>
                   {icon}
                 </span>
                 <span>{label}</span>
@@ -79,7 +79,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.0</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.2</span>
           </span>
 
           {/* Desktop links */}

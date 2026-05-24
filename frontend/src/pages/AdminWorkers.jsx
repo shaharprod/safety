@@ -141,8 +141,8 @@ function WorkersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={closeForm}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 pb-safe" onClick={closeForm}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-y-auto max-h-[90dvh]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">{editId === 0 ? 'הוסף עובד חדש' : 'עריכת עובד'}</h2>
               <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -295,8 +295,8 @@ function UsersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={closeForm}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 pb-safe" onClick={closeForm}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-y-auto max-h-[90dvh]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-800">{editId === 0 ? 'הוסף משתמש חדש' : 'עריכת משתמש'}</h2>
               <button onClick={closeForm} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>

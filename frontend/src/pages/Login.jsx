@@ -77,7 +77,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v2.0</p>
+        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v2.2</p>
       </div>
     </div>
   );
