@@ -95,7 +95,7 @@ function signature(doc) {
   doc.moveDown(1.2);
 
   const startY = doc.y;
-  const ROW_H  = 36;
+  const ROW_H  = 24;
 
   // RIGHT column (safety advisor): label at 415-555 (right-aligned), line at 278-410
   // LEFT  column (work manager):   label at 133-265 (right-aligned), line at 40-128
@@ -118,12 +118,12 @@ function signature(doc) {
 
     // RIGHT column: label right-aligned, line to its left
     doc.text(lbl_right + ':', R_LBL_X, y, { width: R_LBL_W, align: 'right' });
-    doc.moveTo(R_LINE_L, y + 14).lineTo(R_LINE_R, y + 14)
+    doc.moveTo(R_LINE_L, y + 12).lineTo(R_LINE_R, y + 12)
        .lineWidth(0.5).strokeColor('#9ca3af').stroke();
 
     // LEFT column: label right-aligned within its area, line to its left
     doc.text(lbl_left + ':', L_LBL_X, y, { width: L_LBL_W, align: 'right' });
-    doc.moveTo(L_LINE_L, y + 14).lineTo(L_LINE_R, y + 14)
+    doc.moveTo(L_LINE_L, y + 12).lineTo(L_LINE_R, y + 12)
        .lineWidth(0.5).strokeColor('#9ca3af').stroke();
   }
 }
