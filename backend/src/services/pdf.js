@@ -20,20 +20,17 @@ const VALUE_X = LEFT;              // 40
 
 const SEVERITY_LABEL = { Low: 'נמוכה', Medium: 'בינונית', High: 'גבוהה', Urgent: 'דחוף' };
 const STATUS_LABEL   = { Open: 'פתוח', In_Progress: 'בטיפול', Resolved: 'טופל' };
-const INCIDENT_LABEL = { near_miss: 'כמעט ונפגע', injury: 'תאונת עבודה', property_damage: 'נזק לרכוש' };
+const INCIDENT_LABEL = { near_miss: 'כמעט ונפגע', injury: 'תאונת עבודה', property_damage: 'נזק לרכוש' };
 const AUDIT_LABEL    = {
-  work: 'בטיחות בעבודה', construction: 'אתר בנייה', infrastructure: 'עבודות תשתית',
-  industrial: 'מפעל תעשייה', traffic: 'בטיחות תנועה', education: 'מוסדות חינוך'
+  work: 'בטיחות בעבודה', construction: 'אתר בנייה', infrastructure: 'עבודות תשתית',
+  industrial: 'מפעל תעשייה', traffic: 'בטיחות תנועה', education: 'מוסדות חינוך'
 };
 
-// Wrap every string in RTL Embedding marks so the PDF viewer's bidi engine
-// treats all characters (including spaces) as right-to-left context.
-// Without ‫…‬, spaces between Hebrew words become "weak neutral"
-// and get dropped or merged at column/line boundaries.
+// Replace regular spaces with non-breaking spaces so the PDF viewer's
+// bidi algorithm cannot eliminate inter-word spaces at text-column boundaries.
 function rtl(v) {
   if (v === null || v === undefined) return '';
-  const s = String(v);
-  return s ? '‫' + s + '‬' : '';
+  return String(v).replace(/ /g, ' ');
 }
 
 function fetchImage(url) {
@@ -75,7 +72,7 @@ function row(doc, label, value) {
   const y = doc.y;
   // Label column — right side of page
   doc.font('Bold').fontSize(11).fillColor('#374151')
-     .text(rtl(`:${label}`), LABEL_X, y, { width: LABEL_W, align: 'right' });
+     .text(rtl(label) + ':', LABEL_X, y, { width: LABEL_W, align: 'right' });
   // Value column — left side of page
   doc.font('Regular').fontSize(11).fillColor('#111827')
      .text(rtl(value), VALUE_X, y, { width: VALUE_W, align: 'right' });
@@ -88,20 +85,47 @@ function divider(doc) {
   doc.moveDown(0.6);
 }
 
+// ── Signature section — drawn lines, label on right, line on left ─────────────
 function signature(doc) {
   if (doc.y > 680) doc.addPage();
   doc.moveDown(2);
+
   doc.font('Bold').fontSize(13).fillColor('#111827')
-     .text(rtl('אישורים וחתימות'), LEFT, doc.y, { width: CONT_W, align: 'right', underline: true });
-  doc.moveDown(1);
-  const y = doc.y;
-  doc.font('Regular').fontSize(11);
-  doc.text(rtl('שם יועץ הבטיחות: _______________________'), 305, y,      { width: 240, align: 'right' });
-  doc.text(rtl('חתימה: _______________________'),           305, y + 30,  { width: 240, align: 'right' });
-  doc.text(rtl('תאריך: _______________________'),           305, y + 60,  { width: 240, align: 'right' });
-  doc.text(rtl('שם מנהל העבודה: _______________________'),  LEFT, y,      { width: 240, align: 'right' });
-  doc.text(rtl('חתימה: _______________________'),           LEFT, y + 30,  { width: 240, align: 'right' });
-  doc.text(rtl('תאריך: _______________________'),           LEFT, y + 60,  { width: 240, align: 'right' });
+     .text(rtl('אישורים וחתימות'), LEFT, doc.y, { width: CONT_W, align: 'right', underline: true });
+  doc.moveDown(1.2);
+
+  const startY = doc.y;
+  const ROW_H  = 36;
+
+  // RIGHT column (safety advisor): label at 415-555 (right-aligned), line at 278-410
+  // LEFT  column (work manager):   label at 133-265 (right-aligned), line at 40-128
+  const R_LBL_X = 415, R_LBL_W = 140;
+  const R_LINE_L = 278, R_LINE_R = 410;
+  const L_LBL_X = 133, L_LBL_W = 132;
+  const L_LINE_L = 40,  L_LINE_R = 128;
+
+  const fields = [
+    ['שם מנהל העבודה', 'שם יועץ הבטיחות'],
+    ['חתימה',                    'חתימה'                    ],
+    ['תאריך',                    'תאריך'                    ],
+  ];
+
+  doc.font('Regular').fontSize(10).fillColor('#374151');
+
+  for (let i = 0; i < fields.length; i++) {
+    const y = startY + i * ROW_H;
+    const [lbl_left, lbl_right] = fields[i];
+
+    // RIGHT column: label right-aligned, line to its left
+    doc.text(lbl_right + ':', R_LBL_X, y, { width: R_LBL_W, align: 'right' });
+    doc.moveTo(R_LINE_L, y + 14).lineTo(R_LINE_R, y + 14)
+       .lineWidth(0.5).strokeColor('#9ca3af').stroke();
+
+    // LEFT column: label right-aligned within its area, line to its left
+    doc.text(lbl_left + ':', L_LBL_X, y, { width: L_LBL_W, align: 'right' });
+    doc.moveTo(L_LINE_L, y + 14).lineTo(L_LINE_R, y + 14)
+       .lineWidth(0.5).strokeColor('#9ca3af').stroke();
+  }
 }
 
 // ── Hazards PDF ────────────────────────────────────────────────────────────────
@@ -115,8 +139,8 @@ export function generateHazardsPDF(hazards) {
     applyFonts(doc);
 
     pageHeader(doc,
-      'דוח מפגעי בטיחות פתוחים',
-      `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}   |   סה"כ: ${hazards.length} מפגעים`
+      'דוח מפגעי בטיחות פתוחים',
+      `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}  |  סה"כ: ${hazards.length} מפגעים`
     );
 
     if (!hazards.length) {
@@ -132,7 +156,7 @@ export function generateHazardsPDF(hazards) {
       const sevColor = { Low: '#16a34a', Medium: '#d97706', High: '#ea580c', Urgent: '#dc2626' }[h.severity] || '#374151';
 
       doc.font('Bold').fontSize(13).fillColor(sevColor)
-         .text(rtl(`מפגע #${h.id} — ${sev}`), LEFT, doc.y, { width: CONT_W, align: 'right' });
+         .text(rtl(`מפגע #${h.id} — ${sev}`), LEFT, doc.y, { width: CONT_W, align: 'right' });
       doc.moveDown(0.3);
 
       row(doc, 'תיאור',       h.description);
@@ -140,7 +164,7 @@ export function generateHazardsPDF(hazards) {
       row(doc, 'אימייל',      h.supervisor_email);
       row(doc, 'דחיפות',      sev);
       row(doc, 'סטטוס',       STATUS_LABEL[h.status] || h.status);
-      row(doc, 'תאריך דיווח', new Date(h.created_at).toLocaleDateString('he-IL'));
+      row(doc, 'תאריך דיווח', new Date(h.created_at).toLocaleDateString('he-IL'));
 
       if (h.image_url) {
         try {
@@ -148,7 +172,7 @@ export function generateHazardsPDF(hazards) {
           if (imgBuf?.length) {
             if (doc.y > 580) doc.addPage();
             doc.font('Bold').fontSize(10).fillColor('#6b7280')
-               .text(rtl('תמונת המפגע:'), LEFT, doc.y, { width: CONT_W, align: 'right' });
+               .text(rtl('תמונת המפגע:'), LEFT, doc.y, { width: CONT_W, align: 'right' });
             doc.image(imgBuf, RIGHT - 280, doc.y, { width: 280 });
             doc.moveDown(1);
           }
@@ -173,8 +197,8 @@ export function generateIncidentsPDF(incidents) {
     applyFonts(doc);
 
     pageHeader(doc,
-      'דוח אירועי בטיחות',
-      `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}   |   סה"כ: ${incidents.length} אירועים`
+      'דוח אירועי בטיחות',
+      `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}  |  סה"כ: ${incidents.length} אירועים`
     );
 
     if (!incidents.length) {
@@ -187,18 +211,18 @@ export function generateIncidentsPDF(incidents) {
       if (doc.y > 650 && i > 0) doc.addPage();
 
       doc.font('Bold').fontSize(13).fillColor('#dc2626')
-         .text(rtl(`אירוע #${inc.id} — ${INCIDENT_LABEL[inc.incident_type] || inc.incident_type}`),
+         .text(rtl(`אירוע #${inc.id} — ${INCIDENT_LABEL[inc.incident_type] || inc.incident_type}`),
                LEFT, doc.y, { width: CONT_W, align: 'right' });
       doc.moveDown(0.3);
 
-      row(doc, 'תיאור',         inc.description);
-      row(doc, 'מיקום',         inc.location);
-      row(doc, 'מעורבים',       inc.involved_parties);
-      row(doc, 'גורם מיידי',    inc.immediate_cause);
-      row(doc, 'גורם שורש',     inc.root_cause);
-      row(doc, 'פעולות שננקטו', inc.actions_taken);
-      row(doc, 'שם המדווח',     inc.reporter_name);
-      row(doc, 'תאריך',         new Date(inc.created_at).toLocaleDateString('he-IL'));
+      row(doc, 'תיאור',           inc.description);
+      row(doc, 'מיקום',           inc.location);
+      row(doc, 'מעורבים',         inc.involved_parties);
+      row(doc, 'גורם מיידי', inc.immediate_cause);
+      row(doc, 'גורם שורש',  inc.root_cause);
+      row(doc, 'פעולות שננקטו', inc.actions_taken);
+      row(doc, 'שם המדווח',  inc.reporter_name);
+      row(doc, 'תאריך',           new Date(inc.created_at).toLocaleDateString('he-IL'));
       divider(doc);
     }
 
@@ -222,12 +246,12 @@ export function generateAuditPDF(audit, items) {
     const pct    = items.length ? Math.round(passes / items.length * 100) : 0;
 
     pageHeader(doc,
-      `דוח בקרת בטיחות — ${AUDIT_LABEL[audit.audit_type] || audit.audit_type}`,
-      `${audit.project_name || ''}   |   מפקח: ${audit.inspector_name}   |   ${new Date(audit.created_at).toLocaleDateString('he-IL')}`
+      `דוח בקרת בטיחות — ${AUDIT_LABEL[audit.audit_type] || audit.audit_type}`,
+      `${rtl(audit.project_name || '')}  |  מפקח: ${rtl(audit.inspector_name)}  |  ${new Date(audit.created_at).toLocaleDateString('he-IL')}`
     );
 
     doc.font('Regular').fontSize(12).fillColor('#111827')
-       .text(rtl(`ציון: ${pct}%   ·   תקין: ${passes}   ·   ליקויים: ${fails}   ·   סה"כ: ${items.length}`),
+       .text(`ציון: ${pct}%  ·  תקין: ${passes}  ·  ליקויים: ${fails}  ·  סה"כ: ${items.length}`,
              LEFT, doc.y, { width: CONT_W, align: 'right' });
     doc.moveDown(1.2);
 
@@ -243,13 +267,12 @@ export function generateAuditPDF(audit, items) {
         const color = item.status === 'pass' ? '#16a34a' : item.status === 'fail' ? '#dc2626' : '#6b7280';
         const mark  = item.status === 'pass' ? '✓' : item.status === 'fail' ? '✗' : '—';
         const y = doc.y;
-        // Mark on the LEFT (visual end of RTL line), text right-aligned
         doc.font('Bold').fontSize(12).fillColor(color).text(mark, LEFT, y, { width: 20, align: 'center' });
         doc.font('Regular').fontSize(11).fillColor('#111827')
            .text(rtl(item.item_text), LEFT + 25, y, { width: CONT_W - 25, align: 'right' });
         if (item.notes) {
           doc.font('Regular').fontSize(10).fillColor('#6b7280')
-             .text(rtl(`הערה: ${item.notes}`), LEFT + 25, doc.y, { width: CONT_W - 25, align: 'right' });
+             .text(rtl('הערה: ' + item.notes), LEFT + 25, doc.y, { width: CONT_W - 25, align: 'right' });
         }
         doc.moveDown(0.25);
       }
