@@ -5,12 +5,18 @@ import http from 'http';
 const FONT_REGULAR = 'C:\\Windows\\Fonts\\Alef-Regular.ttf';
 const FONT_BOLD    = 'C:\\Windows\\Fonts\\Alef-Bold.ttf';
 
-// Page geometry
-const PAGE_W = 595;
+// Page geometry (A4)
 const MARGIN  = 40;
+const PAGE_W  = 595;
 const RIGHT   = PAGE_W - MARGIN;   // 555
 const LEFT    = MARGIN;            // 40
 const CONT_W  = RIGHT - LEFT;      // 515
+
+// RTL row columns — label on the RIGHT, value extends to the LEFT
+const LABEL_W = 130;
+const LABEL_X = RIGHT - LABEL_W;   // 425
+const VALUE_W = LABEL_X - LEFT - 8; // 377
+const VALUE_X = LEFT;              // 40
 
 const SEVERITY_LABEL = { Low: 'נמוכה', Medium: 'בינונית', High: 'גבוהה', Urgent: 'דחוף' };
 const STATUS_LABEL   = { Open: 'פתוח', In_Progress: 'בטיפול', Resolved: 'טופל' };
@@ -20,33 +26,9 @@ const AUDIT_LABEL    = {
   industrial: 'מפעל תעשייה', traffic: 'בטיחות תנועה', education: 'מוסדות חינוך'
 };
 
-// ── RTL text helper ────────────────────────────────────────────────────────────
-// PDFKit renders LTR. Hebrew must be reversed so it reads correctly.
-// Strategy: split on whitespace tokens, reverse word order, reverse Hebrew chars in each word.
-// Numbers, English, and punctuation-only tokens are NOT char-reversed (stay LTR within RTL context).
-function rtl(text) {
-  if (text === null || text === undefined) return '';
-  const s = String(text).trim();
-  if (!s) return '';
-
-  // If purely ASCII/numeric — return as-is
-  if (/^[\x00-\x7F\s]*$/.test(s)) return s;
-
-  const tokens = s.split(/(\s+)/);
-  const reversed = tokens.reverse().map(token => {
-    if (/^\s+$/.test(token)) return token; // preserve whitespace
-    // Don't char-reverse tokens that are purely numeric/English/punctuation
-    if (/^[\x00-\x7F]+$/.test(token)) return token;
-    // Char-reverse Hebrew tokens (may contain mixed Hebrew + punctuation/numbers)
-    return token.split('').reverse().join('');
-  });
-  return reversed.join('');
-}
-
-// Wrap a label colon for RTL: "תיאור:" → rendered as ":תיאור"
-function lbl(text) {
-  return rtl(text) + ' :';
-}
+// Pass Hebrew strings as-is — the PDF viewer's bidi engine handles display direction.
+// We only control PAGE LAYOUT: label column on right, value column on left.
+function str(v) { return (v === null || v === undefined) ? '' : String(v); }
 
 function fetchImage(url) {
   return new Promise(resolve => {
@@ -68,34 +50,30 @@ function applyFonts(doc) {
   doc.font('Regular');
 }
 
-// ── Layout helpers ─────────────────────────────────────────────────────────────
+// ── Page header ───────────────────────────────────────────────────────────────
 function pageHeader(doc, title, subtitle) {
   doc.font('Bold').fontSize(22).fillColor('#111827')
-     .text(rtl(title), LEFT, doc.y, { width: CONT_W, align: 'left' });
+     .text(title, LEFT, doc.y, { width: CONT_W, align: 'right' });
   if (subtitle) {
     doc.font('Regular').fontSize(11).fillColor('#6b7280')
-       .text(rtl(subtitle), LEFT, doc.y, { width: CONT_W, align: 'left' });
+       .text(subtitle, LEFT, doc.y, { width: CONT_W, align: 'right' });
   }
   doc.moveDown(0.5);
   doc.moveTo(LEFT, doc.y).lineTo(RIGHT, doc.y).lineWidth(2).strokeColor('#1e40af').stroke();
   doc.moveDown(1);
 }
 
-// One label:value row — both left-aligned (RTL text, LTR placement on page)
-// Visually: reversed Hebrew text fills from right edge of each cell
+// ── RTL row: label on RIGHT, value on LEFT ────────────────────────────────────
 function row(doc, label, value) {
   if (value === undefined || value === null || value === '') return;
   const y = doc.y;
-
-  // Value in the wide left zone
-  doc.font('Regular').fontSize(11).fillColor('#111827')
-     .text(rtl(String(value)), LEFT, y, { width: 360, align: 'left' });
-
-  // Label in the right zone — draw at fixed right column, same y
+  // Label column — right side of page
   doc.font('Bold').fontSize(11).fillColor('#374151')
-     .text(lbl(label), LEFT + 370, y, { width: 140, align: 'left' });
-
-  doc.moveDown(0.35);
+     .text(`:${label}`, LABEL_X, y, { width: LABEL_W, align: 'right' });
+  // Value column — left side of page
+  doc.font('Regular').fontSize(11).fillColor('#111827')
+     .text(str(value), VALUE_X, y, { width: VALUE_W, align: 'right' });
+  doc.moveDown(0.4);
 }
 
 function divider(doc) {
@@ -108,16 +86,16 @@ function signature(doc) {
   if (doc.y > 680) doc.addPage();
   doc.moveDown(2);
   doc.font('Bold').fontSize(13).fillColor('#111827')
-     .text(rtl('אישורים וחתימות'), LEFT, doc.y, { width: CONT_W, align: 'left', underline: true });
+     .text('אישורים וחתימות', LEFT, doc.y, { width: CONT_W, align: 'right', underline: true });
   doc.moveDown(1);
   const y = doc.y;
   doc.font('Regular').fontSize(11);
-  doc.text(rtl('שם יועץ הבטיחות: _______________________'), LEFT + 265, y,      { width: 240, align: 'left' });
-  doc.text(rtl('חתימה: _______________________'),           LEFT + 265, y + 30,  { width: 240, align: 'left' });
-  doc.text(rtl('תאריך: _______________________'),           LEFT + 265, y + 60,  { width: 240, align: 'left' });
-  doc.text(rtl('שם מנהל העבודה: _______________________'),  LEFT,       y,       { width: 240, align: 'left' });
-  doc.text(rtl('חתימה: _______________________'),           LEFT,       y + 30,  { width: 240, align: 'left' });
-  doc.text(rtl('תאריך: _______________________'),           LEFT,       y + 60,  { width: 240, align: 'left' });
+  doc.text('שם יועץ הבטיחות: _______________________', 305, y,      { width: 240, align: 'right' });
+  doc.text('חתימה: _______________________',           305, y + 30,  { width: 240, align: 'right' });
+  doc.text('תאריך: _______________________',           305, y + 60,  { width: 240, align: 'right' });
+  doc.text('שם מנהל העבודה: _______________________',  LEFT, y,      { width: 240, align: 'right' });
+  doc.text('חתימה: _______________________',           LEFT, y + 30,  { width: 240, align: 'right' });
+  doc.text('תאריך: _______________________',           LEFT, y + 60,  { width: 240, align: 'right' });
 }
 
 // ── Hazards PDF ────────────────────────────────────────────────────────────────
@@ -128,18 +106,16 @@ export function generateHazardsPDF(hazards) {
     doc.on('data', c => chunks.push(c));
     doc.on('end',  () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
-
     applyFonts(doc);
 
-    const dateStr = new Date().toLocaleDateString('he-IL');
     pageHeader(doc,
       'דוח מפגעי בטיחות פתוחים',
-      `תאריך הפקה: ${dateStr}   |   סה"כ: ${hazards.length} מפגעים`
+      `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}   |   סה"כ: ${hazards.length} מפגעים`
     );
 
-    if (hazards.length === 0) {
+    if (!hazards.length) {
       doc.font('Regular').fontSize(14).fillColor('#6b7280')
-         .text(rtl('אין מפגעים פתוחים כרגע.'), LEFT, doc.y, { width: CONT_W, align: 'center' });
+         .text('אין מפגעים פתוחים כרגע.', LEFT, doc.y, { width: CONT_W, align: 'center' });
     }
 
     for (let i = 0; i < hazards.length; i++) {
@@ -150,7 +126,7 @@ export function generateHazardsPDF(hazards) {
       const sevColor = { Low: '#16a34a', Medium: '#d97706', High: '#ea580c', Urgent: '#dc2626' }[h.severity] || '#374151';
 
       doc.font('Bold').fontSize(13).fillColor(sevColor)
-         .text(rtl(`מפגע #${h.id} — ${sev}`), LEFT, doc.y, { width: CONT_W, align: 'left' });
+         .text(`מפגע #${h.id} — ${sev}`, LEFT, doc.y, { width: CONT_W, align: 'right' });
       doc.moveDown(0.3);
 
       row(doc, 'תיאור',       h.description);
@@ -166,7 +142,7 @@ export function generateHazardsPDF(hazards) {
           if (imgBuf?.length) {
             if (doc.y > 580) doc.addPage();
             doc.font('Bold').fontSize(10).fillColor('#6b7280')
-               .text(rtl('תמונת המפגע:'), LEFT, doc.y, { width: CONT_W, align: 'left' });
+               .text('תמונת המפגע:', LEFT, doc.y, { width: CONT_W, align: 'right' });
             doc.image(imgBuf, RIGHT - 280, doc.y, { width: 280 });
             doc.moveDown(1);
           }
@@ -188,7 +164,6 @@ export function generateIncidentsPDF(incidents) {
     doc.on('data', c => chunks.push(c));
     doc.on('end',  () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
-
     applyFonts(doc);
 
     pageHeader(doc,
@@ -196,9 +171,9 @@ export function generateIncidentsPDF(incidents) {
       `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}   |   סה"כ: ${incidents.length} אירועים`
     );
 
-    if (incidents.length === 0) {
+    if (!incidents.length) {
       doc.font('Regular').fontSize(14).fillColor('#6b7280')
-         .text(rtl('אין אירועים מדווחים.'), LEFT, doc.y, { width: CONT_W, align: 'center' });
+         .text('אין אירועים מדווחים.', LEFT, doc.y, { width: CONT_W, align: 'center' });
     }
 
     for (let i = 0; i < incidents.length; i++) {
@@ -206,8 +181,8 @@ export function generateIncidentsPDF(incidents) {
       if (doc.y > 650 && i > 0) doc.addPage();
 
       doc.font('Bold').fontSize(13).fillColor('#dc2626')
-         .text(rtl(`אירוע #${inc.id} — ${INCIDENT_LABEL[inc.incident_type] || inc.incident_type}`),
-               LEFT, doc.y, { width: CONT_W, align: 'left' });
+         .text(`אירוע #${inc.id} — ${INCIDENT_LABEL[inc.incident_type] || inc.incident_type}`,
+               LEFT, doc.y, { width: CONT_W, align: 'right' });
       doc.moveDown(0.3);
 
       row(doc, 'תיאור',         inc.description);
@@ -234,7 +209,6 @@ export function generateAuditPDF(audit, items) {
     doc.on('data', c => chunks.push(c));
     doc.on('end',  () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
-
     applyFonts(doc);
 
     const passes = items.filter(i => i.status === 'pass').length;
@@ -247,34 +221,29 @@ export function generateAuditPDF(audit, items) {
     );
 
     doc.font('Regular').fontSize(12).fillColor('#111827')
-       .text(rtl(`ציון: ${pct}%   ·   תקין: ${passes}   ·   ליקויים: ${fails}   ·   סה"כ: ${items.length}`),
-             LEFT, doc.y, { width: CONT_W, align: 'left' });
+       .text(`ציון: ${pct}%   ·   תקין: ${passes}   ·   ליקויים: ${fails}   ·   סה"כ: ${items.length}`,
+             LEFT, doc.y, { width: CONT_W, align: 'right' });
     doc.moveDown(1.2);
 
     const categories = [...new Set(items.map(i => i.category))];
     for (const cat of categories) {
       if (doc.y > 700) doc.addPage();
-
       doc.font('Bold').fontSize(12).fillColor('#1e40af')
-         .text(rtl(cat), LEFT, doc.y, { width: CONT_W, align: 'left' });
+         .text(cat, LEFT, doc.y, { width: CONT_W, align: 'right' });
       doc.moveDown(0.4);
 
       for (const item of items.filter(i => i.category === cat)) {
         if (doc.y > 720) doc.addPage();
-
         const color = item.status === 'pass' ? '#16a34a' : item.status === 'fail' ? '#dc2626' : '#6b7280';
         const mark  = item.status === 'pass' ? '✓' : item.status === 'fail' ? '✗' : '—';
         const y = doc.y;
-
-        // Mark on the right (first visual element in RTL), text to its left
-        doc.font('Bold').fontSize(12).fillColor(color)
-           .text(mark, RIGHT - 20, y, { width: 20, align: 'center' });
+        // Mark on the LEFT (visual end of RTL line), text right-aligned
+        doc.font('Bold').fontSize(12).fillColor(color).text(mark, LEFT, y, { width: 20, align: 'center' });
         doc.font('Regular').fontSize(11).fillColor('#111827')
-           .text(rtl(item.item_text), LEFT, y, { width: CONT_W - 30, align: 'left' });
-
+           .text(item.item_text, LEFT + 25, y, { width: CONT_W - 25, align: 'right' });
         if (item.notes) {
           doc.font('Regular').fontSize(10).fillColor('#6b7280')
-             .text(rtl(`הערה: ${item.notes}`), LEFT, doc.y, { width: CONT_W - 30, align: 'left' });
+             .text(`הערה: ${item.notes}`, LEFT + 25, doc.y, { width: CONT_W - 25, align: 'right' });
         }
         doc.moveDown(0.25);
       }
