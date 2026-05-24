@@ -32,14 +32,22 @@ const store = {
   tool_inspection_items: [],
   worker_certifications: [],
   projects: [
-    { id: 1, name: 'מגדל מגורים א׳', location: 'תל אביב', start_date: new Date('2026-01-01'), end_date: new Date('2026-12-31'), manager_name: 'דני כהן', manager_phone: '052-1234567', manager_email: 'dani@site.com', status: 'active', created_at: new Date() },
-    { id: 2, name: 'שיפוץ קמפוס משרדים', location: 'ירושלים', start_date: new Date('2026-03-01'), end_date: new Date('2026-09-30'), manager_name: 'רחל לוי', manager_phone: '054-7654321', manager_email: 'rachel@site.com', status: 'active', created_at: new Date() },
+    { id: 1, name: 'מגדל מגורים א׳',          location: 'תל אביב',       start_date: new Date('2026-01-01'), end_date: new Date('2026-12-31'), manager_name: 'דני כהן',    manager_phone: '052-1234567', manager_email: 'dani@site.com',    status: 'active',    created_at: new Date() },
+    { id: 2, name: 'שיפוץ קמפוס משרדים',       location: 'ירושלים',       start_date: new Date('2026-03-01'), end_date: new Date('2026-09-30'), manager_name: 'רחל לוי',   manager_phone: '054-7654321', manager_email: 'rachel@site.com',  status: 'active',    created_at: new Date() },
+    { id: 3, name: 'סלילת כביש עוקף',           location: 'פתח תקווה',     start_date: new Date('2025-11-01'), end_date: new Date('2026-06-30'), manager_name: 'אורן שפירא', manager_phone: '050-3344556', manager_email: 'oren@site.com',    status: 'active',    created_at: new Date() },
+    { id: 4, name: 'מרכז לוגיסטיקה — שלב ב׳',  location: 'אשדוד',         start_date: new Date('2026-02-15'), end_date: new Date('2027-02-14'), manager_name: 'יוסי מזרחי', manager_phone: '053-9988776', manager_email: 'yossi@site.com',   status: 'active',    created_at: new Date() },
+    { id: 5, name: 'שדרוג תשתיות מים',          location: 'חיפה',          start_date: new Date('2025-09-01'), end_date: new Date('2026-03-31'), manager_name: 'משה לוי',    manager_phone: '052-1112223', manager_email: 'moshe@site.com',   status: 'active',    created_at: new Date() },
+    { id: 6, name: 'בניין ציבורי — עירייה',      location: 'באר שבע',       start_date: new Date('2025-06-01'), end_date: new Date('2025-12-31'), manager_name: 'עמית בן-דוד', manager_phone: '054-5566778', manager_email: 'amit@site.com',    status: 'completed', created_at: new Date() },
+    { id: 7, name: 'מפעל מזון — הרחבה',         location: 'רחובות',        start_date: new Date('2026-04-01'), end_date: new Date('2026-10-31'), manager_name: 'מיכל גולדברג', manager_phone: '050-7788990', manager_email: 'michal@site.com',  status: 'active',    created_at: new Date() },
+    { id: 8, name: 'מחסן ותפעול — נתב"ג',       location: 'לוד',           start_date: new Date('2026-05-01'), end_date: new Date('2027-04-30'), manager_name: 'איתי חדד',   manager_phone: '053-2233445', manager_email: 'itai@site.com',    status: 'active',    created_at: new Date() },
+    { id: 9, name: 'שיקום מבנה היסטורי',        location: 'יפו',           start_date: new Date('2025-10-01'), end_date: new Date('2026-08-31'), manager_name: 'נועה רוזנברג', manager_phone: '052-6677889', manager_email: 'noa@site.com',     status: 'on_hold',   created_at: new Date() },
+    { id: 10, name: 'פארק תעשייה — בנייה חדשה', location: 'קיסריה',        start_date: new Date('2026-06-01'), end_date: new Date('2028-05-31'), manager_name: 'דני אברהם',  manager_phone: '054-4455667', manager_email: 'dani2@site.com',   status: 'active',    created_at: new Date() },
   ],
   safety_incidents: [
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 11, tool_inspections: 1, tool_inspection_items: 1, projects: 3, worker_certifications: 1 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 11, tool_inspections: 1, tool_inspection_items: 1, projects: 11, worker_certifications: 1 }
 };
 
 function memQuery(sql, params = []) {
