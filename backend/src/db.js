@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 const { Pool } = pg;
 
-// ── In-memory demo store (used when no DATABASE_URL is configured) ──────────
+// ── In-memory demo store ─────────────────────────────────────────────────────
 const store = {
   subcontractors: [
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
@@ -14,51 +14,126 @@ const store = {
   ],
   safety_hazards: [],
   site_access_logs: [],
-  _nextId: { safety_hazards: 1, site_access_logs: 1 }
+  safety_audits: [],
+  audit_items: [],
+  safety_incidents: [],
+  activity_logs: [],
+  _id: { safety_hazards: 1, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 1, activity_logs: 1 }
 };
 
 function memQuery(sql, params = []) {
   const s = sql.replace(/\s+/g, ' ').trim().toUpperCase();
 
-  // GET /api/hazards
-  if (s.startsWith('SELECT * FROM SAFETY_HAZARDS')) {
+  // ── safety_hazards ──────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM SAFETY_HAZARDS') && !s.includes('WHERE STATUS')) {
     return { rows: [...store.safety_hazards].sort((a, b) => b.created_at - a.created_at) };
   }
-  // GET /api/hazards WHERE status='Open'
   if (s.includes('FROM SAFETY_HAZARDS WHERE STATUS')) {
     return { rows: store.safety_hazards.filter(h => h.status === 'Open') };
   }
-  // INSERT hazard
   if (s.startsWith('INSERT INTO SAFETY_HAZARDS')) {
     const [description, image_url, supervisor_email, supervisor_name, severity] = params;
-    const row = { id: store._nextId.safety_hazards++, description, image_url, supervisor_email, supervisor_name, severity, status: 'Open', created_at: new Date(), resolved_at: null };
+    const row = { id: store._id.safety_hazards++, description, image_url, supervisor_email, supervisor_name, severity, status: 'Open', created_at: new Date(), resolved_at: null };
     store.safety_hazards.push(row);
+    _log('hazard_reported', `מפגע חדש: ${description.slice(0, 60)}`, supervisor_name, row.id, 'hazard');
     return { rows: [row] };
   }
-  // Worker lookup by id_number
+
+  // ── site_workers ────────────────────────────────────────────────────────────
   if (s.includes('FROM SITE_WORKERS WHERE ID_NUMBER')) {
-    const worker = store.site_workers.find(w => w.id_number === params[0]);
-    return { rows: worker ? [worker] : [] };
+    const w = store.site_workers.find(w => w.id_number === params[0]);
+    return { rows: w ? [w] : [] };
   }
-  // GET /api/workers
   if (s.startsWith('SELECT * FROM SITE_WORKERS')) {
     return { rows: [...store.site_workers].sort((a, b) => a.last_name.localeCompare(b.last_name)) };
   }
-  // INSERT access log
+
+  // ── site_access_logs ────────────────────────────────────────────────────────
   if (s.startsWith('INSERT INTO SITE_ACCESS_LOGS')) {
     const [worker_id, access_status] = params;
-    store.site_access_logs.push({ id: store._nextId.site_access_logs++, worker_id, access_status, check_in_time: new Date() });
+    const worker = store.site_workers.find(w => w.id === worker_id);
+    store.site_access_logs.push({ id: store._id.site_access_logs++, worker_id, access_status, check_in_time: new Date() });
+    _log('gate_check', `בדיקת כניסה: ${worker?.first_name} ${worker?.last_name} — ${access_status === 'Allowed' ? 'אושר' : 'נדחה'}`, null, worker_id, 'worker');
     return { rows: [] };
   }
+
+  // ── safety_audits ───────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM SAFETY_AUDITS') && s.includes('ORDER')) {
+    return { rows: [...store.safety_audits].sort((a, b) => b.created_at - a.created_at) };
+  }
+  if (s.includes('FROM SAFETY_AUDITS WHERE ID =')) {
+    return { rows: store.safety_audits.filter(a => a.id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO SAFETY_AUDITS')) {
+    const [audit_type, inspector_name, project_name] = params;
+    const row = { id: store._id.safety_audits++, audit_type, inspector_name, project_name: project_name || '', status: 'Open', created_at: new Date() };
+    store.safety_audits.push(row);
+    _log('audit_started', `בקרה חדשה (${audit_type}): ${project_name || '—'} — ${inspector_name}`, inspector_name, row.id, 'audit');
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE SAFETY_AUDITS SET STATUS')) {
+    const audit = store.safety_audits.find(a => a.id === params[1]);
+    if (audit) { audit.status = params[0]; _log('audit_closed', `בקרה סגורה #${audit.id}`, null, audit.id, 'audit'); }
+    return { rows: audit ? [audit] : [] };
+  }
+
+  // ── audit_items ─────────────────────────────────────────────────────────────
+  if (s.includes('FROM AUDIT_ITEMS WHERE AUDIT_ID')) {
+    return { rows: store.audit_items.filter(i => i.audit_id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO AUDIT_ITEMS')) {
+    const [audit_id, item_text, category, status, notes, photo_url] = params;
+    const row = { id: store._id.audit_items++, audit_id, item_text, category: category || '', status: status || 'pending', notes: notes || '', photo_url: photo_url || null, created_at: new Date() };
+    store.audit_items.push(row);
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE AUDIT_ITEMS SET STATUS')) {
+    const item = store.audit_items.find(i => i.id === params[2]);
+    if (item) { item.status = params[0]; item.notes = params[1] || ''; }
+    return { rows: item ? [item] : [] };
+  }
+
+  // ── safety_incidents ────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM SAFETY_INCIDENTS')) {
+    return { rows: [...store.safety_incidents].sort((a, b) => b.created_at - a.created_at) };
+  }
+  if (s.startsWith('INSERT INTO SAFETY_INCIDENTS')) {
+    const [incident_type, description, location, involved_parties, immediate_cause, root_cause, actions_taken, image_url, reporter_name] = params;
+    const row = { id: store._id.safety_incidents++, incident_type, description, location, involved_parties, immediate_cause, root_cause, actions_taken, image_url, reporter_name, created_at: new Date() };
+    store.safety_incidents.push(row);
+    _log('incident_reported', `אירוע: ${description.slice(0, 60)}`, reporter_name, row.id, 'incident');
+    return { rows: [row] };
+  }
+
+  // ── activity_logs ───────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM ACTIVITY_LOGS')) {
+    return { rows: [...store.activity_logs].sort((a, b) => b.created_at - a.created_at).slice(0, 100) };
+  }
+  if (s.startsWith('INSERT INTO ACTIVITY_LOGS')) {
+    const [action_type, description, user_name, reference_id, reference_type] = params;
+    const row = { id: store._id.activity_logs++, action_type, description, user_name, reference_id, reference_type, created_at: new Date() };
+    store.activity_logs.push(row);
+    return { rows: [row] };
+  }
+
   return { rows: [] };
 }
 
-// ── Real pg pool (only when DATABASE_URL is set) ─────────────────────────────
+function _log(action_type, description, user_name, reference_id, reference_type) {
+  store.activity_logs.push({
+    id: store._id.activity_logs++,
+    action_type, description,
+    user_name: user_name || null,
+    reference_id: reference_id || null,
+    reference_type: reference_type || null,
+    created_at: new Date()
+  });
+}
+
+// ── Real pg pool ─────────────────────────────────────────────────────────────
 const useReal = !!process.env.DATABASE_URL;
 export const pool = useReal
   ? new Pool({ connectionString: process.env.DATABASE_URL })
   : { query: (sql, params) => Promise.resolve(memQuery(sql, params)) };
 
-if (!useReal) {
-  console.log('⚠️  No DATABASE_URL — running with in-memory demo store');
-}
+if (!useReal) console.log('⚠️  No DATABASE_URL — running with in-memory demo store');

@@ -7,6 +7,9 @@ import 'dotenv/config';
 import hazardsRouter from './routes/hazards.js';
 import workersRouter from './routes/workers.js';
 import reportsRouter from './routes/reports.js';
+import auditsRouter from './routes/audits.js';
+import incidentsRouter from './routes/incidents.js';
+import activityRouter from './routes/activity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +23,9 @@ app.use('/api/hazards', hazardsRouter);
 app.use('/api/gate', workersRouter);
 app.use('/api/workers', workersRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/audits', auditsRouter);
+app.use('/api/incidents', incidentsRouter);
+app.use('/api/activity', activityRouter);
 
 export default app;
 
