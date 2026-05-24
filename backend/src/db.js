@@ -189,8 +189,8 @@ function memQuery(sql, params = []) {
     return { rows: [row] };
   }
   if (s.startsWith('UPDATE TOOL_INSPECTION_ITEMS SET CONDITION')) {
-    const item = store.tool_inspection_items.find(i => i.id === params[2]);
-    if (item) { item.condition = params[0]; item.notes = params[1] || ''; }
+    const item = store.tool_inspection_items.find(i => i.id === params[3]);
+    if (item) { item.condition = params[0]; item.notes = params[1] || ''; item.serial_number = params[2] !== undefined ? params[2] : (item.serial_number || ''); }
     return { rows: item ? [item] : [] };
   }
   if (s.startsWith('DELETE FROM TOOL_INSPECTION_ITEMS WHERE ID')) {

@@ -41,6 +41,7 @@ export default function ToolInspectionSession() {
   const [adding, setAdding]         = useState(false);
   const [closing, setClosing]       = useState(false);
   const [editNotes, setEditNotes]   = useState({});
+  const [editSerial, setEditSerial] = useState({});
 
   const load = useCallback(async () => {
     const [insp, its] = await Promise.all([
@@ -69,8 +70,16 @@ export default function ToolInspectionSession() {
 
   async function saveNotes(item) {
     const notes = editNotes[item.id] ?? item.notes;
-    await updateToolInspectionItem(id, item.id, { condition: item.condition, notes });
+    const serial_number = editSerial[item.id] !== undefined ? editSerial[item.id] : (item.serial_number || '');
+    await updateToolInspectionItem(id, item.id, { condition: item.condition, notes, serial_number });
     setItems(p => p.map(i => i.id === item.id ? { ...i, notes } : i));
+  }
+
+  async function saveSerial(item) {
+    const serial_number = editSerial[item.id] !== undefined ? editSerial[item.id] : (item.serial_number || '');
+    const notes = editNotes[item.id] ?? item.notes;
+    await updateToolInspectionItem(id, item.id, { condition: item.condition, notes, serial_number });
+    setItems(p => p.map(i => i.id === item.id ? { ...i, serial_number } : i));
   }
 
   async function removeItem(itemId) {
@@ -143,17 +152,23 @@ export default function ToolInspectionSession() {
       {/* Manual add */}
       {!isClosed && (
         <div className="bg-gray-50 rounded-xl p-3 mb-4 flex gap-2 items-end">
-          <div className="flex-1">
-            <input value={newName} onChange={e => setNewName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addItem(newName, newSerial)}
-              placeholder="שם הכלי"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-1 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <input value={newSerial} onChange={e => setNewSerial(e.target.value)}
-              placeholder="מ&quot;ס (אופציונלי)"
-              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+          <div className="flex-1 space-y-1.5">
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 mb-0.5">שם הכלי / מתקן *</label>
+              <input value={newName} onChange={e => setNewName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addItem(newName, newSerial)}
+                placeholder="לדוגמה: מקדחה, מנוף, מדחס..."
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-medium text-gray-500 mb-0.5">מספר סידורי 🔖</label>
+              <input value={newSerial} onChange={e => setNewSerial(e.target.value)}
+                placeholder="לדוגמה: SN-12345 / EQ-001"
+                className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
           </div>
           <button onClick={() => addItem(newName, newSerial)} disabled={!newName.trim() || adding}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-40">
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-40 self-end">
             הוסף
           </button>
         </div>
@@ -164,9 +179,21 @@ export default function ToolInspectionSession() {
         {items.map(item => (
           <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
             <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-800 text-sm">{item.tool_name}</p>
-                {item.serial_number && <p className="text-xs text-gray-400">מ&quot;ס: {item.serial_number}</p>}
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="text-[10px] font-semibold text-gray-400 shrink-0">🔖 מ"ס:</span>
+                  {!isClosed ? (
+                    <input
+                      value={editSerial[item.id] !== undefined ? editSerial[item.id] : (item.serial_number || '')}
+                      onChange={e => setEditSerial(p => ({ ...p, [item.id]: e.target.value }))}
+                      onBlur={() => saveSerial(item)}
+                      placeholder="הוסף מספר סידורי..."
+                      className="flex-1 text-xs border-b border-dashed border-gray-300 px-1 py-0.5 text-blue-700 font-medium focus:outline-none focus:border-blue-500 bg-transparent min-w-0" />
+                  ) : (
+                    <span className="text-xs font-semibold text-blue-700">{item.serial_number || <span className="text-gray-400 font-normal">—</span>}</span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${BADGE[item.condition]}`}>

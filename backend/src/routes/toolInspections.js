@@ -48,10 +48,10 @@ router.post('/:id/items', async (req, res) => {
 
 // PATCH /api/tool-inspections/:id/items/:itemId
 router.patch('/:id/items/:itemId', async (req, res) => {
-  const { condition, notes } = req.body;
+  const { condition, notes, serial_number } = req.body;
   const { rows } = await pool.query(
-    'UPDATE tool_inspection_items SET condition = $1, notes = $2 WHERE id = $3',
-    [condition, notes || '', Number(req.params.itemId)]
+    'UPDATE tool_inspection_items SET condition = $1, notes = $2, serial_number = $3 WHERE id = $4',
+    [condition, notes || '', serial_number !== undefined ? serial_number : '', Number(req.params.itemId)]
   );
   res.json(rows[0] || {});
 });
