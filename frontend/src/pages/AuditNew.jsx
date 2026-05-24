@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { createAudit } from '../lib/api.js';
+import { createAudit, getWorkers, getProjects } from '../lib/api.js';
 import { CHECKLIST_ITEMS, AUDIT_TYPES } from '../lib/checklists.js';
 
 export default function AuditNew() {
@@ -8,8 +8,15 @@ export default function AuditNew() {
   const navigate = useNavigate();
   const [inspectorName, setInspectorName] = useState('');
   const [projectName, setProjectName] = useState('');
+  const [workers, setWorkers] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getWorkers().then(setWorkers).catch(() => {});
+    getProjects().then(setProjects).catch(() => {});
+  }, []);
 
   const auditType = AUDIT_TYPES[type];
   const items = CHECKLIST_ITEMS[type] || [];
@@ -43,24 +50,23 @@ export default function AuditNew() {
         <form onSubmit={handleStart} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">שם המפקח / יועץ הבטיחות</label>
-            <input
-              type="text"
-              required
-              value={inspectorName}
-              onChange={e => setInspectorName(e.target.value)}
-              placeholder="הכנס שם..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <select required value={inspectorName} onChange={e => setInspectorName(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">בחר מפקח...</option>
+              {workers.map(w => (
+                <option key={w.id} value={`${w.first_name} ${w.last_name}`}>{w.first_name} {w.last_name}</option>
+              ))}
+            </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">שם הפרויקט / מוסד</label>
-            <input
-              type="text"
-              value={projectName}
-              onChange={e => setProjectName(e.target.value)}
-              placeholder="לדוגמה: אתר בנייה רחוב הרצל 5..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">פרויקט</label>
+            <select value={projectName} onChange={e => setProjectName(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">בחר פרויקט...</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.name}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>
+              ))}
+            </select>
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button

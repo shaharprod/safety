@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { reportHazard } from '../lib/api.js';
+import React, { useState, useEffect } from 'react';
+import { reportHazard, getWorkers } from '../lib/api.js';
 
 const SEVERITY_OPTIONS = [
   { value: 'Low',    label: 'נמוכה',   color: 'bg-green-100 text-green-800 border-green-300' },
@@ -8,25 +8,22 @@ const SEVERITY_OPTIONS = [
   { value: 'Urgent', label: 'דחוף',    color: 'bg-red-100 text-red-800 border-red-300' }
 ];
 
-const SUPERVISORS = [
-  { name: 'יוסי כהן',   email: 'yossi@example.com' },
-  { name: 'רחל לוי',    email: 'rachel@example.com' },
-  { name: 'דוד ישראלי', email: 'david@example.com' }
-];
-
 export default function HazardForm({ onSuccess }) {
   const [description, setDescription] = useState('');
   const [severity, setSeverity] = useState('');
-  const [supervisor, setSupervisor] = useState('');
+  const [supervisorId, setSupervisorId] = useState('');
+  const [workers, setWorkers] = useState([]);
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const selectedSupervisor = SUPERVISORS.find(s => s.name === supervisor);
+  useEffect(() => { getWorkers().then(setWorkers).catch(() => {}); }, []);
+
+  const selectedWorker = workers.find(w => String(w.id) === supervisorId);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!description || !severity || !supervisor || !image) {
+    if (!description || !severity || !supervisorId || !image) {
       setError('יש למלא את כל השדות ולצרף תמונה');
       return;
     }
@@ -36,8 +33,8 @@ export default function HazardForm({ onSuccess }) {
       const fd = new FormData();
       fd.append('description', description);
       fd.append('severity', severity);
-      fd.append('supervisor_name', selectedSupervisor.name);
-      fd.append('supervisor_email', selectedSupervisor.email);
+      fd.append('supervisor_name', selectedWorker ? `${selectedWorker.first_name} ${selectedWorker.last_name}` : '');
+      fd.append('supervisor_email', selectedWorker?.google_email || 'supervisor@site.com');
       fd.append('image', image);
       await reportHazard(fd);
       onSuccess();
@@ -84,13 +81,13 @@ export default function HazardForm({ onSuccess }) {
         <label className="block text-sm font-medium text-gray-700 mb-1">ממונה אחראי</label>
         <select
           required
-          value={supervisor}
-          onChange={e => setSupervisor(e.target.value)}
+          value={supervisorId}
+          onChange={e => setSupervisorId(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">בחר ממונה...</option>
-          {SUPERVISORS.map(s => (
-            <option key={s.email} value={s.name}>{s.name}</option>
+          {workers.map(w => (
+            <option key={w.id} value={w.id}>{w.first_name} {w.last_name}</option>
           ))}
         </select>
       </div>

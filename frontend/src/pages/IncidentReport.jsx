@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { reportIncident } from '../lib/api.js';
+import React, { useState, useEffect } from 'react';
+import { reportIncident, getWorkers, getProjects } from '../lib/api.js';
 
 const INCIDENT_TYPES = [
   { value: 'near_miss',        label: 'כמעט ונפגע (Near Miss)', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
@@ -10,9 +10,16 @@ const INCIDENT_TYPES = [
 export default function IncidentReport() {
   const [form, setForm] = useState({ incident_type: 'near_miss', description: '', location: '', involved_parties: '', immediate_cause: '', root_cause: '', actions_taken: '', reporter_name: '' });
   const [image, setImage] = useState(null);
+  const [workers, setWorkers] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getWorkers().then(setWorkers).catch(() => {});
+    getProjects().then(setProjects).catch(() => {});
+  }, []);
 
   function set(field) { return e => setForm(f => ({ ...f, [field]: e.target.value })); }
 
@@ -62,7 +69,16 @@ export default function IncidentReport() {
           </div>
 
           <Field label="תיאור האירוע *" required><textarea required rows={3} value={form.description} onChange={set('description')} className="input resize-none" placeholder="תאר מה קרה, מתי ואיפה..." /></Field>
-          <Field label="מיקום האירוע"><input type="text" value={form.location} onChange={set('location')} className="input" placeholder="לדוגמה: קומה 3, פיגום מזרחי" /></Field>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">מיקום / פרויקט</label>
+            <select value={form.location} onChange={set('location')}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">בחר פרויקט / מיקום...</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.name}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>
+              ))}
+            </select>
+          </div>
           <Field label="גורמים מעורבים"><input type="text" value={form.involved_parties} onChange={set('involved_parties')} className="input" placeholder="שמות / תפקידים" /></Field>
           <Field label="גורם מיידי (מה גרם לאירוע)"><input type="text" value={form.immediate_cause} onChange={set('immediate_cause')} className="input" /></Field>
           <Field label="גורם שורש (מדוע קרה)"><input type="text" value={form.root_cause} onChange={set('root_cause')} className="input" /></Field>
@@ -74,7 +90,16 @@ export default function IncidentReport() {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 file:ml-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700" />
           </div>
 
-          <Field label="שם המדווח *"><input type="text" required value={form.reporter_name} onChange={set('reporter_name')} className="input" placeholder="שמך המלא" /></Field>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">שם המדווח *</label>
+            <select required value={form.reporter_name} onChange={set('reporter_name')}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">בחר עובד מדווח...</option>
+              {workers.map(w => (
+                <option key={w.id} value={`${w.first_name} ${w.last_name}`}>{w.first_name} {w.last_name}</option>
+              ))}
+            </select>
+          </div>
 
           {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 

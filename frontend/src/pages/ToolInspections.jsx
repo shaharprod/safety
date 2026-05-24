@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getToolInspections, createToolInspection } from '../lib/api.js';
+import { getToolInspections, createToolInspection, getWorkers, getProjects } from '../lib/api.js';
 
 const TOOL_TYPES = [
   { value: 'electrical',  label: 'כלים חשמליים',      icon: '⚡' },
@@ -28,13 +28,19 @@ function expiryBadge(expiry_date) {
 export default function ToolInspections() {
   const navigate = useNavigate();
   const [inspections, setInspections] = useState([]);
+  const [workers, setWorkers]         = useState([]);
+  const [projects, setProjects]       = useState([]);
   const [loading, setLoading]         = useState(true);
   const [showNew, setShowNew]         = useState(false);
   const [form, setForm]               = useState(EMPTY_FORM);
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    getWorkers().then(setWorkers).catch(() => {});
+    getProjects().then(setProjects).catch(() => {});
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -135,13 +141,23 @@ export default function ToolInspections() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">שם הבודק *</label>
-                <input required value={form.inspector_name} onChange={e => f('inspector_name', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <select required value={form.inspector_name} onChange={e => f('inspector_name', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">בחר בודק...</option>
+                  {workers.map(w => (
+                    <option key={w.id} value={`${w.first_name} ${w.last_name}`}>{w.first_name} {w.last_name}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">מיקום / פרויקט</label>
-                <input value={form.location} onChange={e => f('location', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">פרויקט / מיקום</label>
+                <select value={form.location} onChange={e => f('location', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">בחר פרויקט...</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.name}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">תאריך תפוגת תעודה / אישור</label>

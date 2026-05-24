@@ -54,23 +54,29 @@ export default function SafetyCheckItem({ item, auditId, onUpdate }) {
         >לא רלוונטי</button>
       </div>
 
-      {status === 'fail' && (
+      {status !== 'pending' && (
         <div className="space-y-2 mt-2">
-          <textarea
-            placeholder="תאר את הליקוי..."
-            value={note}
-            onChange={e => setNote(e.target.value)}
-            onBlur={() => save('fail')}
-            rows={2}
-            className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={e => { setImage(e.target.files[0]); }}
-            className="text-xs text-gray-500"
-          />
+          {status === 'fail' && (
+            <textarea
+              placeholder="תאר את הליקוי..."
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              onBlur={() => save('fail')}
+              rows={2}
+              className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+            />
+          )}
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-500 hover:text-blue-600 transition">
+            <span className="text-base">📷</span>
+            <span>{image ? image.name : 'צלם / צרף תמונה'}</span>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={e => { setImage(e.target.files[0]); save(status); }}
+              className="hidden"
+            />
+          </label>
         </div>
       )}
     </div>
