@@ -97,12 +97,12 @@ function signature(doc) {
   const startY = doc.y;
   const ROW_H  = 24;
 
-  // RIGHT column (safety advisor): label at 415-555 (right-aligned), line at 278-410
-  // LEFT  column (work manager):   label at 133-265 (right-aligned), line at 40-128
-  const R_LBL_X = 415, R_LBL_W = 140;
-  const R_LINE_L = 278, R_LINE_R = 410;
-  const L_LBL_X = 133, L_LBL_W = 132;
-  const L_LINE_L = 40,  L_LINE_R = 128;
+  // RIGHT column (safety advisor): label at 443-555 (width=112), line at 278-440
+  // LEFT  column (work manager):   label at 153-265 (width=112), line at 40-150
+  const R_LBL_X = 443, R_LBL_W = 112;
+  const R_LINE_L = 278, R_LINE_R = 440;
+  const L_LBL_X = 153, L_LBL_W = 112;
+  const L_LINE_L = 40,  L_LINE_R = 150;
 
   const fields = [
     ['שם מנהל העבודה', 'שם יועץ הבטיחות'],
