@@ -41,7 +41,7 @@ ALTER TABLE hazards
 
 ### In-memory store (no DB mode)
 
-Both `users` and the new hazard fields are added to the in-memory demo store in `db.js`. A seed safety_officer user (`admin` / `admin123`) is pre-loaded so the app works without a real database.
+Both `users` and the new hazard fields are added to the in-memory demo store in `db.js`. A seed safety_officer user (`admin` / `1234`) is pre-loaded so the app works without a real database.
 
 ---
 
@@ -65,6 +65,7 @@ Both `users` and the new hazard fields are added to the in-memory demo store in 
 | POST | `/api/auth/login` | none | `{ username, password }` → `{ token, user }`. bcrypt compare. JWT expires 8h. |
 | POST | `/api/auth/logout` | none | Client-side only (stateless JWT); endpoint returns 200 for UX. |
 | GET | `/api/auth/me` | requireAuth | Returns current user (id, username, full_name, role). |
+| PATCH | `/api/auth/password` | requireAuth | Change own password. Body: `{ currentPassword, newPassword }`. Verifies current password before updating. Any role can use this. |
 
 ### New routes: `src/routes/users.js`
 
@@ -144,6 +145,12 @@ Add a **"משתמשים"** tab (visible only to `safety_officer`):
 - Table: username, full_name, role, created_at, actions (edit/delete)
 - "הוסף משתמש" form: username, full_name, role, password
 
+### Change password UI
+
+A **"שנה סיסמה"** button in the navbar (visible when logged in, any role).  
+Opens a small modal with: current password, new password, confirm new password.  
+On success: shows confirmation toast and keeps the user logged in.
+
 ---
 
 ## 4. Security notes
@@ -177,7 +184,8 @@ Add a **"משתמשים"** tab (visible only to `safety_officer`):
 
 ## 7. Out of scope (future)
 
-- Password reset flow
+- Admin-forced password reset for other users (currently admin can only edit via user management)
+- Password reset flow (forgot password)
 - Session refresh / token rotation
 - Multiple sites / multi-tenant
 - Audit log export
