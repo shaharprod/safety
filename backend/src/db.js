@@ -9,7 +9,7 @@ const store = {
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
   ],
   site_workers: [
-    { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'moshe.levi@gmail.com' },
+    { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'shaharprod@gmail.com' },
     { id: 2, first_name: 'שרה', last_name: 'כהן',  id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' }
   ],
   safety_hazards: [
@@ -24,7 +24,7 @@ const store = {
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3 }
 };
 
 function memQuery(sql, params = []) {
@@ -56,6 +56,26 @@ function memQuery(sql, params = []) {
   }
   if (s.startsWith('SELECT * FROM SITE_WORKERS')) {
     return { rows: [...store.site_workers].sort((a, b) => a.last_name.localeCompare(b.last_name)) };
+  }
+  if (s.startsWith('INSERT INTO SITE_WORKERS')) {
+    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id] = params;
+    const row = { id: ++store._id.site_workers, first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null, subcontractor_id: subcontractor_id || null };
+    store.site_workers.push(row);
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE SITE_WORKERS SET')) {
+    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, id] = params;
+    const w = store.site_workers.find(w => w.id === id);
+    if (!w) return { rows: [] };
+    Object.assign(w, { first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null });
+    return { rows: [w] };
+  }
+  if (s.startsWith('DELETE FROM SITE_WORKERS WHERE ID=')) {
+    const id = params[0];
+    const idx = store.site_workers.findIndex(w => w.id === id);
+    if (idx === -1) return { rows: [] };
+    store.site_workers.splice(idx, 1);
+    return { rows: [{ id }] };
   }
 
   // ── site_access_logs ────────────────────────────────────────────────────────

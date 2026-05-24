@@ -9,6 +9,7 @@ import AuditSession from './pages/AuditSession.jsx';
 import IncidentReport from './pages/IncidentReport.jsx';
 import ActivityLog from './pages/ActivityLog.jsx';
 import ReportsViewer from './pages/ReportsViewer.jsx';
+import AdminWorkers from './pages/AdminWorkers.jsx';
 
 const NAV = [
   { to: '/',         label: 'בקרה',     icon: '🏠', end: true },
@@ -17,7 +18,7 @@ const NAV = [
   { to: '/incident', label: 'אירוע',    icon: '🔍'            },
   { to: '/gate',     label: 'כניסה',    icon: '🔑'            },
   { to: '/reports',  label: 'דוחות',    icon: '📊'            },
-  { to: '/activity', label: 'יומן',     icon: '📅'            },
+  { to: '/admin',    label: 'אדמין',    icon: '⚙️'            },
 ];
 
 function BottomNav() {
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="/incident"        element={<IncidentReport />} />
           <Route path="/activity"        element={<ActivityLog />} />
           <Route path="/reports"         element={<ReportsViewer />} />
+          <Route path="/admin"           element={<AdminWorkers />} />
         </Routes>
       </main>
 

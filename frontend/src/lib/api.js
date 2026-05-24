@@ -66,3 +66,23 @@ export async function getIncidents() {
 export async function getActivityLog() {
   return (await fetch('/api/activity')).json();
 }
+
+// ── Admin: workers CRUD ───────────────────────────────────────────────────────
+export async function getWorkers() {
+  return (await fetch('/api/workers')).json();
+}
+export async function addWorker(data) {
+  const res = await fetch('/api/workers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updateWorker(id, data) {
+  const res = await fetch(`/api/workers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function deleteWorker(id) {
+  const res = await fetch(`/api/workers/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
