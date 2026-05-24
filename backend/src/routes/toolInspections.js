@@ -18,11 +18,11 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/tool-inspections
 router.post('/', async (req, res) => {
-  const { tool_type, inspector_name, location } = req.body;
+  const { tool_type, inspector_name, location, expiry_date } = req.body;
   if (!tool_type || !inspector_name) return res.status(400).json({ error: 'tool_type and inspector_name required' });
   const { rows } = await pool.query(
-    'INSERT INTO tool_inspections (tool_type, inspector_name, location) VALUES ($1, $2, $3)',
-    [tool_type, inspector_name, location || '']
+    'INSERT INTO tool_inspections (tool_type, inspector_name, location, expiry_date) VALUES ($1, $2, $3, $4)',
+    [tool_type, inspector_name, location || '', expiry_date || null]
   );
   res.status(201).json(rows[0]);
 });

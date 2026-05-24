@@ -13,6 +13,7 @@ import AdminWorkers from './pages/AdminWorkers.jsx';
 import ToolInspections from './pages/ToolInspections.jsx';
 import ToolInspectionSession from './pages/ToolInspectionSession.jsx';
 import Projects from './pages/Projects.jsx';
+import WorkerCertifications from './pages/WorkerCertifications.jsx';
 
 const NAV = [
   { to: '/',         label: 'בקרה',     icon: '🏠', end: true },
@@ -22,6 +23,7 @@ const NAV = [
   { to: '/gate',     label: 'כניסה',    icon: '🔑'            },
   { to: '/tools',    label: 'כלים',     icon: '🔧'            },
   { to: '/projects', label: 'פרוייקטים',icon: '🏗️'            },
+  { to: '/certs',    label: 'הסמכות',   icon: '🎓'            },
   { to: '/reports',  label: 'דוחות',    icon: '📊'            },
   { to: '/admin',    label: 'אדמין',    icon: '⚙️'            },
 ];
@@ -29,11 +31,11 @@ const NAV = [
 function BottomNav() {
   return (
     <nav className="md:hidden fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
-      <div className="grid grid-cols-9">
+      <div className="flex overflow-x-auto scrollbar-none">
         {NAV.map(({ to, label, icon, end }) => (
           <NavLink key={to} to={to} end={end}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center py-2 text-[9px] font-medium transition ${
+              `flex flex-col items-center justify-center py-2 px-2 text-[9px] font-medium transition shrink-0 flex-1 min-w-[54px] ${
                 isActive ? 'text-blue-700' : 'text-gray-500'
               }`
             }>
@@ -97,6 +99,7 @@ export default function App() {
           <Route path="/tools"                   element={<ToolInspections />} />
           <Route path="/tool-inspection/:id"     element={<ToolInspectionSession />} />
           <Route path="/projects"                element={<Projects />} />
+          <Route path="/certs"                   element={<WorkerCertifications />} />
           <Route path="/admin"                   element={<AdminWorkers />} />
         </Routes>
       </main>

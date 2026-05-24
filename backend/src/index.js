@@ -12,6 +12,7 @@ import incidentsRouter from './routes/incidents.js';
 import activityRouter from './routes/activity.js';
 import toolInspectionsRouter from './routes/toolInspections.js';
 import projectsRouter from './routes/projects.js';
+import certificationsRouter from './routes/certifications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +31,7 @@ app.use('/api/incidents', incidentsRouter);
 app.use('/api/activity', activityRouter);
 app.use('/api/tool-inspections', toolInspectionsRouter);
 app.use('/api/projects', projectsRouter);
+app.use('/api/certifications', certificationsRouter);
 
 export default app;
 

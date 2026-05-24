@@ -13,7 +13,17 @@ const TOOL_TYPES = [
 
 const TYPE_MAP = Object.fromEntries(TOOL_TYPES.map(t => [t.value, t]));
 
-const EMPTY_FORM = { tool_type: '', inspector_name: '', location: '' };
+const EMPTY_FORM = { tool_type: '', inspector_name: '', location: '', expiry_date: '' };
+
+function expiryBadge(expiry_date) {
+  if (!expiry_date) return null;
+  const now = new Date();
+  const exp = new Date(expiry_date);
+  const daysLeft = Math.ceil((exp - now) / 86_400_000);
+  if (daysLeft < 0)  return { label: 'פג תוקף', cls: 'bg-red-100 text-red-700' };
+  if (daysLeft <= 30) return { label: `פג בעוד ${daysLeft} ימים`, cls: 'bg-orange-100 text-orange-700' };
+  return { label: `תקף עד ${exp.toLocaleDateString('he-IL')}`, cls: 'bg-green-100 text-green-700' };
+}
 
 export default function ToolInspections() {
   const navigate = useNavigate();
@@ -81,11 +91,12 @@ export default function ToolInspections() {
               {group.map(insp => (
                 <button key={insp.id} onClick={() => navigate(`/tool-inspection/${insp.id}`)}
                   className="w-full bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition text-right flex items-center justify-between">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 text-sm">{insp.inspector_name}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{insp.location || '—'}  ·  {new Date(insp.created_at).toLocaleDateString('he-IL')}</p>
+                    {(() => { const b = expiryBadge(insp.expiry_date); return b ? <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${b.cls}`}>{b.label}</span> : null; })()}
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  <span className={`mr-2 text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
                     insp.status === 'Closed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                   }`}>
                     {insp.status === 'Closed' ? 'סגורה' : 'פתוחה'}
@@ -130,6 +141,11 @@ export default function ToolInspections() {
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">מיקום / פרויקט</label>
                 <input value={form.location} onChange={e => f('location', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">תאריך תפוגת תעודה / אישור</label>
+                <input type="date" value={form.expiry_date} onChange={e => f('expiry_date', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}

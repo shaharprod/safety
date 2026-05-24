@@ -121,6 +121,29 @@ export async function closeToolInspection(id) {
   return (await fetch(`/api/tool-inspections/${id}/close`, { method: 'PATCH' })).json();
 }
 
+// ── Worker Certifications ─────────────────────────────────────────────────────
+export async function getCertifications() {
+  return (await fetch('/api/certifications')).json();
+}
+export async function getWorkerCertifications(workerId) {
+  return (await fetch(`/api/certifications/worker/${workerId}`)).json();
+}
+export async function addCertification(data) {
+  const res = await fetch('/api/certifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updateCertification(id, data) {
+  const res = await fetch(`/api/certifications/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function deleteCertification(id) {
+  const res = await fetch(`/api/certifications/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
 // ── Projects ──────────────────────────────────────────────────────────────────
 export async function getProjects() {
   return (await fetch('/api/projects')).json();

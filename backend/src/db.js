@@ -22,6 +22,7 @@ const store = {
   audit_items: [],
   tool_inspections: [],
   tool_inspection_items: [],
+  worker_certifications: [],
   projects: [
     { id: 1, name: 'מגדל מגורים א׳', location: 'תל אביב', start_date: new Date('2026-01-01'), end_date: new Date('2026-12-31'), manager_name: 'דני כהן', manager_phone: '052-1234567', manager_email: 'dani@site.com', status: 'active', created_at: new Date() },
     { id: 2, name: 'שיפוץ קמפוס משרדים', location: 'ירושלים', start_date: new Date('2026-03-01'), end_date: new Date('2026-09-30'), manager_name: 'רחל לוי', manager_phone: '054-7654321', manager_email: 'rachel@site.com', status: 'active', created_at: new Date() },
@@ -30,7 +31,7 @@ const store = {
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3, tool_inspections: 1, tool_inspection_items: 1, projects: 3 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3, tool_inspections: 1, tool_inspection_items: 1, projects: 3, worker_certifications: 1 }
 };
 
 function memQuery(sql, params = []) {
@@ -149,8 +150,8 @@ function memQuery(sql, params = []) {
     return { rows: store.tool_inspections.filter(a => a.id === params[0]) };
   }
   if (s.startsWith('INSERT INTO TOOL_INSPECTIONS')) {
-    const [tool_type, inspector_name, location] = params;
-    const row = { id: store._id.tool_inspections++, tool_type, inspector_name, location: location || '', status: 'Open', created_at: new Date() };
+    const [tool_type, inspector_name, location, expiry_date] = params;
+    const row = { id: store._id.tool_inspections++, tool_type, inspector_name, location: location || '', expiry_date: expiry_date ? new Date(expiry_date) : null, status: 'Open', created_at: new Date() };
     store.tool_inspections.push(row);
     _log('tool_inspection_started', `בדיקת כלים: ${tool_type} — ${inspector_name}`, inspector_name, row.id, 'tool_inspection');
     return { rows: [row] };
@@ -205,6 +206,36 @@ function memQuery(sql, params = []) {
   if (s.startsWith('DELETE FROM PROJECTS WHERE ID')) {
     const idx = store.projects.findIndex(p => p.id === params[0]);
     if (idx !== -1) store.projects.splice(idx, 1);
+    return { rows: [{ id: params[0] }] };
+  }
+
+  // ── worker_certifications ────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM WORKER_CERTIFICATIONS') && s.includes('ORDER')) {
+    return { rows: [...store.worker_certifications].sort((a, b) => b.created_at - a.created_at) };
+  }
+  if (s.includes('FROM WORKER_CERTIFICATIONS WHERE ID =')) {
+    return { rows: store.worker_certifications.filter(c => c.id === params[0]) };
+  }
+  if (s.includes('FROM WORKER_CERTIFICATIONS WHERE WORKER_ID')) {
+    return { rows: store.worker_certifications.filter(c => c.worker_id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO WORKER_CERTIFICATIONS')) {
+    const [worker_id, cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes] = params;
+    const row = { id: store._id.worker_certifications++, worker_id, cert_type, cert_number: cert_number || '', issuing_authority: issuing_authority || '', issue_date: issue_date ? new Date(issue_date) : null, expiry_date: expiry_date ? new Date(expiry_date) : null, notes: notes || '', created_at: new Date() };
+    store.worker_certifications.push(row);
+    _log('cert_added', `הסמכה: ${cert_type} — עובד #${worker_id}`, null, row.id, 'certification');
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE WORKER_CERTIFICATIONS SET')) {
+    const [cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes, id] = params;
+    const c = store.worker_certifications.find(c => c.id === id);
+    if (!c) return { rows: [] };
+    Object.assign(c, { cert_type, cert_number: cert_number || '', issuing_authority: issuing_authority || '', issue_date: issue_date ? new Date(issue_date) : null, expiry_date: expiry_date ? new Date(expiry_date) : null, notes: notes || '' });
+    return { rows: [c] };
+  }
+  if (s.startsWith('DELETE FROM WORKER_CERTIFICATIONS WHERE ID')) {
+    const idx = store.worker_certifications.findIndex(c => c.id === params[0]);
+    if (idx !== -1) store.worker_certifications.splice(idx, 1);
     return { rows: [{ id: params[0] }] };
   }
 
