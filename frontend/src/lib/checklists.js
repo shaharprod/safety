@@ -4,7 +4,6 @@ export const AUDIT_TYPES = {
   infrastructure: { label: 'עבודות תשתית',              icon: '⛏️',  sector: 'construction' },
   industrial:     { label: 'בטיחות מפעל / תעשייה',     icon: '🏭',  sector: 'industrial' },
   traffic:        { label: 'בטיחות בתנועה',             icon: '🚦',  sector: 'general' },
-  education:      { label: 'בטיחות מוסדות חינוך',      icon: '🏫',  sector: 'general' },
 };
 
 export const CHECKLIST_ITEMS = {
@@ -82,17 +81,4 @@ export const CHECKLIST_ITEMS = {
     { category: 'נהגים',            item_text: 'נהגים מורשים בלבד לכלי רכב כבדים' },
   ],
 
-  education: [
-    { category: 'מוצאי חירום',      item_text: 'מוצאי חירום מסומנים ופנויים לחלוטין' },
-    { category: 'מוצאי חירום',      item_text: 'תרגיל פינוי בוצע בחודשיים האחרונים' },
-    { category: 'עזרה ראשונה',      item_text: 'ערכת עזרה ראשונה זמינה ומאוישת' },
-    { category: 'עזרה ראשונה',      item_text: 'איש צוות מוסמך בעזרה ראשונה נוכח' },
-    { category: 'מתקנים',           item_text: 'מתקני משחק בדוקים ושלמים' },
-    { category: 'מתקנים',           item_text: 'מעקות ומדרגות תקינים ויציבים' },
-    { category: 'מתקנים',           item_text: 'ריצפות ומשטחים ללא מפגעי החלקה' },
-    { category: 'שילוט',            item_text: 'שלטי בטיחות ברורים ונגישים' },
-    { category: 'שילוט',            item_text: 'מספרי חירום (מד"א, כיבוי אש) מוצגים' },
-    { category: 'פיקוח',            item_text: 'פיקוח מבוגר על פעילות ילדים בחוץ' },
-    { category: 'פיקוח',            item_text: 'שערי כניסה נעולים ומאובטחים' },
-  ]
 };
