@@ -33,6 +33,13 @@ app.use('/api/tool-inspections', toolInspectionsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/certifications', certificationsRouter);
 
+// In production, serve the built React frontend from Express
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.resolve(__dirname, '../../frontend/dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
+}
+
 export default app;
 
 if (process.env.NODE_ENV !== 'test') {
