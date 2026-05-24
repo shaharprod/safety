@@ -234,93 +234,91 @@ export default function WorkerCertifications() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
-              <h2 className="text-base font-bold text-gray-800">{editing ? 'עריכת הסמכה' : 'הסמכה חדשה'}</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
+               onClick={() => setShowForm(false)}>
+            <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
+                 onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
+                <h2 className="text-base font-bold text-gray-800">{editing ? 'עריכת הסמכה' : 'הסמכה חדשה'}</h2>
+                <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">✕</button>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="px-5 py-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">עובד *</label>
+                    <select required value={form.worker_id} onChange={e => f('worker_id', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option value="">בחר עובד...</option>
+                      {workers.map(w => (
+                        <option key={w.id} value={w.id}>{w.first_name} {w.last_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">סוג הסמכה *</label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {CERT_TYPES.map(t => (
+                        <button key={t.value} type="button"
+                          onClick={() => f('cert_type', t.value)}
+                          className={`flex items-center gap-1.5 p-2.5 rounded-lg border text-xs transition ${
+                            form.cert_type === t.value
+                              ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                              : 'border-gray-200 text-gray-600 hover:border-blue-200'
+                          }`}>
+                          <span>{t.icon}</span> {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">מספר תעודה</label>
+                    <input value={form.cert_number} onChange={e => f('cert_number', e.target.value)}
+                      placeholder="לא חובה"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">גורם מוסמך / מוסד מנפיק</label>
+                    <input value={form.issuing_authority} onChange={e => f('issuing_authority', e.target.value)}
+                      placeholder="לא חובה"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">תאריך הנפקה</label>
+                      <input type="date" value={form.issue_date} onChange={e => f('issue_date', e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">תאריך תפוגה *</label>
+                      <input type="date" required value={form.expiry_date} onChange={e => f('expiry_date', e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">הערות</label>
+                    <textarea value={form.notes} onChange={e => f('notes', e.target.value)} rows={2}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+                  </div>
+
+                  {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+                </div>
+
+                <div className="px-5 pt-2 pb-10 border-t border-gray-100 flex gap-3 mt-1">
+                  <button type="button" onClick={() => setShowForm(false)}
+                    className="flex-1 border border-gray-200 text-gray-600 py-3.5 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
+                  <button type="submit" disabled={saving || !form.cert_type}
+                    className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-3.5 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+                    {saving ? 'שומר...' : editing ? 'שמור שינויים' : 'הוסף הסמכה'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">
-              {/* Worker */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">עובד *</label>
-                <select required value={form.worker_id} onChange={e => f('worker_id', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                  <option value="">בחר עובד...</option>
-                  {workers.map(w => (
-                    <option key={w.id} value={w.id}>{w.first_name} {w.last_name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Cert type */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">סוג הסמכה *</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {CERT_TYPES.map(t => (
-                    <button key={t.value} type="button"
-                      onClick={() => f('cert_type', t.value)}
-                      className={`flex items-center gap-1.5 p-2 rounded-lg border text-xs transition ${
-                        form.cert_type === t.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                          : 'border-gray-200 text-gray-600 hover:border-blue-200'
-                      }`}>
-                      <span>{t.icon}</span> {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Cert number */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">מספר תעודה</label>
-                <input value={form.cert_number} onChange={e => f('cert_number', e.target.value)}
-                  placeholder="לא חובה"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-
-              {/* Issuing authority */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">גורם מוסמך / מוסד מנפיק</label>
-                <input value={form.issuing_authority} onChange={e => f('issuing_authority', e.target.value)}
-                  placeholder="לא חובה"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">תאריך הנפקה</label>
-                  <input type="date" value={form.issue_date} onChange={e => f('issue_date', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">תאריך תפוגה *</label>
-                  <input type="date" required value={form.expiry_date} onChange={e => f('expiry_date', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">הערות</label>
-                <textarea value={form.notes} onChange={e => f('notes', e.target.value)} rows={2}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
-              </div>
-
-              {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
-
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setShowForm(false)}
-                  className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm hover:bg-gray-50 transition">ביטול</button>
-                <button type="submit" disabled={saving || !form.cert_type}
-                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50">
-                  {saving ? 'שומר...' : editing ? 'שמור שינויים' : 'הוסף הסמכה'}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

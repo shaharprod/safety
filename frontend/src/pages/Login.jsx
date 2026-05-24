@@ -25,8 +25,8 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-dvh bg-blue-950 flex flex-col items-center justify-center px-4 py-8 overflow-y-auto" dir="rtl">
-      <div className="w-full max-w-sm">
+    <div className="min-h-dvh bg-blue-950 px-4 py-10 overflow-y-auto flex flex-col items-center" dir="rtl">
+      <div className="w-full max-w-sm my-auto">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🦺</div>
           <h1 className="text-2xl font-bold text-white">SafetyOS</h1>
@@ -77,7 +77,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v2.6</p>
+        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v2.7</p>
       </div>
     </div>
   );
