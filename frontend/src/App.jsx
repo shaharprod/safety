@@ -18,6 +18,7 @@ import Projects from './pages/Projects.jsx';
 import WorkerCertifications from './pages/WorkerCertifications.jsx';
 import Login from './pages/Login.jsx';
 import PublicGate from './pages/PublicGate.jsx';
+import WorkerPortal from './pages/WorkerPortal.jsx';
 import ChangePasswordModal from './components/ChangePasswordModal.jsx';
 
 const NAV = [
@@ -80,7 +81,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.4</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.5</span>
           </span>
 
           {/* Desktop links */}
@@ -158,8 +159,9 @@ function AppLayout() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/"       element={<PublicGate />} />
-      <Route path="/login"  element={<Login />} />
+      <Route path="/"               element={<PublicGate />} />
+      <Route path="/worker-portal"  element={<WorkerPortal />} />
+      <Route path="/login"          element={<Login />} />
       <Route path="/*" element={
         <ProtectedRoute>
           <AppLayout />

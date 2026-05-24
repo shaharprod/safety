@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { checkWorker, checkWorkerByGoogle } from '../lib/api.js';
-import WorkerCheckResult from '../components/WorkerCheckResult.jsx';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -16,8 +15,8 @@ export default function PublicGate() {
 }
 
 function GateForm() {
+  const navigate                = useNavigate();
   const [idNumber, setIdNumber] = useState('');
-  const [result, setResult]     = useState(null);
   const [error, setError]       = useState('');
   const [busy, setBusy]         = useState(false);
   const [tab, setTab]           = useState('id');
@@ -41,12 +40,18 @@ function GateForm() {
     }
   }, [tab]);
 
+  function openPortal(data) {
+    sessionStorage.setItem('worker_session', JSON.stringify(data.worker));
+    navigate('/worker-portal');
+  }
+
   async function handleGoogleCredential(response) {
-    setBusy(true); setError(''); setResult(null);
+    setBusy(true); setError('');
     try {
       const { ok, data } = await checkWorkerByGoogle(response.credential);
-      if (!ok) setError(data.error || 'משתמש לא נמצא במערכת');
-      else setResult(data);
+      if (!ok) { setError(data.error || 'משתמש לא נמצא במערכת'); return; }
+      if (data.access_status === 'Allowed') openPortal(data);
+      else setError('כניסה נדחתה — הדרכת הבטיחות פגה. פנה למנהל.');
     } catch { setError('שגיאת תקשורת עם השרת'); }
     finally { setBusy(false); }
   }
@@ -54,16 +59,15 @@ function GateForm() {
   async function handleIdCheck(e) {
     e.preventDefault();
     if (!idNumber.trim()) return;
-    setBusy(true); setError(''); setResult(null);
+    setBusy(true); setError('');
     try {
       const { ok, data } = await checkWorker(idNumber.trim());
-      if (!ok) setError(data.error || 'עובד לא נמצא במערכת');
-      else setResult(data);
+      if (!ok) { setError(data.error || 'עובד לא נמצא במערכת'); return; }
+      if (data.access_status === 'Allowed') openPortal(data);
+      else setError('כניסה נדחתה — הדרכת הבטיחות פגה. פנה למנהל.');
     } catch { setError('שגיאת תקשורת עם השרת'); }
     finally { setBusy(false); }
   }
-
-  function reset() { setResult(null); setError(''); setIdNumber(''); }
 
   return (
     <div className="min-h-screen bg-blue-950 flex flex-col items-center justify-center px-4 py-8" dir="rtl">
@@ -80,13 +84,13 @@ function GateForm() {
           {/* Tab selector */}
           <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-5">
             <button
-              onClick={() => { setTab('id'); reset(); }}
+              onClick={() => { setTab('id'); setError(''); setIdNumber(''); }}
               className={`flex-1 py-2.5 text-sm font-medium transition ${tab === 'id' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
             >
               🪪 תעודת זהות
             </button>
             <button
-              onClick={() => { setTab('google'); reset(); }}
+              onClick={() => { setTab('google'); setError(''); }}
               className={`flex-1 py-2.5 text-sm font-medium transition ${tab === 'google' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
             >
               🔐 Google
@@ -113,7 +117,7 @@ function GateForm() {
                 disabled={busy || !idNumber.trim()}
                 className="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
               >
-                {busy ? 'בודק...' : 'בדוק כניסה'}
+                {busy ? 'בודק...' : 'כניסה'}
               </button>
             </form>
           )}
@@ -136,21 +140,9 @@ function GateForm() {
           )}
 
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-medium">
               {error}
             </div>
-          )}
-
-          {result && (
-            <>
-              <WorkerCheckResult result={result} />
-              <button
-                onClick={reset}
-                className="mt-3 w-full border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm hover:bg-gray-50 active:bg-gray-100 transition"
-              >
-                בדיקה חדשה
-              </button>
-            </>
           )}
         </div>
 
@@ -161,7 +153,7 @@ function GateForm() {
           </Link>
         </div>
 
-        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v2.4</p>
+        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v2.5</p>
       </div>
     </div>
   );
