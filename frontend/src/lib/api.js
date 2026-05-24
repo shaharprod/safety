@@ -19,6 +19,15 @@ export async function checkWorker(id_number) {
   return { ok: res.ok, data: await res.json() };
 }
 
+export async function checkWorkerByGoogle(credential) {
+  const res = await fetch('/api/gate/check-google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential })
+  });
+  return { ok: res.ok, data: await res.json() };
+}
+
 export function downloadPDF() {
   window.location.href = '/api/reports/pdf';
 }

@@ -8,6 +8,7 @@ import AuditNew from './pages/AuditNew.jsx';
 import AuditSession from './pages/AuditSession.jsx';
 import IncidentReport from './pages/IncidentReport.jsx';
 import ActivityLog from './pages/ActivityLog.jsx';
+import ReportsViewer from './pages/ReportsViewer.jsx';
 
 const NAV = [
   { to: '/',          label: 'לוח בקרה',       end: true },
@@ -15,6 +16,7 @@ const NAV = [
   { to: '/report',    label: 'דיווח מפגע'               },
   { to: '/incident',  label: 'בירור אירוע'              },
   { to: '/gate',      label: 'בקרת כניסה'               },
+  { to: '/reports',   label: 'דוחות'                     },
   { to: '/activity',  label: 'יומן פעילות'              }
 ];
 
@@ -71,6 +73,7 @@ export default function App() {
           <Route path="/audit/:id"    element={<AuditSession />} />
           <Route path="/incident"     element={<IncidentReport />} />
           <Route path="/activity"     element={<ActivityLog />} />
+          <Route path="/reports"      element={<ReportsViewer />} />
         </Routes>
       </main>
     </div>

@@ -9,8 +9,8 @@ const store = {
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
   ],
   site_workers: [
-    { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000) },
-    { id: 2, first_name: 'שרה', last_name: 'כהן',  id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000) }
+    { id: 1, first_name: 'משה', last_name: 'לוי',  id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'moshe.levi@gmail.com' },
+    { id: 2, first_name: 'שרה', last_name: 'כהן',  id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' }
   ],
   safety_hazards: [],
   site_access_logs: [],
@@ -42,6 +42,10 @@ function memQuery(sql, params = []) {
   // ── site_workers ────────────────────────────────────────────────────────────
   if (s.includes('FROM SITE_WORKERS WHERE ID_NUMBER')) {
     const w = store.site_workers.find(w => w.id_number === params[0]);
+    return { rows: w ? [w] : [] };
+  }
+  if (s.includes('FROM SITE_WORKERS WHERE GOOGLE_EMAIL')) {
+    const w = store.site_workers.find(w => w.google_email === params[0]);
     return { rows: w ? [w] : [] };
   }
   if (s.startsWith('SELECT * FROM SITE_WORKERS')) {

@@ -1,26 +1,50 @@
-import React, { useState } from 'react';
-import { checkWorker } from '../lib/api.js';
+import React, { useState, useEffect, useRef } from 'react';
+import { checkWorker, checkWorkerByGoogle } from '../lib/api.js';
 import WorkerCheckResult from '../components/WorkerCheckResult.jsx';
 
-export default function GateControl() {
-  const [idNumber, setIdNumber] = useState('');
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
-  async function handleCheck(e) {
-    e.preventDefault();
-    if (!idNumber.trim()) return;
+export default function GateControl() {
+  const [idNumber, setIdNumber]   = useState('');
+  const [result, setResult]       = useState(null);
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [tab, setTab]             = useState('id');  // 'id' | 'google'
+  const googleBtnRef              = useRef(null);
+
+  useEffect(() => {
+    if (tab !== 'google') return;
+    if (!GOOGLE_CLIENT_ID) return;
+
+    const gsi = window.google?.accounts?.id;
+    if (!gsi) return;
+
+    gsi.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: false,
+    });
+
+    if (googleBtnRef.current) {
+      gsi.renderButton(googleBtnRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        locale: 'he',
+        width: googleBtnRef.current.offsetWidth || 320,
+      });
+    }
+  }, [tab]);
+
+  async function handleGoogleCredential(response) {
     setLoading(true);
     setError('');
     setResult(null);
     try {
-      const { ok, data } = await checkWorker(idNumber.trim());
-      if (!ok) {
-        setError(data.error || 'עובד לא נמצא במערכת');
-      } else {
-        setResult(data);
-      }
+      const { ok, data } = await checkWorkerByGoogle(response.credential);
+      if (!ok) setError(data.error || 'משתמש לא נמצא במערכת');
+      else setResult(data);
     } catch {
       setError('שגיאת תקשורת עם השרת');
     } finally {
@@ -28,39 +52,109 @@ export default function GateControl() {
     }
   }
 
+  async function handleIdCheck(e) {
+    e.preventDefault();
+    if (!idNumber.trim()) return;
+    setLoading(true);
+    setError('');
+    setResult(null);
+    try {
+      const { ok, data } = await checkWorker(idNumber.trim());
+      if (!ok) setError(data.error || 'עובד לא נמצא במערכת');
+      else setResult(data);
+    } catch {
+      setError('שגיאת תקשורת עם השרת');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset() {
+    setResult(null);
+    setError('');
+    setIdNumber('');
+  }
+
   return (
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">בקרת כניסה לאתר</h1>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <form onSubmit={handleCheck} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">מספר תעודת זהות</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={idNumber}
-              onChange={e => setIdNumber(e.target.value)}
-              placeholder="הכנס 9 ספרות..."
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              maxLength={9}
-            />
-          </div>
+        {/* Tab selector */}
+        <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-5">
           <button
-            type="submit"
-            disabled={loading || !idNumber.trim()}
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+            onClick={() => { setTab('id'); reset(); }}
+            className={`flex-1 py-2 text-sm font-medium transition ${tab === 'id' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           >
-            {loading ? 'בודק...' : 'בדוק כניסה'}
+            🪪 תעודת זהות
           </button>
-        </form>
+          <button
+            onClick={() => { setTab('google'); reset(); }}
+            className={`flex-1 py-2 text-sm font-medium transition ${tab === 'google' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          >
+            🔐 כניסה עם Google
+          </button>
+        </div>
+
+        {tab === 'id' && (
+          <form onSubmit={handleIdCheck} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">מספר תעודת זהות</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={idNumber}
+                onChange={e => setIdNumber(e.target.value)}
+                placeholder="הכנס 9 ספרות..."
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                maxLength={9}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !idNumber.trim()}
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+            >
+              {loading ? 'בודק...' : 'בדוק כניסה'}
+            </button>
+          </form>
+        )}
+
+        {tab === 'google' && (
+          <div className="space-y-4">
+            {!GOOGLE_CLIENT_ID ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800 text-center">
+                <div className="font-semibold mb-1">הגדרה נדרשת</div>
+                <div>הוסף <code className="bg-yellow-100 px-1 rounded">VITE_GOOGLE_CLIENT_ID</code> לקובץ <code className="bg-yellow-100 px-1 rounded">.env</code> של ה-frontend</div>
+                <div className="mt-2 text-xs text-yellow-600">צור OAuth Client ID ב-Google Cloud Console</div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-600 mb-4 text-center">התחבר עם חשבון Google הרשום במערכת</p>
+                <div ref={googleBtnRef} className="flex justify-center" />
+                {loading && <p className="text-center text-gray-500 text-sm mt-3">מאמת...</p>}
+              </div>
+            )}
+          </div>
+        )}
 
         {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3">
+          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
             {error}
           </div>
         )}
 
-        {result && <WorkerCheckResult result={result} />}
+        {result && (
+          <>
+            <WorkerCheckResult result={result} />
+            <button
+              onClick={reset}
+              className="mt-3 w-full border border-gray-200 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+            >
+              בדיקה חדשה
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
