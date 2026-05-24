@@ -20,11 +20,17 @@ const store = {
   site_access_logs: [],
   safety_audits: [],
   audit_items: [],
+  tool_inspections: [],
+  tool_inspection_items: [],
+  projects: [
+    { id: 1, name: 'מגדל מגורים א׳', location: 'תל אביב', start_date: new Date('2026-01-01'), end_date: new Date('2026-12-31'), manager_name: 'דני כהן', manager_phone: '052-1234567', manager_email: 'dani@site.com', status: 'active', created_at: new Date() },
+    { id: 2, name: 'שיפוץ קמפוס משרדים', location: 'ירושלים', start_date: new Date('2026-03-01'), end_date: new Date('2026-09-30'), manager_name: 'רחל לוי', manager_phone: '054-7654321', manager_email: 'rachel@site.com', status: 'active', created_at: new Date() },
+  ],
   safety_incidents: [
     { id: 1, incident_type: 'near_miss', description: 'חומר כימי שפוך על רצפת המחסן ללא סימון', location: 'מחסן ראשי', involved_parties: 'שלושה עובדים', immediate_cause: 'אחסון לא תקין', root_cause: 'חוסר הדרכה על נוהלי אחסון', actions_taken: 'ניקוי מיידי, תלייה שלטים, הדרכת צוות', reporter_name: 'יוסי צוות', created_at: new Date(Date.now() - 3 * 86_400_000) },
   ],
   activity_logs: [],
-  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3 }
+  _id: { safety_hazards: 4, site_access_logs: 1, safety_audits: 1, audit_items: 1, safety_incidents: 2, activity_logs: 1, site_workers: 3, tool_inspections: 1, tool_inspection_items: 1, projects: 3 }
 };
 
 function memQuery(sql, params = []) {
@@ -133,6 +139,73 @@ function memQuery(sql, params = []) {
     store.safety_incidents.push(row);
     _log('incident_reported', `אירוע: ${description.slice(0, 60)}`, reporter_name, row.id, 'incident');
     return { rows: [row] };
+  }
+
+  // ── tool_inspections ────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM TOOL_INSPECTIONS') && s.includes('ORDER')) {
+    return { rows: [...store.tool_inspections].sort((a, b) => b.created_at - a.created_at) };
+  }
+  if (s.includes('FROM TOOL_INSPECTIONS WHERE ID =')) {
+    return { rows: store.tool_inspections.filter(a => a.id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO TOOL_INSPECTIONS')) {
+    const [tool_type, inspector_name, location] = params;
+    const row = { id: store._id.tool_inspections++, tool_type, inspector_name, location: location || '', status: 'Open', created_at: new Date() };
+    store.tool_inspections.push(row);
+    _log('tool_inspection_started', `בדיקת כלים: ${tool_type} — ${inspector_name}`, inspector_name, row.id, 'tool_inspection');
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE TOOL_INSPECTIONS SET STATUS')) {
+    const insp = store.tool_inspections.find(a => a.id === params[1]);
+    if (insp) { insp.status = params[0]; _log('tool_inspection_closed', `בדיקת כלים סגורה #${insp.id}`, null, insp.id, 'tool_inspection'); }
+    return { rows: insp ? [insp] : [] };
+  }
+
+  // ── tool_inspection_items ────────────────────────────────────────────────────
+  if (s.includes('FROM TOOL_INSPECTION_ITEMS WHERE INSPECTION_ID')) {
+    return { rows: store.tool_inspection_items.filter(i => i.inspection_id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO TOOL_INSPECTION_ITEMS')) {
+    const [inspection_id, tool_name, serial_number, condition, notes] = params;
+    const row = { id: store._id.tool_inspection_items++, inspection_id, tool_name, serial_number: serial_number || '', condition: condition || 'pending', notes: notes || '', created_at: new Date() };
+    store.tool_inspection_items.push(row);
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE TOOL_INSPECTION_ITEMS SET CONDITION')) {
+    const item = store.tool_inspection_items.find(i => i.id === params[2]);
+    if (item) { item.condition = params[0]; item.notes = params[1] || ''; }
+    return { rows: item ? [item] : [] };
+  }
+  if (s.startsWith('DELETE FROM TOOL_INSPECTION_ITEMS WHERE ID')) {
+    const idx = store.tool_inspection_items.findIndex(i => i.id === params[0]);
+    if (idx !== -1) store.tool_inspection_items.splice(idx, 1);
+    return { rows: [] };
+  }
+
+  // ── projects ─────────────────────────────────────────────────────────────────
+  if (s.startsWith('SELECT * FROM PROJECTS') && s.includes('ORDER')) {
+    return { rows: [...store.projects].sort((a, b) => b.created_at - a.created_at) };
+  }
+  if (s.includes('FROM PROJECTS WHERE ID =')) {
+    return { rows: store.projects.filter(p => p.id === params[0]) };
+  }
+  if (s.startsWith('INSERT INTO PROJECTS')) {
+    const [name, location, start_date, end_date, manager_name, manager_phone, manager_email, status] = params;
+    const row = { id: store._id.projects++, name, location: location || '', start_date: start_date ? new Date(start_date) : null, end_date: end_date ? new Date(end_date) : null, manager_name, manager_phone: manager_phone || '', manager_email: manager_email || '', status: status || 'active', created_at: new Date() };
+    store.projects.push(row);
+    return { rows: [row] };
+  }
+  if (s.startsWith('UPDATE PROJECTS SET')) {
+    const [name, location, start_date, end_date, manager_name, manager_phone, manager_email, status, id] = params;
+    const p = store.projects.find(p => p.id === id);
+    if (!p) return { rows: [] };
+    Object.assign(p, { name, location: location || '', start_date: start_date ? new Date(start_date) : null, end_date: end_date ? new Date(end_date) : null, manager_name, manager_phone: manager_phone || '', manager_email: manager_email || '', status: status || 'active' });
+    return { rows: [p] };
+  }
+  if (s.startsWith('DELETE FROM PROJECTS WHERE ID')) {
+    const idx = store.projects.findIndex(p => p.id === params[0]);
+    if (idx !== -1) store.projects.splice(idx, 1);
+    return { rows: [{ id: params[0] }] };
   }
 
   // ── activity_logs ───────────────────────────────────────────────────────────

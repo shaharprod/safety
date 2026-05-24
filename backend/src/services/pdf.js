@@ -283,3 +283,83 @@ export function generateAuditPDF(audit, items) {
     doc.end();
   });
 }
+
+// ── Tool Inspection PDF ────────────────────────────────────────────────────────
+const TOOL_TYPE_LABEL = {
+  electrical:  'כלים חשמליים',
+  hydraulic:   'כלים הידראוליים',
+  lifting:     'מתקני הרמה',
+  hand_tools:  'כלי יד',
+  pressure:    'ציוד לחץ',
+  pneumatic:   'כלים פנאומטיים',
+};
+
+const CONDITION_LABEL = { pass: 'תקין', fail: 'לא תקין', needs_repair: 'דורש תיקון', pending: 'ממתין' };
+const CONDITION_COLOR = { pass: '#16a34a', fail: '#dc2626', needs_repair: '#d97706', pending: '#6b7280' };
+
+export function generateToolInspectionPDF(inspection, items) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'A4', margin: MARGIN });
+    const chunks = [];
+    doc.on('data', c => chunks.push(c));
+    doc.on('end',  () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+    applyFonts(doc);
+
+    const passes       = items.filter(i => i.condition === 'pass').length;
+    const fails        = items.filter(i => i.condition === 'fail').length;
+    const needs_repair = items.filter(i => i.condition === 'needs_repair').length;
+    const typeLabel    = TOOL_TYPE_LABEL[inspection.tool_type] || inspection.tool_type;
+
+    pageHeader(doc,
+      `דוח תקינות כלי עבודה — ${typeLabel}`,
+      `מבצע: ${inspection.inspector_name}  |  מיקום: ${inspection.location || '—'}  |  ${new Date(inspection.created_at).toLocaleDateString('he-IL')}`
+    );
+
+    // Summary bar
+    doc.font('Regular').fontSize(12).fillColor('#111827')
+       .text(`סה"כ: ${items.length}  ·  תקין: ${passes}  ·  לא תקין: ${fails}  ·  דורש תיקון: ${needs_repair}`,
+             LEFT, doc.y, { width: CONT_W, align: 'right' });
+    doc.moveDown(1);
+
+    if (!items.length) {
+      doc.font('Regular').fontSize(13).fillColor('#6b7280')
+         .text(rtl('לא נרשמו כלים בבדיקה זו.'), LEFT, doc.y, { width: CONT_W, align: 'center' });
+    }
+
+    // Table header
+    const COL = { notes: LEFT, condition: LEFT + 140, serial: LEFT + 270, name: LEFT + 370 };
+    const HDR_Y = doc.y;
+    doc.rect(LEFT, HDR_Y, CONT_W, 18).fill('#1e40af');
+    doc.font('Bold').fontSize(9).fillColor('#ffffff');
+    doc.text('הערות',         COL.notes,     HDR_Y + 4, { width: 135, align: 'right' });
+    doc.text('מצב',           COL.condition, HDR_Y + 4, { width: 125, align: 'right' });
+    doc.text('מ"ס',           COL.serial,    HDR_Y + 4, { width: 95,  align: 'right' });
+    doc.text('שם הכלי',       COL.name,      HDR_Y + 4, { width: 180, align: 'right' });
+    doc.y = HDR_Y + 22;
+
+    for (let i = 0; i < items.length; i++) {
+      if (doc.y > 730) { doc.addPage(); }
+      const item = items[i];
+      const rowY = doc.y;
+      const rowH = 18;
+
+      if (i % 2 === 1) doc.rect(LEFT, rowY, CONT_W, rowH).fill('#f9fafb');
+      doc.fillColor(CONDITION_COLOR[item.condition] || '#374151');
+
+      doc.font('Regular').fontSize(9);
+      doc.fillColor('#374151')
+         .text(rtl(item.notes || '—'),        COL.notes,     rowY + 4, { width: 135, align: 'right' });
+      doc.fillColor(CONDITION_COLOR[item.condition] || '#374151').font('Bold')
+         .text(rtl(CONDITION_LABEL[item.condition] || item.condition), COL.condition, rowY + 4, { width: 125, align: 'right' });
+      doc.fillColor('#374151').font('Regular')
+         .text(item.serial_number || '—',     COL.serial,    rowY + 4, { width: 95,  align: 'right' })
+         .text(rtl(item.tool_name),            COL.name,      rowY + 4, { width: 180, align: 'right' });
+
+      doc.y = rowY + rowH;
+    }
+
+    signature(doc);
+    doc.end();
+  });
+}

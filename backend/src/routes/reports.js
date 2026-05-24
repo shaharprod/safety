@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
-import { generateHazardsPDF, generateIncidentsPDF, generateAuditPDF } from '../services/pdf.js';
+import { generateHazardsPDF, generateIncidentsPDF, generateAuditPDF, generateToolInspectionPDF } from '../services/pdf.js';
 
 const router = Router();
 
@@ -47,6 +47,16 @@ router.get('/pdf', async (req, res) => {
   );
   const buf = await generateHazardsPDF(rows);
   sendPDF(res, buf, 'hazards-report', false);
+});
+
+// GET /api/reports/tool-inspection/:id?inline=1
+router.get('/tool-inspection/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  const { rows: inspections } = await pool.query('SELECT * FROM tool_inspections WHERE id = $1', [id]);
+  if (!inspections.length) return res.status(404).json({ error: 'Not found' });
+  const { rows: items } = await pool.query('SELECT * FROM tool_inspection_items WHERE inspection_id = $1', [id]);
+  const buf = await generateToolInspectionPDF(inspections[0], items);
+  sendPDF(res, buf, `tool-inspection-${id}`, !!req.query.inline);
 });
 
 export default router;

@@ -10,6 +10,8 @@ import reportsRouter from './routes/reports.js';
 import auditsRouter from './routes/audits.js';
 import incidentsRouter from './routes/incidents.js';
 import activityRouter from './routes/activity.js';
+import toolInspectionsRouter from './routes/toolInspections.js';
+import projectsRouter from './routes/projects.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +28,8 @@ app.use('/api/reports', reportsRouter);
 app.use('/api/audits', auditsRouter);
 app.use('/api/incidents', incidentsRouter);
 app.use('/api/activity', activityRouter);
+app.use('/api/tool-inspections', toolInspectionsRouter);
+app.use('/api/projects', projectsRouter);
 
 export default app;
 

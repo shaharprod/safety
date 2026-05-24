@@ -86,3 +86,57 @@ export async function deleteWorker(id) {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+// ── Tool Inspections ──────────────────────────────────────────────────────────
+export async function getToolInspections() {
+  return (await fetch('/api/tool-inspections')).json();
+}
+export async function getToolInspection(id) {
+  return (await fetch(`/api/tool-inspections/${id}`)).json();
+}
+export async function createToolInspection(data) {
+  const res = await fetch('/api/tool-inspections', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function getToolInspectionItems(id) {
+  return (await fetch(`/api/tool-inspections/${id}/items`)).json();
+}
+export async function addToolInspectionItem(id, data) {
+  const res = await fetch(`/api/tool-inspections/${id}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updateToolInspectionItem(inspId, itemId, data) {
+  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function deleteToolInspectionItem(inspId, itemId) {
+  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function closeToolInspection(id) {
+  return (await fetch(`/api/tool-inspections/${id}/close`, { method: 'PATCH' })).json();
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────────
+export async function getProjects() {
+  return (await fetch('/api/projects')).json();
+}
+export async function addProject(data) {
+  const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updateProject(id, data) {
+  const res = await fetch(`/api/projects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function deleteProject(id) {
+  const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
