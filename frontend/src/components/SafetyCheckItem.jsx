@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function SafetyCheckItem({ item, auditId, onUpdate }) {
+export default function SafetyCheckItem({ item, auditId, onUpdate, num }) {
   const [status, setStatus] = useState(item.status || 'pending');
   const [note, setNote] = useState(item.notes || '');
   const [image, setImage] = useState(null);
@@ -27,8 +27,13 @@ export default function SafetyCheckItem({ item, auditId, onUpdate }) {
       status === 'na'   ? 'bg-gray-50 border-gray-200' :
       'bg-white border-gray-200'
     }`}>
-      <p className="font-medium text-gray-800 mb-3">{item.item_text}</p>
-      {item.category && <span className="text-xs text-gray-400 mb-2 block">{item.category}</span>}
+      <div className="flex items-start gap-2 mb-3">
+        {num && <span className="shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">{num}</span>}
+        <div>
+          <p className="font-medium text-gray-800">{item.item_text}</p>
+          {item.category && <span className="text-xs text-gray-400 mt-0.5 block">{item.category}</span>}
+        </div>
+      </div>
 
       <div className="flex gap-2 mb-3">
         <button

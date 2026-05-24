@@ -52,8 +52,8 @@ export default function AuditSession() {
 
       {/* Items */}
       <div className="space-y-1">
-        {items.map(item => (
-          <SafetyCheckItem key={item.id} item={item} auditId={id} onUpdate={handleUpdate} />
+        {items.map((item, idx) => (
+          <SafetyCheckItem key={item.id} item={item} auditId={id} onUpdate={handleUpdate} num={idx + 1} />
         ))}
       </div>
 
