@@ -17,19 +17,20 @@ import ToolInspectionSession from './pages/ToolInspectionSession.jsx';
 import Projects from './pages/Projects.jsx';
 import WorkerCertifications from './pages/WorkerCertifications.jsx';
 import Login from './pages/Login.jsx';
+import PublicGate from './pages/PublicGate.jsx';
 import ChangePasswordModal from './components/ChangePasswordModal.jsx';
 
 const NAV = [
-  { to: '/',         label: 'בקרה',     icon: '🏠', end: true },
-  { to: '/audits',   label: 'בקרות',    icon: '📋'            },
-  { to: '/report',   label: 'מפגע',     icon: '⚠️'            },
-  { to: '/incident', label: 'אירוע',    icon: '🔍'            },
-  { to: '/gate',     label: 'כניסה',    icon: '🔑'            },
-  { to: '/tools',    label: 'כלים',     icon: '🔧'            },
-  { to: '/projects', label: 'פרוייקטים',icon: '🏗️'            },
-  { to: '/certs',    label: 'הסמכות',   icon: '🎓'            },
-  { to: '/reports',  label: 'דוחות',    icon: '📊'            },
-  { to: '/admin',    label: 'אדמין',    icon: '⚙️'            },
+  { to: '/dashboard', label: 'בקרה',     icon: '🏠', end: true },
+  { to: '/audits',    label: 'בקרות',    icon: '📋'            },
+  { to: '/report',    label: 'מפגע',     icon: '⚠️'            },
+  { to: '/incident',  label: 'אירוע',    icon: '🔍'            },
+  { to: '/gate',      label: 'כניסה',    icon: '🔑'            },
+  { to: '/tools',     label: 'כלים',     icon: '🔧'            },
+  { to: '/projects',  label: 'פרוייקטים',icon: '🏗️'            },
+  { to: '/certs',     label: 'הסמכות',   icon: '🎓'            },
+  { to: '/reports',   label: 'דוחות',    icon: '📊'            },
+  { to: '/admin',     label: 'אדמין',    icon: '⚙️'            },
 ];
 
 const ROLE_LABELS = {
@@ -79,7 +80,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.2</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v2.3</span>
           </span>
 
           {/* Desktop links */}
@@ -157,7 +158,8 @@ function AppLayout() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/"       element={<PublicGate />} />
+      <Route path="/login"  element={<Login />} />
       <Route path="/*" element={
         <ProtectedRoute>
           <AppLayout />
