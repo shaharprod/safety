@@ -22,8 +22,18 @@ const SEVERITY_LABEL = { Low: 'נמוכה', Medium: 'בינונית', High: 'ג�
 const STATUS_LABEL   = { Open: 'פתוח', In_Progress: 'בטיפול', Resolved: 'טופל' };
 const INCIDENT_LABEL = { near_miss: 'כמעט ונפגע', injury: 'תאונת עבודה', property_damage: 'נזק לרכוש' };
 const AUDIT_LABEL    = {
-  work: 'בטיחות בעבודה', construction: 'אתר בנייה', infrastructure: 'עבודות תשתית',
-  industrial: 'מפעל תעשייה', traffic: 'בטיחות תנועה', education: 'מוסדות חינוך'
+  work:          'בטיחות בעבודה כללית',
+  construction:  'בטיחות אתר בנייה',
+  infrastructure:'עבודות תשתית',
+  industrial:    'בטיחות מפעל / תעשייה',
+  traffic:       'בטיחות בתנועה',
+  fire:          'בטיחות אש וחירום',
+  electrical:    'בטיחות חשמל',
+  scaffolding:   'פיגומים ועבודה בגובה',
+  confined:      'מרחבים מוגבלים',
+  chemicals:     'חומרים מסוכנים',
+  ergonomics:    'ארגונומיה ועומס גופני',
+  emergency:     'מוכנות לחירום ופינוי',
 };
 
 // Replace regular spaces with non-breaking spaces so the PDF viewer's
@@ -31,6 +41,14 @@ const AUDIT_LABEL    = {
 function rtl(v) {
   if (v === null || v === undefined) return '';
   return String(v).replace(/ /g, ' ');
+}
+// Pre-reverse purely-Latin strings so PDFKit's bidi reversal restores them correctly.
+// Hebrew text is passed through rtl() as normal.
+function ltr(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  if (!/[֐-׿]/.test(s)) return s.split('').reverse().join('');
+  return rtl(s);
 }
 
 function fetchImage(url) {
@@ -161,7 +179,7 @@ export function generateHazardsPDF(hazards) {
 
       row(doc, 'תיאור',       h.description);
       row(doc, 'ממונה',       h.supervisor_name);
-      row(doc, 'אימייל',      h.supervisor_email);
+      row(doc, 'אימייל',      ltr(h.supervisor_email));
       row(doc, 'דחיפות',      sev);
       row(doc, 'סטטוס',       STATUS_LABEL[h.status] || h.status);
       row(doc, 'תאריך דיווח', new Date(h.created_at).toLocaleDateString('he-IL'));
@@ -246,7 +264,7 @@ export function generateAuditPDF(audit, items) {
     const pct    = items.length ? Math.round(passes / items.length * 100) : 0;
 
     pageHeader(doc,
-      `דוח בקרת בטיחות — ${AUDIT_LABEL[audit.audit_type] || audit.audit_type}`,
+      `דוח בקרת בטיחות — ${AUDIT_LABEL[audit.audit_type] || ltr(audit.audit_type)}`,
       `${rtl(audit.project_name || '')}  |  מפקח: ${rtl(audit.inspector_name)}  |  ${new Date(audit.created_at).toLocaleDateString('he-IL')}`
     );
 
@@ -309,7 +327,7 @@ export function generateToolInspectionPDF(inspection, items) {
     const passes       = items.filter(i => i.condition === 'pass').length;
     const fails        = items.filter(i => i.condition === 'fail').length;
     const needs_repair = items.filter(i => i.condition === 'needs_repair').length;
-    const typeLabel    = TOOL_TYPE_LABEL[inspection.tool_type] || inspection.tool_type;
+    const typeLabel    = TOOL_TYPE_LABEL[inspection.tool_type] || ltr(inspection.tool_type);
 
     pageHeader(doc,
       `דוח תקינות כלי עבודה — ${typeLabel}`,
