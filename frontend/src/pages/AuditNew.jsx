@@ -55,13 +55,16 @@ export default function AuditNew() {
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <form onSubmit={handleStart} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">שם המפקח / יועץ הבטיחות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ממונה הבטיחות</label>
             <select required value={inspectorName} onChange={e => setInspectorName(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-              <option value="">בחר מפקח...</option>
-              {workers.map(w => (
+              <option value="">בחר ממונה בטיחות...</option>
+              {workers.filter(w => w.worker_role === 'safety_officer').map(w => (
                 <option key={w.id} value={`${w.first_name} ${w.last_name}`}>{w.first_name} {w.last_name}</option>
               ))}
+              {workers.filter(w => w.worker_role === 'safety_officer').length === 0 && (
+                <option disabled value="">אין ממונה בטיחות רשום במערכת</option>
+              )}
             </select>
           </div>
           <div>

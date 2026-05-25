@@ -3,14 +3,26 @@ import { getWorkers, addWorker, updateWorker, deleteWorker, getUsers, addUser, u
 import { useAuth } from '../context/AuthContext.jsx';
 import { downloadCsv } from '../lib/csv.js';
 
+const WORKER_ROLE_LABELS = {
+  worker:          'עובד רגיל',
+  project_manager: 'מנהל פרוייקט / מנהל עבודה',
+  safety_officer:  'ממונה בטיחות',
+};
+const WORKER_ROLE_COLORS = {
+  worker:          'bg-gray-100 text-gray-600',
+  project_manager: 'bg-yellow-100 text-yellow-800',
+  safety_officer:  'bg-blue-100 text-blue-800',
+};
+
 function exportWorkers(workers) {
-  const headers = ['שם פרטי', 'שם משפחה', 'תעודת זהות', 'אימייל Google', 'אישור גובה', 'הדרכה אחרונה', 'ימים מהדרכה'];
+  const headers = ['שם פרטי', 'שם משפחה', 'תעודת זהות', 'תפקיד', 'אימייל Google', 'אישור גובה', 'הדרכה אחרונה', 'ימים מהדרכה'];
   const rows = workers.map(w => {
     const days = w.last_training_date
       ? Math.floor((Date.now() - new Date(w.last_training_date).getTime()) / 86_400_000)
       : '';
     return [
       w.first_name, w.last_name, w.id_number,
+      WORKER_ROLE_LABELS[w.worker_role] || 'עובד רגיל',
       w.google_email || '',
       w.has_height_clearance ? 'כן' : 'לא',
       w.last_training_date ? new Date(w.last_training_date).toLocaleDateString('he-IL') : '',
@@ -20,7 +32,7 @@ function exportWorkers(workers) {
   downloadCsv(`עובדים_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
 }
 
-const EMPTY_WORKER = { first_name: '', last_name: '', id_number: '', google_email: '', has_height_clearance: false, last_training_date: '' };
+const EMPTY_WORKER = { first_name: '', last_name: '', id_number: '', google_email: '', has_height_clearance: false, last_training_date: '', worker_role: 'worker' };
 const EMPTY_USER   = { username: '', password: '', full_name: '', role: 'foreman' };
 
 function accessStatus(worker) {
@@ -57,7 +69,7 @@ function WorkersTab() {
 
   function openNew() { setForm(EMPTY_WORKER); setEditId(0); setError(''); }
   function openEdit(w) {
-    setForm({ ...w, last_training_date: toDateInput(w.last_training_date), google_email: w.google_email || '' });
+    setForm({ ...w, last_training_date: toDateInput(w.last_training_date), google_email: w.google_email || '', worker_role: w.worker_role || 'worker' });
     setEditId(w.id); setError('');
   }
   function closeForm() { setEditId(null); setError(''); }
@@ -110,6 +122,9 @@ function WorkersTab() {
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${st.color}`}>{st.label}</span>
                   </div>
                   <div className="text-xs text-gray-500 space-y-0.5 mb-3">
+                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-1 ${WORKER_ROLE_COLORS[w.worker_role] || 'bg-gray-100 text-gray-600'}`}>
+                      {WORKER_ROLE_LABELS[w.worker_role] || 'עובד רגיל'}
+                    </span>
                     {w.google_email && <p>📧 {w.google_email}</p>}
                     <p>{w.has_height_clearance ? '✅ אישור עבודה בגובה' : '❌ ללא אישור גובה'}</p>
                   </div>
@@ -128,6 +143,7 @@ function WorkersTab() {
                 <tr>
                   <th className="px-4 py-3 text-right">שם</th>
                   <th className="px-4 py-3 text-right">ת.ז.</th>
+                  <th className="px-4 py-3 text-right">תפקיד</th>
                   <th className="px-4 py-3 text-right">אימייל Google</th>
                   <th className="px-4 py-3 text-right">גובה</th>
                   <th className="px-4 py-3 text-right">הדרכה אחרונה</th>
@@ -142,6 +158,11 @@ function WorkersTab() {
                     <tr key={w.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium">{w.first_name} {w.last_name}</td>
                       <td className="px-4 py-3 text-gray-500 font-mono">{w.id_number}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${WORKER_ROLE_COLORS[w.worker_role] || 'bg-gray-100 text-gray-600'}`}>
+                          {WORKER_ROLE_LABELS[w.worker_role] || 'עובד רגיל'}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-gray-500 text-xs">{w.google_email || <span className="text-gray-300">—</span>}</td>
                       <td className="px-4 py-3 text-center">{w.has_height_clearance ? '✅' : '❌'}</td>
                       <td className="px-4 py-3 text-gray-500">{w.last_training_date ? new Date(w.last_training_date).toLocaleDateString('he-IL') : <span className="text-gray-300">—</span>}</td>
@@ -156,7 +177,7 @@ function WorkersTab() {
                   );
                 })}
                 {workers.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-10 text-gray-400">אין עובדים רשומים</td></tr>
+                  <tr><td colSpan={8} className="text-center py-10 text-gray-400">אין עובדים רשומים</td></tr>
                 )}
               </tbody>
             </table>
@@ -165,7 +186,7 @@ function WorkersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] overflow-y-auto">
           <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
                onClick={closeForm}>
             <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
@@ -189,6 +210,14 @@ function WorkersTab() {
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">תעודת זהות *</label>
                     <input required value={form.id_number} onChange={e => f('id_number', e.target.value)} inputMode="numeric" maxLength={9} placeholder="9 ספרות" className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">תפקיד *</label>
+                    <select required value={form.worker_role} onChange={e => f('worker_role', e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option value="worker">עובד רגיל</option>
+                      <option value="project_manager">מנהל פרוייקט / מנהל עבודה</option>
+                      <option value="safety_officer">ממונה בטיחות</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">אימייל Google (לכניסה)</label>
@@ -219,7 +248,7 @@ function WorkersTab() {
       )}
 
       {confirmDel && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center" onClick={e => e.stopPropagation()}>
             <div className="text-4xl mb-3">🗑️</div>
             <h3 className="text-lg font-bold text-gray-800 mb-1">מחיקת עובד</h3>
@@ -325,7 +354,7 @@ function UsersTab() {
       )}
 
       {editId !== null && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] overflow-y-auto">
           <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
                onClick={closeForm}>
             <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
@@ -372,7 +401,7 @@ function UsersTab() {
       )}
 
       {confirmDel && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center" onClick={e => e.stopPropagation()}>
             <div className="text-4xl mb-3">🗑️</div>
             <h3 className="text-lg font-bold text-gray-800 mb-1">מחיקת משתמש</h3>

@@ -119,7 +119,7 @@ export default function ToolInspections() {
 
       {/* New inspection modal */}
       {showNew && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] overflow-y-auto">
           <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
                onClick={() => setShowNew(false)}>
             <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
@@ -147,13 +147,16 @@ export default function ToolInspections() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">שם הבודק *</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">ממונה הבטיחות *</label>
                     <select required value={form.inspector_name} onChange={e => f('inspector_name', e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                      <option value="">בחר בודק...</option>
-                      {workers.map(w => (
+                      <option value="">בחר ממונה בטיחות...</option>
+                      {workers.filter(w => w.worker_role === 'safety_officer').map(w => (
                         <option key={w.id} value={`${w.first_name} ${w.last_name}`}>{w.first_name} {w.last_name}</option>
                       ))}
+                      {workers.filter(w => w.worker_role === 'safety_officer').length === 0 && (
+                        <option disabled value="">אין ממונה בטיחות רשום במערכת</option>
+                      )}
                     </select>
                   </div>
                   <div>

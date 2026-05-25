@@ -60,15 +60,16 @@ router.get('/', async (_, res) => {
 
 // ── Admin: add worker ─────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id } = req.body;
+  const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id, worker_role } = req.body;
   if (!first_name || !last_name || !id_number) {
     return res.status(400).json({ error: 'first_name, last_name, id_number are required' });
   }
+  const role = ['worker', 'project_manager', 'safety_officer'].includes(worker_role) ? worker_role : 'worker';
   const { rows } = await pool.query(
-    `INSERT INTO site_workers (first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+    `INSERT INTO site_workers (first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id, worker_role)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
     [first_name, last_name, id_number, google_email || null, !!has_height_clearance,
-     last_training_date || null, subcontractor_id || null]
+     last_training_date || null, subcontractor_id || null, role]
   );
   res.status(201).json(rows[0]);
 });
@@ -76,14 +77,15 @@ router.post('/', async (req, res) => {
 // ── Admin: update worker ──────────────────────────────────────────────────────
 router.put('/:id', async (req, res) => {
   const id = Number(req.params.id);
-  const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date } = req.body;
+  const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, worker_role } = req.body;
+  const role = ['worker', 'project_manager', 'safety_officer'].includes(worker_role) ? worker_role : 'worker';
   const { rows } = await pool.query(
     `UPDATE site_workers
      SET first_name=$1, last_name=$2, id_number=$3, google_email=$4,
-         has_height_clearance=$5, last_training_date=$6
-     WHERE id=$7 RETURNING *`,
+         has_height_clearance=$5, last_training_date=$6, worker_role=$7
+     WHERE id=$8 RETURNING *`,
     [first_name, last_name, id_number, google_email || null,
-     !!has_height_clearance, last_training_date || null, id]
+     !!has_height_clearance, last_training_date || null, role, id]
   );
   if (!rows.length) return res.status(404).json({ error: 'Worker not found' });
   res.json(rows[0]);

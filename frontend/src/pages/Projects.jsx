@@ -155,7 +155,7 @@ export default function Projects() {
 
       {/* Add/Edit modal */}
       {editId !== null && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] overflow-y-auto">
           <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
                onClick={closeForm}>
             <div className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
@@ -232,7 +232,7 @@ export default function Projects() {
 
       {/* Delete confirm */}
       {confirmDel && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={() => setConfirmDel(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center" onClick={e => e.stopPropagation()}>
             <div className="text-4xl mb-3">🗑️</div>
             <h3 className="text-lg font-bold text-gray-800 mb-1">מחיקת פרוייקט</h3>

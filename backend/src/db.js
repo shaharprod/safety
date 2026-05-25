@@ -13,16 +13,16 @@ const store = {
     { id: 1, company_name: 'חברת א. ביצוע בע"מ', tax_id: '510123456', contact_phone: '054-1234567' }
   ],
   site_workers: [
-    { id: 1, first_name: 'משה',   last_name: 'לוי',      id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'shaharprod@gmail.com' },
-    { id: 2, first_name: 'שרה',   last_name: 'כהן',      id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com' },
-    { id: 3, first_name: 'דני',   last_name: 'אברהם',    id_number: '112233445', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  80 * 86_400_000), google_email: null },
-    { id: 4, first_name: 'רחל',   last_name: 'פרץ',      id_number: '556677889', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 200 * 86_400_000), google_email: null },
-    { id: 5, first_name: 'יוסי',  last_name: 'מזרחי',    id_number: '223344556', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 310 * 86_400_000), google_email: null },
-    { id: 6, first_name: 'אורן',  last_name: 'שפירא',    id_number: '334455667', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  45 * 86_400_000), google_email: null },
-    { id: 7, first_name: 'מיכל',  last_name: 'גולדברג',  id_number: '445566778', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 150 * 86_400_000), google_email: null },
-    { id: 8, first_name: 'עמית',  last_name: 'בן-דוד',   id_number: '667788990', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 260 * 86_400_000), google_email: null },
-    { id: 9, first_name: 'נועה',  last_name: 'רוזנברג',  id_number: '778899001', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 500 * 86_400_000), google_email: null },
-    { id: 10, first_name: 'איתי', last_name: 'חדד',       id_number: '889900112', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  20 * 86_400_000), google_email: null },
+    { id: 1, first_name: 'משה',   last_name: 'לוי',      id_number: '123456789', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 100 * 86_400_000), google_email: 'shaharprod@gmail.com', worker_role: 'safety_officer' },
+    { id: 2, first_name: 'שרה',   last_name: 'כהן',      id_number: '987654321', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 400 * 86_400_000), google_email: 'sarah.cohen@gmail.com', worker_role: 'project_manager' },
+    { id: 3, first_name: 'דני',   last_name: 'אברהם',    id_number: '112233445', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  80 * 86_400_000), google_email: null, worker_role: 'project_manager' },
+    { id: 4, first_name: 'רחל',   last_name: 'פרץ',      id_number: '556677889', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 200 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 5, first_name: 'יוסי',  last_name: 'מזרחי',    id_number: '223344556', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 310 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 6, first_name: 'אורן',  last_name: 'שפירא',    id_number: '334455667', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  45 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 7, first_name: 'מיכל',  last_name: 'גולדברג',  id_number: '445566778', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 150 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 8, first_name: 'עמית',  last_name: 'בן-דוד',   id_number: '667788990', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() - 260 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 9, first_name: 'נועה',  last_name: 'רוזנברג',  id_number: '778899001', subcontractor_id: 1, has_height_clearance: false, last_training_date: new Date(Date.now() - 500 * 86_400_000), google_email: null, worker_role: 'worker' },
+    { id: 10, first_name: 'איתי', last_name: 'חדד',       id_number: '889900112', subcontractor_id: 1, has_height_clearance: true,  last_training_date: new Date(Date.now() -  20 * 86_400_000), google_email: null, worker_role: 'safety_officer' },
   ],
   safety_hazards: [
     { id: 1, description: 'גידור חסר בקצה פיגום בקומה שלישית', image_url: '', supervisor_email: 'demo@site.com', supervisor_name: 'דני מנהל', severity: 'High', status: 'Open', created_at: new Date(Date.now() - 2 * 86_400_000), resolved_at: null, treated_by_id: null, treated_at: null, treatment_notes: null, resolved_by_id: null, resolved_notes: null },
@@ -141,16 +141,16 @@ function memQuery(sql, params = []) {
     return { rows: [...store.site_workers].sort((a, b) => a.last_name.localeCompare(b.last_name)) };
   }
   if (s.startsWith('INSERT INTO SITE_WORKERS')) {
-    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id] = params;
-    const row = { id: ++store._id.site_workers, first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null, subcontractor_id: subcontractor_id || null };
+    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id, worker_role] = params;
+    const row = { id: ++store._id.site_workers, first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null, subcontractor_id: subcontractor_id || null, worker_role: worker_role || 'worker' };
     store.site_workers.push(row);
     return { rows: [row] };
   }
   if (s.startsWith('UPDATE SITE_WORKERS SET')) {
-    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, id] = params;
+    const [first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, worker_role, id] = params;
     const w = store.site_workers.find(w => w.id === id);
     if (!w) return { rows: [] };
-    Object.assign(w, { first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null });
+    Object.assign(w, { first_name, last_name, id_number, google_email: google_email || null, has_height_clearance: !!has_height_clearance, last_training_date: last_training_date ? new Date(last_training_date) : null, worker_role: worker_role || 'worker' });
     return { rows: [w] };
   }
   if (s.startsWith('DELETE FROM SITE_WORKERS WHERE ID=')) {

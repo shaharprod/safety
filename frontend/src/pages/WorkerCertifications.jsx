@@ -234,7 +234,7 @@ export default function WorkerCertifications() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[200] overflow-y-auto">
           <div className="flex min-h-full items-end sm:items-center justify-center bg-black/40 sm:px-4"
                onClick={() => setShowForm(false)}>
             <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"

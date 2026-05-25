@@ -34,7 +34,7 @@ export default function ChangePasswordModal({ onClose }) {
 
   return (
     /* overlay — overflow-y-auto lets user scroll to buttons when keyboard is open */
-    <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
+    <div className="fixed inset-0 z-[200] overflow-y-auto" dir="rtl">
       <div className="flex min-h-full items-end sm:items-center justify-center bg-black/50 sm:px-4"
            onClick={onClose}>
         <div className="w-full sm:max-w-sm bg-white rounded-t-2xl sm:rounded-2xl shadow-xl"
