@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -77,7 +77,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v3.2</p>
+        <p className="text-center text-blue-400 text-xs mt-6">SafetyOS v3.3</p>
       </div>
     </div>
   );

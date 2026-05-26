@@ -1,16 +1,18 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
+const canWrite = [requireAuth, requireRole('safety_officer', 'admin')];
 
 // GET /api/certifications
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM worker_certifications ORDER BY created_at DESC');
   res.json(rows);
 });
 
 // GET /api/certifications/worker/:workerId
-router.get('/worker/:workerId', async (req, res) => {
+router.get('/worker/:workerId', requireAuth, async (req, res) => {
   const { rows } = await pool.query(
     'SELECT * FROM worker_certifications WHERE worker_id = $1',
     [Number(req.params.workerId)]
@@ -26,7 +28,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/certifications
-router.post('/', async (req, res) => {
+router.post('/', ...canWrite, async (req, res) => {
   const { worker_id, cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes } = req.body;
   if (!worker_id || !cert_type) return res.status(400).json({ error: 'worker_id and cert_type required' });
   const { rows } = await pool.query(
@@ -37,7 +39,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/certifications/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', ...canWrite, async (req, res) => {
   const { cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes } = req.body;
   const { rows } = await pool.query(
     'UPDATE worker_certifications SET cert_type = $1, cert_number = $2, issuing_authority = $3, issue_date = $4, expiry_date = $5, notes = $6 WHERE id = $7 RETURNING *',
@@ -48,7 +50,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/certifications/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', ...canWrite, async (req, res) => {
   await pool.query('DELETE FROM worker_certifications WHERE id = $1', [Number(req.params.id)]);
   res.json({ ok: true });
 });

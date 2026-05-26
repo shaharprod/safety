@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
+const canWrite = [requireAuth, requireRole('safety_officer', 'admin')];
 
 // ── Shared training check logic ───────────────────────────────────────────────
 function calcAccess(worker) {
@@ -53,13 +55,13 @@ router.post('/check-google', async (req, res) => {
 });
 
 // ── Admin: list all workers ───────────────────────────────────────────────────
-router.get('/', async (_, res) => {
+router.get('/', requireAuth, async (_, res) => {
   const { rows } = await pool.query('SELECT * FROM site_workers ORDER BY last_name');
   res.json(rows);
 });
 
 // ── Admin: add worker ─────────────────────────────────────────────────────────
-router.post('/', async (req, res) => {
+router.post('/', ...canWrite, async (req, res) => {
   const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, subcontractor_id, worker_role } = req.body;
   if (!first_name || !last_name || !id_number) {
     return res.status(400).json({ error: 'first_name, last_name, id_number are required' });
@@ -75,7 +77,7 @@ router.post('/', async (req, res) => {
 });
 
 // ── Admin: update worker ──────────────────────────────────────────────────────
-router.put('/:id', async (req, res) => {
+router.put('/:id', ...canWrite, async (req, res) => {
   const id = Number(req.params.id);
   const { first_name, last_name, id_number, google_email, has_height_clearance, last_training_date, worker_role } = req.body;
   const role = ['worker', 'project_manager', 'safety_officer'].includes(worker_role) ? worker_role : 'worker';
@@ -92,7 +94,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // ── Admin: delete worker ──────────────────────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', ...canWrite, async (req, res) => {
   const id = Number(req.params.id);
   const { rows } = await pool.query('DELETE FROM site_workers WHERE id=$1 RETURNING id', [id]);
   if (!rows.length) return res.status(404).json({ error: 'Worker not found' });

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getWorkers, addWorker, updateWorker, deleteWorker, getUsers, addUser, updateUser, deleteUser } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useCanWrite } from '../lib/permissions.js';
 import { downloadCsv } from '../lib/csv.js';
 
 const WORKER_ROLE_LABELS = {
@@ -52,6 +53,7 @@ const ROLE_LABELS = { foreman: 'מנהל עבודה', safety_officer: 'ממונ�
 
 // ── Workers tab ──────────────────────────────────────────────────────────────
 function WorkersTab() {
+  const canWrite = useCanWrite();
   const [workers, setWorkers]   = useState([]);
   const [loading, setLoading]   = useState(true);
   const [editId, setEditId]     = useState(null);
@@ -98,10 +100,12 @@ function WorkersTab() {
             className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition">
             📊 Sheets
           </button>
-          <button onClick={openNew}
-            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-            + הוסף עובד
-          </button>
+          {canWrite && (
+            <button onClick={openNew}
+              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              + הוסף עובד
+            </button>
+          )}
         </div>
       </div>
 
@@ -128,10 +132,12 @@ function WorkersTab() {
                     {w.google_email && <p>📧 {w.google_email}</p>}
                     <p>{w.has_height_clearance ? '✅ אישור עבודה בגובה' : '❌ ללא אישור גובה'}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => openEdit(w)} className="flex-1 border border-blue-300 text-blue-700 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition">עריכה</button>
-                    <button onClick={() => setConfirmDel(w)} className="flex-1 border border-red-300 text-red-600 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition">מחיקה</button>
-                  </div>
+                  {canWrite && (
+                    <div className="flex gap-2">
+                      <button onClick={() => openEdit(w)} className="flex-1 border border-blue-300 text-blue-700 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition">עריכה</button>
+                      <button onClick={() => setConfirmDel(w)} className="flex-1 border border-red-300 text-red-600 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition">מחיקה</button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -168,10 +174,12 @@ function WorkersTab() {
                       <td className="px-4 py-3 text-gray-500">{w.last_training_date ? new Date(w.last_training_date).toLocaleDateString('he-IL') : <span className="text-gray-300">—</span>}</td>
                       <td className="px-4 py-3"><span className={`text-xs px-2 py-1 rounded-full font-medium ${st.color}`}>{st.label}</span></td>
                       <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          <button onClick={() => openEdit(w)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
-                          <button onClick={() => setConfirmDel(w)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
-                        </div>
+                        {canWrite && (
+                          <div className="flex gap-2">
+                            <button onClick={() => openEdit(w)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
+                            <button onClick={() => setConfirmDel(w)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -436,7 +444,7 @@ export default function AdminWorkers() {
         >
           👷 עובדים
         </button>
-        {isRole('safety_officer') && (
+        {(isRole('safety_officer') || isRole('admin')) && (
           <button
             onClick={() => setTab('users')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition ${tab === 'users' ? 'bg-blue-700 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
@@ -447,7 +455,7 @@ export default function AdminWorkers() {
       </div>
 
       {tab === 'workers' && <WorkersTab />}
-      {tab === 'users' && isRole('safety_officer') && <UsersTab />}
+      {tab === 'users' && (isRole('safety_officer') || isRole('admin')) && <UsersTab />}
     </div>
   );
 }

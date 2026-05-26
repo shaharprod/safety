@@ -4,7 +4,7 @@ import { pool } from '../db.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
-const officerOnly = [requireAuth, requireRole('safety_officer')];
+const officerOnly = [requireAuth, requireRole('safety_officer', 'admin')];
 
 router.get('/', ...officerOnly, async (_, res) => {
   const { rows } = await pool.query(
@@ -18,8 +18,8 @@ router.post('/', ...officerOnly, async (req, res) => {
   if (!username || !password || !full_name || !role) {
     return res.status(400).json({ error: 'username, password, full_name and role required' });
   }
-  if (!['foreman', 'safety_officer'].includes(role)) {
-    return res.status(400).json({ error: 'role must be foreman or safety_officer' });
+  if (!['foreman', 'safety_officer', 'admin'].includes(role)) {
+    return res.status(400).json({ error: 'role must be foreman, safety_officer, or admin' });
   }
   const password_hash = bcrypt.hashSync(password, 10);
   const { rows } = await pool.query(

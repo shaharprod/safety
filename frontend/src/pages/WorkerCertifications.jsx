@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCertifications, getWorkers, addCertification, updateCertification, deleteCertification } from '../lib/api.js';
+import { useCanWrite } from '../lib/permissions.js';
 
 const CERT_TYPES = [
   { value: 'height',     label: 'עבודה בגובה',     icon: '🏗️' },
@@ -37,6 +38,7 @@ function expiryStatus(expiry_date) {
 }
 
 export default function WorkerCertifications() {
+  const canWrite = useCanWrite();
   const [certs, setCerts]       = useState([]);
   const [workers, setWorkers]   = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -140,10 +142,12 @@ export default function WorkerCertifications() {
           <h1 className="text-2xl font-bold text-gray-800">הסמכות עובדים</h1>
           <p className="text-sm text-gray-500 mt-0.5">אישורי עבודה ותעודות הסמכה</p>
         </div>
-        <button onClick={openNew}
-          className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-          + הסמכה חדשה
-        </button>
+        {canWrite && (
+          <button onClick={openNew}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            + הסמכה חדשה
+          </button>
+        )}
       </div>
 
       {/* Stats row */}
@@ -219,12 +223,14 @@ export default function WorkerCertifications() {
                     </div>
                     {cert.notes && <p className="text-xs text-gray-500 mt-1">{cert.notes}</p>}
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <button onClick={() => openEdit(cert)}
-                      className="text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition text-sm">✏️</button>
-                    <button onClick={() => handleDelete(cert.id)}
-                      className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition text-sm">🗑️</button>
-                  </div>
+                  {canWrite && (
+                    <div className="flex gap-1 shrink-0">
+                      <button onClick={() => openEdit(cert)}
+                        className="text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition text-sm">✏️</button>
+                      <button onClick={() => handleDelete(cert.id)}
+                        className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition text-sm">🗑️</button>
+                    </div>
+                  )}
                 </div>
               );
             })}

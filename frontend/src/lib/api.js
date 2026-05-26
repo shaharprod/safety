@@ -113,7 +113,7 @@ export function downloadPDF() {
 
 // ── Audits ──────────────────────────────────────────────────────────────────
 export async function createAudit(data) {
-  const res = await fetch('/api/audits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch('/api/audits', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -148,20 +148,22 @@ export async function getActivityLog() {
 
 // ── Admin: workers CRUD ───────────────────────────────────────────────────────
 export async function getWorkers() {
-  return (await fetch('/api/workers')).json();
+  const res = await fetch('/api/workers', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch workers');
+  return res.json();
 }
 export async function addWorker(data) {
-  const res = await fetch('/api/workers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch('/api/workers', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function updateWorker(id, data) {
-  const res = await fetch(`/api/workers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch(`/api/workers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function deleteWorker(id) {
-  const res = await fetch(`/api/workers/${id}`, { method: 'DELETE' });
+  const res = await fetch(`/api/workers/${id}`, { method: 'DELETE', headers: authHeader() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -174,7 +176,7 @@ export async function getToolInspection(id) {
   return (await fetch(`/api/tool-inspections/${id}`)).json();
 }
 export async function createToolInspection(data) {
-  const res = await fetch('/api/tool-inspections', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch('/api/tool-inspections', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -182,63 +184,70 @@ export async function getToolInspectionItems(id) {
   return (await fetch(`/api/tool-inspections/${id}/items`)).json();
 }
 export async function addToolInspectionItem(id, data) {
-  const res = await fetch(`/api/tool-inspections/${id}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch(`/api/tool-inspections/${id}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function updateToolInspectionItem(inspId, itemId, data) {
-  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function deleteToolInspectionItem(inspId, itemId) {
-  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'DELETE' });
+  const res = await fetch(`/api/tool-inspections/${inspId}/items/${itemId}`, { method: 'DELETE', headers: authHeader() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function closeToolInspection(id) {
-  return (await fetch(`/api/tool-inspections/${id}/close`, { method: 'PATCH' })).json();
+  const res = await fetch(`/api/tool-inspections/${id}/close`, { method: 'PATCH', headers: authHeader() });
+  return res.json();
 }
 
 // ── Worker Certifications ─────────────────────────────────────────────────────
 export async function getCertifications() {
-  return (await fetch('/api/certifications')).json();
+  const res = await fetch('/api/certifications', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch certifications');
+  return res.json();
 }
 export async function getWorkerCertifications(workerId) {
-  return (await fetch(`/api/certifications/worker/${workerId}`)).json();
+  const res = await fetch(`/api/certifications/worker/${workerId}`, { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch certifications');
+  return res.json();
 }
 export async function addCertification(data) {
-  const res = await fetch('/api/certifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch('/api/certifications', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function updateCertification(id, data) {
-  const res = await fetch(`/api/certifications/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch(`/api/certifications/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function deleteCertification(id) {
-  const res = await fetch(`/api/certifications/${id}`, { method: 'DELETE' });
+  const res = await fetch(`/api/certifications/${id}`, { method: 'DELETE', headers: authHeader() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 // ── Projects ──────────────────────────────────────────────────────────────────
 export async function getProjects() {
-  return (await fetch('/api/projects')).json();
+  const res = await fetch('/api/projects', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch projects');
+  return res.json();
 }
 export async function addProject(data) {
-  const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function updateProject(id, data) {
-  const res = await fetch(`/api/projects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  const res = await fetch(`/api/projects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 export async function deleteProject(id) {
-  const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+  const res = await fetch(`/api/projects/${id}`, { method: 'DELETE', headers: authHeader() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

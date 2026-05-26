@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getProjects, addProject, updateProject, deleteProject } from '../lib/api.js';
+import { useCanWrite } from '../lib/permissions.js';
 
 const EMPTY = { name: '', location: '', start_date: '', end_date: '', manager_name: '', manager_phone: '', manager_email: '', status: 'active' };
 
@@ -12,6 +13,7 @@ const STATUS_LABEL = { active: 'פעיל', completed: 'הושלם', on_hold: 'מ
 const STATUS_COLOR = { active: 'bg-green-100 text-green-700', completed: 'bg-blue-100 text-blue-700', on_hold: 'bg-yellow-100 text-yellow-700' };
 
 export default function Projects() {
+  const canWrite = useCanWrite();
   const [projects, setProjects]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [editId, setEditId]         = useState(null);
@@ -59,10 +61,12 @@ export default function Projects() {
           <h1 className="text-2xl font-bold text-gray-800">פרוייקטים</h1>
           <p className="text-sm text-gray-500 mt-0.5">ניהול פרוייקטים ומנהלים אחראיים</p>
         </div>
-        <button onClick={openNew}
-          className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-          + פרוייקט חדש
-        </button>
+        {canWrite && (
+          <button onClick={openNew}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            + פרוייקט חדש
+          </button>
+        )}
       </div>
 
       {loading && <p className="text-center text-gray-400 py-10">טוען...</p>}
@@ -88,12 +92,14 @@ export default function Projects() {
                   {p.manager_email && <p>📧 {p.manager_email}</p>}
                   {p.start_date && <p>🗓️ {new Date(p.start_date).toLocaleDateString('he-IL')} — {p.end_date ? new Date(p.end_date).toLocaleDateString('he-IL') : '...'}</p>}
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => openEdit(p)}
-                    className="flex-1 border border-blue-300 text-blue-700 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition">עריכה</button>
-                  <button onClick={() => setConfirmDel(p)}
-                    className="flex-1 border border-red-300 text-red-600 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition">מחיקה</button>
-                </div>
+                {canWrite && (
+                  <div className="flex gap-2">
+                    <button onClick={() => openEdit(p)}
+                      className="flex-1 border border-blue-300 text-blue-700 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition">עריכה</button>
+                    <button onClick={() => setConfirmDel(p)}
+                      className="flex-1 border border-red-300 text-red-600 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition">מחיקה</button>
+                  </div>
+                )}
               </div>
             ))}
             {projects.length === 0 && (
@@ -137,10 +143,12 @@ export default function Projects() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
-                        <button onClick={() => setConfirmDel(p)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
-                      </div>
+                      {canWrite && (
+                        <div className="flex gap-2">
+                          <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
+                          <button onClick={() => setConfirmDel(p)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { uploadMiddleware } from '../services/upload.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
+const canWrite = [requireAuth, requireRole('safety_officer', 'admin')];
 
 // POST /api/audits — create audit + seed its checklist items
-router.post('/', async (req, res) => {
+router.post('/', ...canWrite, async (req, res) => {
   const { audit_type, inspector_name, project_name, items } = req.body;
   if (!audit_type || !inspector_name) return res.status(400).json({ error: 'audit_type and inspector_name required' });
 
@@ -40,7 +42,7 @@ router.get('/:id/items', async (req, res) => {
 });
 
 // PATCH /api/audits/:id/items/:itemId — update single item status/notes
-router.patch('/:id/items/:itemId', (req, res) => {
+router.patch('/:id/items/:itemId', ...canWrite, (req, res) => {
   uploadMiddleware(req, res, async (err) => {
     if (err) return res.status(400).json({ error: err.message });
     const { status, notes } = req.body;
@@ -60,7 +62,7 @@ router.patch('/:id/items/:itemId', (req, res) => {
 });
 
 // PATCH /api/audits/:id/close
-router.patch('/:id/close', async (req, res) => {
+router.patch('/:id/close', ...canWrite, async (req, res) => {
   const { rows } = await pool.query('UPDATE safety_audits SET status=$1 WHERE id=$2 RETURNING *', ['Done', Number(req.params.id)]);
   res.json(rows[0] || {});
 });

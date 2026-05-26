@@ -39,8 +39,9 @@ const NAV = [
 ];
 
 const ROLE_LABELS = {
+  admin:          'אדמין',
   safety_officer: 'ממונה בטיחות',
-  foreman: 'מנהל עבודה',
+  foreman:        'מנהל עבודה',
 };
 
 function BottomNav() {
@@ -85,7 +86,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.2</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.3</span>
           </span>
 
           {/* Desktop links */}

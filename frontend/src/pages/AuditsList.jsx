@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getAudits } from '../lib/api.js';
 import { AUDIT_TYPES } from '../lib/checklists.js';
 import { downloadCsv } from '../lib/csv.js';
+import { useCanWrite } from '../lib/permissions.js';
 
 function exportAudits(audits) {
   const headers = ['#', 'סוג בקרה', 'מפקח', 'פרויקט', 'סטטוס', 'תאריך'];
@@ -18,6 +19,7 @@ function exportAudits(audits) {
 }
 
 export default function AuditsList() {
+  const canWrite = useCanWrite();
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,20 +37,22 @@ export default function AuditsList() {
         </button>
       </div>
 
-      {/* Start new audit */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        {Object.entries(AUDIT_TYPES).map(([type, { label, icon }]) => (
-          <Link
-            key={type}
-            to={`/audit/new/${type}`}
-            className="bg-white border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 rounded-xl p-4 text-center transition"
-          >
-            <div className="text-3xl mb-1">{icon}</div>
-            <p className="text-sm font-semibold text-blue-700">{label}</p>
-            <p className="text-xs text-gray-400 mt-1">בקרה חדשה +</p>
-          </Link>
-        ))}
-      </div>
+      {/* Start new audit — safety_officer / admin only */}
+      {canWrite && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+          {Object.entries(AUDIT_TYPES).map(([type, { label, icon }]) => (
+            <Link
+              key={type}
+              to={`/audit/new/${type}`}
+              className="bg-white border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 rounded-xl p-4 text-center transition"
+            >
+              <div className="text-3xl mb-1">{icon}</div>
+              <p className="text-sm font-semibold text-blue-700">{label}</p>
+              <p className="text-xs text-gray-400 mt-1">בקרה חדשה +</p>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* History */}
       <h2 className="text-lg font-semibold text-gray-700 mb-3">היסטוריית בקרות</h2>

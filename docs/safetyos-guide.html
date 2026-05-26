@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafetyOS — מדריך הפעלה</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+      line-height: 1.7;
+      direction: rtl;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      color: white;
+      padding: 48px 32px 40px;
+      text-align: center;
+    }
+    .hero .logo { font-size: 52px; margin-bottom: 12px; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; }
+    .hero .subtitle { font-size: 1.05rem; color: #bfdbfe; margin-top: 8px; }
+    .hero .version {
+      display: inline-block;
+      margin-top: 16px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 0.85rem;
+      color: #e0f2fe;
+    }
+
+    /* ── Layout ─────────────────────────────── */
+    .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── TOC ─────────────────────────────────── */
+    .toc {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .toc h2 { font-size: 1rem; font-weight: 700; color: #64748b; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+    .toc ol { padding-right: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: #2563eb; text-decoration: none; font-size: 0.95rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Sections ────────────────────────────── */
+    section { margin-bottom: 48px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .section-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .icon-blue   { background: #dbeafe; }
+    .icon-green  { background: #dcfce7; }
+    .icon-orange { background: #ffedd5; }
+    .icon-purple { background: #ede9fe; }
+    .icon-red    { background: #fee2e2; }
+    .icon-teal   { background: #ccfbf1; }
+    .icon-yellow { background: #fef9c3; }
+    .icon-gray   { background: #f1f5f9; }
+
+    section h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; }
+    section h3 { font-size: 1.1rem; font-weight: 600; color: #1e293b; margin: 20px 0 10px; }
+    section p  { font-size: 0.95rem; color: #475569; margin-bottom: 12px; }
+
+    /* ── Cards ───────────────────────────────── */
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Role badges ─────────────────────────── */
+    .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .role-card {
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .role-card .role-emoji { font-size: 36px; margin-bottom: 10px; }
+    .role-card .role-name  { font-weight: 700; font-size: 1rem; }
+    .role-card .role-desc  { font-size: 0.82rem; color: #64748b; margin-top: 4px; }
+
+    .role-admin   { background: #fef3c7; border: 2px solid #f59e0b; }
+    .role-safety  { background: #dbeafe; border: 2px solid #3b82f6; }
+    .role-foreman { background: #dcfce7; border: 2px solid #22c55e; }
+    .role-worker  { background: #f1f5f9; border: 2px solid #94a3b8; }
+
+    /* ── Steps ───────────────────────────────── */
+    .steps { list-style: none; counter-reset: step; }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .steps li::before {
+      content: counter(step);
+      min-width: 32px; height: 32px;
+      background: #2563eb;
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .steps li .step-content { flex: 1; }
+    .steps li .step-title { font-weight: 600; font-size: 0.95rem; }
+    .steps li .step-detail { font-size: 0.87rem; color: #64748b; margin-top: 3px; }
+
+    /* ── Feature table ───────────────────────── */
+    .feature-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .feature-table thead { background: #1e3a5f; color: white; }
+    .feature-table thead th { padding: 12px 16px; font-size: 0.9rem; text-align: center; }
+    .feature-table thead th:first-child { text-align: right; }
+    .feature-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .feature-table tbody td { padding: 11px 16px; font-size: 0.88rem; border-bottom: 1px solid #f1f5f9; text-align: center; }
+    .feature-table tbody td:first-child { text-align: right; font-weight: 500; color: #334155; }
+    .check  { color: #16a34a; font-size: 1.1rem; }
+    .eye    { color: #2563eb; font-size: 1rem; }
+    .dash   { color: #cbd5e1; }
+
+    /* ── Credentials box ─────────────────────── */
+    .cred-box {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9rem;
+      margin: 16px 0;
+    }
+    .cred-box .cred-row { display: flex; gap: 16px; margin-bottom: 6px; }
+    .cred-box .cred-label { color: #94a3b8; min-width: 100px; }
+    .cred-box .cred-val { color: #38bdf8; font-weight: 600; }
+
+    /* ── Info / tip boxes ────────────────────── */
+    .tip {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 0.9rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .tip-blue   { background: #eff6ff; border-right: 4px solid #3b82f6; color: #1e40af; }
+    .tip-yellow { background: #fefce8; border-right: 4px solid #eab308; color: #713f12; }
+    .tip-green  { background: #f0fdf4; border-right: 4px solid #22c55e; color: #14532d; }
+    .tip-red    { background: #fff1f2; border-right: 4px solid #ef4444; color: #7f1d1d; }
+
+    /* ── Feature pills ───────────────────────── */
+    .pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+    .pill {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .pill-blue   { background: #dbeafe; color: #1d4ed8; }
+    .pill-green  { background: #dcfce7; color: #15803d; }
+    .pill-orange { background: #ffedd5; color: #c2410c; }
+
+    /* ── Footer ──────────────────────────────── */
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      padding: 32px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.6rem; }
+      .role-grid { grid-template-columns: 1fr 1fr; }
+      .feature-table thead th:nth-child(n+2) { font-size: 0.75rem; padding: 10px 6px; }
+      .feature-table tbody td:nth-child(n+2) { padding: 10px 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="logo">🦺</div>
+  <h1>SafetyOS</h1>
+  <div class="subtitle">מערכת ניהול בטיחות באתר — מדריך הפעלה</div>
+  <div class="version">גרסה 3.2</div>
+</div>
+
+<div class="container">
+
+  <!-- ══ TOC ══════════════════════════════════════════════════════════════ -->
+  <div class="toc">
+    <h2>תוכן עניינים</h2>
+    <ol>
+      <li><a href="#overview">סקירת המערכת</a></li>
+      <li><a href="#roles">תפקידים והרשאות</a></li>
+      <li><a href="#login">כניסה למערכת</a></li>
+      <li><a href="#dashboard">דשבורד — בקרה ראשית</a></li>
+      <li><a href="#alerts">התראות תוקף</a></li>
+      <li><a href="#hazard">דיווח מפגע בטיחותי</a></li>
+      <li><a href="#incident">דיווח אירוע</a></li>
+      <li><a href="#gate">כניסה לשטח</a></li>
+      <li><a href="#audits">בקרות בטיחות</a></li>
+      <li><a href="#tools">בדיקות כלים ומכשירים</a></li>
+      <li><a href="#projects">פרויקטים</a></li>
+      <li><a href="#certs">הסמכות ואישורים</a></li>
+      <li><a href="#procedures">נהלים ופרוצדורות</a></li>
+      <li><a href="#reports">דוחות</a></li>
+      <li><a href="#admin">ניהול עובדים ומשתמשים</a></li>
+      <li><a href="#worker-portal">פורטל עובד</a></li>
+    </ol>
+  </div>
+
+  <!-- ══ 1. OVERVIEW ════════════════════════════════════════════════════ -->
+  <section id="overview">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🏗️</div>
+      <h2>סקירת המערכת</h2>
+    </div>
+    <p>
+      SafetyOS היא מערכת ניהול בטיחות מבוססת ענן לניהול שוטף של אתרי בנייה ופרויקטים.
+      המערכת מאפשרת מעקב מקיף אחר מפגעים, אירועים, הסמכות, בדיקות כלים ובקרות בטיחות —
+      הכל ממקום אחד, מכל מכשיר.
+    </p>
+
+    <div class="pill-list">
+      <span class="pill pill-blue">📱 מותאם לנייד</span>
+      <span class="pill pill-blue">☁️ ענן — Render + Neon</span>
+      <span class="pill pill-blue">🔐 אימות JWT</span>
+      <span class="pill pill-green">🌐 עברית RTL</span>
+      <span class="pill pill-green">📊 דוחות PDF</span>
+      <span class="pill pill-orange">⚡ Real-time Alerts</span>
+    </div>
+
+    <div class="tip tip-blue">
+      <span class="tip-icon">💡</span>
+      <div>המערכת פועלת בדפדפן — אין צורך בהתקנה. ניתן לגשת מכל מחשב, טאבלט או טלפון.</div>
+    </div>
+  </section>
+
+  <!-- ══ 2. ROLES ═══════════════════════════════════════════════════════ -->
+  <section id="roles">
+    <div class="section-header">
+      <div class="section-icon icon-purple">👥</div>
+      <h2>תפקידים והרשאות</h2>
+    </div>
+
+    <div class="role-grid">
+      <div class="role-card role-admin">
+        <div class="role-emoji">👑</div>
+        <div class="role-name">אדמין</div>
+        <div class="role-desc">כל ההרשאות במערכת כולל ניהול משתמשים</div>
+      </div>
+      <div class="role-card role-safety">
+        <div class="role-emoji">🦺</div>
+        <div class="role-name">ממונה בטיחות</div>
+        <div class="role-desc">כל ההרשאות — יצירה, עריכה, מחיקה</div>
+      </div>
+      <div class="role-card role-foreman">
+        <div class="role-emoji">👷</div>
+        <div class="role-name">מנהל עבודה</div>
+        <div class="role-desc">צפייה בכל + כתיבה במפגעים, אירועים, כניסה</div>
+      </div>
+      <div class="role-card role-worker">
+        <div class="role-emoji">🪪</div>
+        <div class="role-name">עובד</div>
+        <div class="role-desc">פורטל עובד — צפייה בהסמכות ואישורים אישיים</div>
+      </div>
+    </div>
+
+    <h3>טבלת הרשאות מפורטת</h3>
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th>פיצ'ר</th>
+          <th>עובד</th>
+          <th>מנהל עבודה</th>
+          <th>ממונה בטיחות</th>
+          <th>אדמין</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>דשבורד</td>          <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>התראות תוקף</td>     <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>דיווח מפגע</td>      <td class="dash">—</td> <td class="check">✅</td><td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>דיווח אירוע</td>     <td class="dash">—</td> <td class="check">✅</td><td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>כניסה לשטח</td>      <td class="dash">—</td> <td class="check">✅</td><td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>נהלים</td>           <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>דוחות</td>           <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>בקרות בטיחות</td>    <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>בדיקות כלים</td>     <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>פרויקטים</td>        <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>הסמכות ואישורים</td> <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>ניהול עובדים</td>    <td class="dash">—</td> <td class="eye">👁</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>ניהול משתמשים</td>   <td class="dash">—</td> <td class="dash">—</td> <td class="check">✅</td> <td class="check">✅</td></tr>
+        <tr><td>פורטל עובד</td>      <td class="check">✅</td><td class="dash">—</td> <td class="dash">—</td>  <td class="dash">—</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px; font-size:0.82rem; color:#94a3b8;">✅ = צפייה + יצירה/עריכה/מחיקה &nbsp;|&nbsp; 👁 = צפייה בלבד &nbsp;|&nbsp; — = אין גישה</p>
+  </section>
+
+  <!-- ══ 3. LOGIN ═══════════════════════════════════════════════════════ -->
+  <section id="login">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔐</div>
+      <h2>כניסה למערכת</h2>
+    </div>
+
+    <h3>כניסת מנהלים וממונים</h3>
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">פתח את הדפדפן ונווט לכתובת המערכת</div>
+          <div class="step-detail">בעמוד הפתיחה לחץ על "כניסת מנהלים" או נווט ישירות ל- <code>/login</code></div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הזן שם משתמש וסיסמה</div>
+          <div class="step-detail">השתמש בפרטי ההתחברות שקיבלת מממונה הבטיחות או האדמין</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "כניסה"</div>
+          <div class="step-detail">תועבר לדשבורד הראשי בהתאם לתפקידך</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>פרטי ברירת מחדל (לאחר התקנה)</h3>
+    <div class="cred-box">
+      <div class="cred-row"><span class="cred-label">שם משתמש:</span><span class="cred-val">admin</span></div>
+      <div class="cred-row"><span class="cred-label">סיסמה:</span><span class="cred-val">1234</span></div>
+      <div class="cred-row"><span class="cred-label">תפקיד:</span><span class="cred-val">אדמין — כל ההרשאות</span></div>
+    </div>
+
+    <div class="tip tip-red">
+      <span class="tip-icon">⚠️</span>
+      <div><strong>חשוב:</strong> שנה את סיסמת ברירת המחדל מיד לאחר הכניסה הראשונה! לחץ על 🔐 בתפריט העליון.</div>
+    </div>
+
+    <h3>שינוי סיסמה</h3>
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ על אייקון 🔐 בפינה העליונה</div>
+          <div class="step-detail">פעולה זו זמינה רק בתצוגת מחשב (desktop)</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הזן סיסמה נוכחית וסיסמה חדשה</div>
+          <div class="step-detail">הסיסמה החדשה חייבת להיות לפחות 4 תווים</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "שמור"</div>
+          <div class="step-detail">הסיסמה תעודכן מיידית</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ══ 4. DASHBOARD ═══════════════════════════════════════════════════ -->
+  <section id="dashboard">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🏠</div>
+      <h2>דשבורד — בקרה ראשית</h2>
+    </div>
+    <p>הדשבורד מציג סיכום מצב האתר בזמן אמת.</p>
+
+    <div class="card">
+      <div class="card-title">📊 כרטיסי סטטוס</div>
+      <p>בראש הדשבורד מוצגות 4 כרטיסיות מידע:</p>
+      <ul style="padding-right: 20px; font-size: 0.9rem; color: #475569;">
+        <li><strong>מפגעים פתוחים</strong> — מספר מפגעים שטרם טופלו</li>
+        <li><strong>בקרות השבוע</strong> — בקרות בטיחות שבוצעו</li>
+        <li><strong>אירועים השבוע</strong> — אירועי בטיחות שדווחו</li>
+        <li><strong>עובדים באתר</strong> — עובדים שנרשמו כנוכחים</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 מפגעים אחרונים</div>
+      <p>רשימה של המפגעים האחרונים עם סטטוס, חומרה ותאריך. לחץ על מפגע לפרטים נוספים.</p>
+    </div>
+
+    <div class="tip tip-blue">
+      <span class="tip-icon">💡</span>
+      <div>מנהלי עבודה רואים את הדשבורד במצב צפייה בלבד — לא ניתן לשנות סטטוס מפגעים.</div>
+    </div>
+  </section>
+
+  <!-- ══ 5. ALERTS ══════════════════════════════════════════════════════ -->
+  <section id="alerts">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🔔</div>
+      <h2>התראות תוקף</h2>
+    </div>
+    <p>עמוד ההתראות מציג הסמכות ואימוני בטיחות שפג תוקפם או עומדים לפוג.</p>
+
+    <div class="card">
+      <div class="card-title">🔴 פג תוקף</div>
+      <p>הסמכות שתוקפן פג — יש לחדשן מיד. מוצגות בצבע אדום.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🟠 עד 30 יום</div>
+      <p>הסמכות שיפגו בתוך חודש — יש לתזמן חידוש. מוצגות בצבע כתום.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🟡 עד 90 יום</div>
+      <p>הסמכות שיפגו בתוך 3 חודשים — לתשומת לב. מוצגות בצבע צהוב.</p>
+    </div>
+
+    <div class="tip tip-yellow">
+      <span class="tip-icon">💡</span>
+      <div>לחץ על "הסמכות ←" ליד שם העובד כדי לנווט ישירות לעמוד עדכון ההסמכה.</div>
+    </div>
+  </section>
+
+  <!-- ══ 6. HAZARD ══════════════════════════════════════════════════════ -->
+  <section id="hazard">
+    <div class="section-header">
+      <div class="section-icon icon-red">⚠️</div>
+      <h2>דיווח מפגע בטיחותי</h2>
+    </div>
+    <p>דיווח על מפגע בטיחותי שזוהה באתר. זמין למנהלי עבודה, ממונים ואדמין.</p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ על "מפגע" ⚠️ בתפריט</div>
+          <div class="step-detail">הטופס ייפתח</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">בחר קבלן ופרויקט</div>
+          <div class="step-detail">בחר את הקבלן הרלוונטי ושם הפרויקט מהרשימה</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">תאר את המפגע</div>
+          <div class="step-detail">הוסף תיאור מפורט, בחר חומרה (נמוכה / בינונית / גבוהה / קריטית) ואזור באתר</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">צרף תמונה (אופציונלי)</div>
+          <div class="step-detail">ניתן לצלם ישירות מהמצלמה או לבחור מהגלריה</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "שלח דיווח"</div>
+          <div class="step-detail">המפגע יירשם ויוצג בדשבורד ובדוחות</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="card">
+      <div class="card-title">📌 עדכון סטטוס מפגע (ממונה / אדמין)</div>
+      <p>בדשבורד, לחץ על מפגע ושנה סטטוס ל: <strong>פתוח → בטיפול → סגור</strong></p>
+    </div>
+  </section>
+
+  <!-- ══ 7. INCIDENT ════════════════════════════════════════════════════ -->
+  <section id="incident">
+    <div class="section-header">
+      <div class="section-icon icon-red">🔍</div>
+      <h2>דיווח אירוע</h2>
+    </div>
+    <p>דיווח על אירוע בטיחותי שהתרחש (תאונה, כמעט-תאונה, נזק רכוש).</p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ על "אירוע" 🔍 בתפריט</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">מלא פרטי האירוע</div>
+          <div class="step-detail">תאריך, שעה, מיקום, תיאור האירוע, עובדים מעורבים</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">בחר סוג אירוע</div>
+          <div class="step-detail">כמעט-תאונה / פציעה / נזק רכוש / מחלת מקצוע / אחר</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">צרף תיעוד (אופציונלי) ושלח</div>
+          <div class="step-detail">האירוע ירשם ויופיע בדוחות</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="tip tip-red">
+      <span class="tip-icon">⚠️</span>
+      <div>יש לדווח על כל אירוע תוך שעה מרגע התרחשותו בהתאם לחוק הבטיחות בעבודה.</div>
+    </div>
+  </section>
+
+  <!-- ══ 8. GATE ════════════════════════════════════════════════════════ -->
+  <section id="gate">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🔑</div>
+      <h2>כניסה לשטח</h2>
+    </div>
+    <p>בקרת כניסת עובדים לשטח — בדיקת תוקף הסמכות ואימון בטיחות.</p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ על "כניסה" 🔑 בתפריט</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הזן מספר תעודת זהות של העובד</div>
+          <div class="step-detail">ניתן גם להיכנס עם Google Sign-In אם מוגדר</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">קרא את תוצאת הבדיקה</div>
+          <div class="step-detail">
+            ✅ <strong>אישור כניסה</strong> — כל ההסמכות בתוקף<br/>
+            ⚠️ <strong>כניסה מותנית</strong> — הסמכות עומדות לפוג<br/>
+            ❌ <strong>כניסה נדחית</strong> — הסמכות פגו או חסרות
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="tip tip-green">
+      <span class="tip-icon">💡</span>
+      <div>כניסת בקרה שערים <strong>אינה</strong> דורשת התחברות למערכת — ניתן לפתוח ישירות מהטאבלט שבשער.</div>
+    </div>
+  </section>
+
+  <!-- ══ 9. AUDITS ══════════════════════════════════════════════════════ -->
+  <section id="audits">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📋</div>
+      <h2>בקרות בטיחות</h2>
+    </div>
+    <p>ביצוע בקרות בטיחות תקופתיות לפי תקנות הבנייה. <strong>זמין לממונה בטיחות ואדמין בלבד.</strong></p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "בקרות" 📋 ← "בקרה חדשה"</div>
+          <div class="step-detail">בחר סוג בקרה: עבודות חפירה, פיגומים, חשמל, אש, עבודה בגובה וכו'</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">בחר פרויקט ותאריך</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">עבור על סעיפי הבקרה</div>
+          <div class="step-detail">סמן כל סעיף: ✅ תקין / ❌ לא תקין / ⏭ לא רלוונטי. הוסף הערות ותמונה לפי הצורך.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">סגור את הבקרה</div>
+          <div class="step-detail">לחץ "סגור בקרה" — הבקרה תיאנה ותצורף לדוחות</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ══ 10. TOOLS ══════════════════════════════════════════════════════ -->
+  <section id="tools">
+    <div class="section-header">
+      <div class="section-icon icon-gray">🔧</div>
+      <h2>בדיקות כלים ומכשירים</h2>
+    </div>
+    <p>מעקב אחר בדיקות תקופתיות לכלי עבודה ומכשירים. <strong>זמין לממונה בטיחות ואדמין.</strong></p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "כלים" 🔧 ← "בדיקה חדשה"</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הזן שם הכלי / המכשיר</div>
+          <div class="step-detail">סוג, מספר סידורי, יצרן</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הוסף סעיפי בדיקה</div>
+          <div class="step-detail">לכל סעיף: תקין / לא תקין + הערה</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">סגור את הבדיקה</div>
+          <div class="step-detail">הבדיקה תרשם עם חותמת תאריך ושם הבודק</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ══ 11. PROJECTS ═══════════════════════════════════════════════════ -->
+  <section id="projects">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🏗️</div>
+      <h2>פרויקטים</h2>
+    </div>
+    <p>ניהול פרויקטים פעילים באתר. <strong>יצירה ועריכה: ממונה בטיחות ואדמין. צפייה: מנהל עבודה.</strong></p>
+
+    <div class="card">
+      <div class="card-title">➕ הוספת פרויקט חדש</div>
+      <p>שם פרויקט, מיקום, תאריך התחלה וסיום, קבלן מבצע, סטטוס.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">✏️ עדכון פרויקט</div>
+      <p>לחץ על פרויקט קיים לעדכון פרטים או שינוי סטטוס (פעיל / מושהה / הושלם).</p>
+    </div>
+  </section>
+
+  <!-- ══ 12. CERTS ═══════════════════════════════════════════════════════ -->
+  <section id="certs">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🎓</div>
+      <h2>הסמכות ואישורים</h2>
+    </div>
+    <p>ניהול הסמכות מקצועיות לעובדים. <strong>יצירה ועריכה: ממונה בטיחות ואדמין.</strong></p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "הסמכות" 🎓</div>
+          <div class="step-detail">תוצג רשימת כל העובדים עם הסמכותיהם</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">בחר עובד ← "הוסף הסמכה"</div>
+          <div class="step-detail">סוג הסמכה, מספר תעודה, תאריך הנפקה, תאריך פקיעה</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">שמור — ההסמכה תופיע בפרופיל העובד</div>
+          <div class="step-detail">כ-90 יום לפני הפקיעה תופיע התראה בעמוד ההתראות</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="tip tip-yellow">
+      <span class="tip-icon">💡</span>
+      <div>גם אימון בטיחות שנתי נבדק אוטומטית — עובד שלא עבר הדרכה בשנה האחרונה יופיע בהתראות.</div>
+    </div>
+  </section>
+
+  <!-- ══ 13. PROCEDURES ══════════════════════════════════════════════════ -->
+  <section id="procedures">
+    <div class="section-header">
+      <div class="section-icon icon-green">📄</div>
+      <h2>נהלים ופרוצדורות</h2>
+    </div>
+    <p>ספרייה מרכזית של נהלי בטיחות, הוראות עבודה וטפסים. כל המשתמשים המחוברים יכולים לצפות.</p>
+
+    <div class="card">
+      <div class="card-title">📚 קטגוריות נהלים</div>
+      <ul style="padding-right: 20px; font-size: 0.9rem; color: #475569; line-height: 2;">
+        <li>נהלי בנייה ועבודות עפר</li>
+        <li>עבודה בגובה ופיגומים</li>
+        <li>בטיחות חשמלית</li>
+        <li>אש ומניעת שריפות</li>
+        <li>ציוד מגן אישי (ציד"א)</li>
+        <li>חומרים מסוכנים</li>
+        <li>היתרי עבודה מיוחדים</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 14. REPORTS ════════════════════════════════════════════════════ -->
+  <section id="reports">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📊</div>
+      <h2>דוחות</h2>
+    </div>
+    <p>צפייה בדוחות מסכמים. <strong>מנהל עבודה יכול לצפות בלבד, לא ליצוא PDF.</strong></p>
+
+    <div class="card">
+      <div class="card-title">📑 סוגי דוחות</div>
+      <ul style="padding-right: 20px; font-size: 0.9rem; color: #475569; line-height: 2;">
+        <li><strong>דוח מפגעים</strong> — כל המפגעים, סטטוס, חומרה</li>
+        <li><strong>דוח אירועים</strong> — כרונולוגיה מלאה של אירועי בטיחות</li>
+        <li><strong>דוח כניסות</strong> — יומן כניסת עובדים לשטח</li>
+        <li><strong>דוח הסמכות</strong> — מצב הסמכות לכלל העובדים</li>
+      </ul>
+    </div>
+
+    <div class="tip tip-blue">
+      <span class="tip-icon">💡</span>
+      <div>לחץ "הורד PDF" ליצירת דוח מקצועי מוכן להדפסה (ממונה בטיחות ואדמין בלבד).</div>
+    </div>
+  </section>
+
+  <!-- ══ 15. ADMIN ══════════════════════════════════════════════════════ -->
+  <section id="admin">
+    <div class="section-header">
+      <div class="section-icon icon-purple">⚙️</div>
+      <h2>ניהול עובדים ומשתמשים</h2>
+    </div>
+
+    <h3>ניהול עובדי שטח (ממונה + אדמין)</h3>
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "אדמין" ⚙️</div>
+          <div class="step-detail">תוצג רשימת כל עובדי השטח</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הוסף עובד חדש</div>
+          <div class="step-detail">שם, מספר תעודת זהות, קבלן, מקצוע, תאריך אימון בטיחות אחרון</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">עדכן / מחק עובד קיים</div>
+          <div class="step-detail">לחץ על שורת העובד לעריכה</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>ניהול משתמשי מערכת (אדמין בלבד)</h3>
+    <div class="card">
+      <div class="card-title">👤 יצירת משתמש חדש</div>
+      <p>שם מלא, שם משתמש, סיסמה, תפקיד (foreman / safety_officer / admin).</p>
+    </div>
+
+    <div class="tip tip-red">
+      <span class="tip-icon">🔒</span>
+      <div>ניהול משתמשים (יצירה / עריכה / מחיקה של חשבונות כניסה) מוגבל לאדמין בלבד.</div>
+    </div>
+  </section>
+
+  <!-- ══ 16. WORKER PORTAL ══════════════════════════════════════════════ -->
+  <section id="worker-portal">
+    <div class="section-header">
+      <div class="section-icon icon-green">🪪</div>
+      <h2>פורטל עובד</h2>
+    </div>
+    <p>
+      פורטל עצמאי לעובדים — <strong>לא נדרשת כניסת מנהל</strong>.
+      העובד מזדהה עם מספר תעודת הזהות שלו וצופה במידע האישי שלו.
+    </p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-content">
+          <div class="step-title">פתח את עמוד הפתיחה של SafetyOS</div>
+          <div class="step-detail">הדף הראשי (לא דף ה-login)</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">הזן מספר תעודת זהות</div>
+          <div class="step-detail">9 ספרות — ללא מקפים</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <div class="step-title">לחץ "כניסה"</div>
+          <div class="step-detail">המערכת תציג את פרטיך האישיים</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="card">
+      <div class="card-title">📋 מה העובד רואה בפורטל?</div>
+      <ul style="padding-right: 20px; font-size: 0.9rem; color: #475569; line-height: 2;">
+        <li>✅ / ❌ אישור כניסה לשטח</li>
+        <li>📅 תאריך אימון בטיחות אחרון</li>
+        <li>🎓 רשימת הסמכות ותאריכי פקיעה</li>
+        <li>⚠️ התראות על הסמכות עומדות לפוג</li>
+      </ul>
+    </div>
+
+    <div class="tip tip-green">
+      <span class="tip-icon">💡</span>
+      <div>ניתן להציב טאבלט בשער האתר עם הפורטל פתוח — כל עובד מזין תעודת זהות וקולט מיידית אם הוא מאושר לכניסה.</div>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  SafetyOS v3.2 &nbsp;·&nbsp; מדריך הפעלה &nbsp;·&nbsp; עודכן: מאי 2026
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הגדרת Google OAuth — SafetyOS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: #1e3a5f;
+      color: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header .logo { font-size: 2.5rem; }
+
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p  { font-size: 0.9rem; color: #93c5fd; margin-top: 0.3rem; }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      background: #1e3a5f;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .step-body { flex: 1; font-size: 0.92rem; line-height: 1.65; }
+
+    .step-body a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .step-body a:hover { text-decoration: underline; }
+
+    code {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 0.1rem 0.45rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #0f172a;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      direction: ltr;
+      text-align: left;
+      margin: 0.6rem 0;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-block .key   { color: #7dd3fc; }
+    .code-block .value { color: #86efac; }
+    .code-block .comment { color: #64748b; }
+
+    .note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.88rem;
+      color: #1e40af;
+      margin-top: 0.75rem;
+      line-height: 1.55;
+    }
+
+    .warn {
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.88rem;
+      color: #713f12;
+      margin-top: 0.75rem;
+      line-height: 1.55;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 0.15rem 0.55rem;
+      margin-right: 0.3rem;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 1.25rem 0;
+    }
+
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">🦺</div>
+    <div>
+      <h1>הגדרת Google OAuth — SafetyOS</h1>
+      <p>הפעלת כניסה עם Google בדף שער האתר (GateControl)</p>
+    </div>
+  </header>
+
+  <!-- Section 1: Google Cloud -->
+  <div class="card">
+    <h2>☁️ שלב א׳ — יצירת Client ID ב-Google Cloud</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        פתח את <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>
+        וודא שאתה בפרויקט הנכון (או צור פרויקט חדש).
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        בתפריט הצדדי: <strong>APIs &amp; Services → Credentials</strong>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        לחץ <strong>Create Credentials → OAuth 2.0 Client ID</strong>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        Application type: <strong>Web application</strong><br/>
+        Name: <code>SafetyOS</code> (או כל שם אחר)
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        תחת <strong>Authorized JavaScript origins</strong> הוסף:
+        <div class="code-block"><span class="value">https://your-app.onrender.com</span>   <span class="comment"># כתובת Render</span>
+<span class="value">http://localhost:5173</span>              <span class="comment"># פיתוח מקומי</span></div>
+        <div class="note">⚠️ החלף <code>your-app.onrender.com</code> בכתובת האמיתית של השירות שלך ב-Render.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        לחץ <strong>Create</strong> ← העתק את ה-<strong>Client ID</strong> שמופיע (נראה כך):
+        <div class="code-block"><span class="value">123456789012-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Local .env -->
+  <div class="card">
+    <h2>🖥️ שלב ב׳ — הגדרה מקומית (פיתוח)</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        בתיקיית <code>frontend/</code> צור קובץ בשם <code>.env</code> (אם לא קיים):
+        <div class="code-block"><span class="comment"># frontend/.env</span>
+<span class="key">VITE_GOOGLE_CLIENT_ID</span>=<span class="value">YOUR_CLIENT_ID_HERE</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        הפעל מחדש את שרת הפיתוח:
+        <div class="code-block"><span class="comment">cd frontend</span>
+npm run dev</div>
+        <div class="warn">⚠️ Vite טוען משתני סביבה רק בהפעלה — שינוי ב-<code>.env</code> מחייב הפעלה מחדש של <code>npm run dev</code>.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        ודא שהקובץ <code>.env</code> מופיע ב-<code>.gitignore</code> ולא מועלה ל-GitHub:
+        <div class="code-block"><span class="comment"># .gitignore</span>
+<span class="value">frontend/.env</span>
+<span class="value">frontend/.env.local</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Render -->
+  <div class="card">
+    <h2>🚀 שלב ג׳ — הגדרה ב-Render (production)</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        כנס ל-<a href="https://dashboard.render.com" target="_blank">dashboard.render.com</a>
+        ובחר את השירות של SafetyOS.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        עבור ל-<strong>Environment → Environment Variables</strong>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        לחץ <strong>Add Environment Variable</strong> והוסף:
+        <div class="code-block"><span class="key">VITE_GOOGLE_CLIENT_ID</span> = <span class="value">your-client-id.apps.googleusercontent.com</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        לחץ <strong>Save Changes</strong> ← Render יפעיל <strong>deploy אוטומטי</strong> עם הערך החדש.
+        <div class="note">ℹ️ Vite מוצא את <code>VITE_*</code> בזמן ה-build. לכן כל שינוי במשתנה זה מחייב build חדש — Render עושה זאת אוטומטית.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Verification -->
+  <div class="card">
+    <h2>✅ אימות — כך בודקים שהכל עובד</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        כנס לאפליקציה ← עבור לדף <strong>שער הכניסה (🔑 כניסה)</strong>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        בחר בלשונית <strong>"כניסה עם Google"</strong> — כפתור Sign In With Google אמור להופיע.
+        <br/>אם עדיין מופיעה הודעת השגיאה — ודא ש-<code>VITE_GOOGLE_CLIENT_ID</code> הוגדר והאפליקציה נבנתה מחדש.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        התחבר עם חשבון Google שמוגדר לעובד ב-<strong>ניהול עובדים</strong> עם שדה <em>אימייל Google</em>.
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="note">
+      <strong>מה קורה מאחורי הקלעים:</strong><br/>
+      הדפדפן שולח את ה-<em>credential token</em> של Google ל-<code>POST /api/gate/check-google</code>.
+      השרת מפענח אותו, מחפש עובד עם אותו <code>google_email</code>, ומחזיר את סטטוס הגישה לאתר.
+    </div>
+  </div>
+
+  <footer>SafetyOS v2.0 · Google OAuth Setup Guide</footer>
+
+</div>
+</body>
+</html>

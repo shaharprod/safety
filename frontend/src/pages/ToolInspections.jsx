@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolInspections, createToolInspection, getWorkers, getProjects } from '../lib/api.js';
+import { useCanWrite } from '../lib/permissions.js';
 
 const TOOL_TYPES = [
   { value: 'electrical',  label: 'כלים חשמליים',      icon: '⚡' },
@@ -26,6 +27,7 @@ function expiryBadge(expiry_date) {
 }
 
 export default function ToolInspections() {
+  const canWrite = useCanWrite();
   const navigate = useNavigate();
   const [inspections, setInspections] = useState([]);
   const [workers, setWorkers]         = useState([]);
@@ -68,10 +70,12 @@ export default function ToolInspections() {
           <h1 className="text-2xl font-bold text-gray-800">תקינות כלי עבודה</h1>
           <p className="text-sm text-gray-500 mt-0.5">בדיקות תקופתיות לפי סוג ציוד</p>
         </div>
-        <button onClick={() => { setShowNew(true); setError(''); }}
-          className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-          + בדיקה חדשה
-        </button>
+        {canWrite && (
+          <button onClick={() => { setShowNew(true); setError(''); }}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            + בדיקה חדשה
+          </button>
+        )}
       </div>
 
       {loading && <p className="text-center text-gray-400 py-10">טוען...</p>}

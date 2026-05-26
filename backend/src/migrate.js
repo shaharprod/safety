@@ -139,19 +139,25 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(100) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(255) NOT NULL,
-  role VARCHAR(50) DEFAULT 'foreman' CHECK (role IN ('safety_officer', 'foreman')),
+  role VARCHAR(50) DEFAULT 'foreman' CHECK (role IN ('safety_officer', 'foreman', 'admin')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users (username, password_hash, full_name, role)
-VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ממונה בטיחות', 'safety_officer')
-ON CONFLICT (username) DO NOTHING;
 `;
 
 export async function runMigrations() {
   if (!process.env.DATABASE_URL) return;
   try {
     await pool.query(MIGRATION_SQL);
+    // Patch: add 'admin' to role CHECK for existing DBs
+    await pool.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check`);
+    await pool.query(`ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('safety_officer', 'foreman', 'admin'))`);
+    // Ensure admin user exists with role 'admin'
+    await pool.query(`
+      INSERT INTO users (username, password_hash, full_name, role)
+      VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'מנהל מערכת', 'admin')
+      ON CONFLICT (username) DO UPDATE SET role = 'admin', full_name = 'מנהל מערכת'
+    `);
     console.log('✅ DB migrations applied');
   } catch (err) {
     console.error('❌ Migration error:', err.message);

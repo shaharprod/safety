@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { checkWorker, checkWorkerByGoogle } from '../lib/api.js';
@@ -153,7 +153,7 @@ function GateForm() {
           </Link>
         </div>
 
-        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v3.2</p>
+        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v3.3</p>
       </div>
     </div>
   );
