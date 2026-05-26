@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCertifications } from '../lib/api.js';
+import { getWorkerCertifications } from '../lib/api.js';
 
 function trainingStatus(last_training_date) {
   if (!last_training_date) return { label: 'ללא הדרכה רשומה', color: 'text-red-600', bg: 'bg-red-50 border-red-200', days: null };
@@ -16,17 +16,21 @@ function fmtDate(d) {
 }
 
 export default function WorkerPortal() {
-  const navigate = useNavigate();
-  const [worker, setWorker] = useState(null);
-  const [certs, setCerts]   = useState([]);
+  const navigate   = useNavigate();
+  const [worker, setWorker]         = useState(null);
+  const [accessStatus, setAccessStatus] = useState(null);
+  const [certs, setCerts]           = useState([]);
 
   useEffect(() => {
     const raw = sessionStorage.getItem('worker_session');
     if (!raw) { navigate('/', { replace: true }); return; }
-    const w = JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    const w = parsed.worker || parsed;
+    const status = parsed.access_status || null;
     setWorker(w);
-    getCertifications()
-      .then(all => setCerts(all.filter(c => c.worker_id === w.id)))
+    setAccessStatus(status);
+    getWorkerCertifications(w.id)
+      .then(setCerts)
       .catch(() => {});
   }, [navigate]);
 
@@ -52,11 +56,11 @@ export default function WorkerPortal() {
         </div>
 
         {/* Welcome card */}
-        <div className="bg-green-500 rounded-2xl p-5 text-center shadow-xl">
-          <div className="text-4xl mb-2">✅</div>
+        <div className={`rounded-2xl p-5 text-center shadow-xl ${accessStatus === 'Allowed' ? 'bg-green-500' : 'bg-orange-500'}`}>
+          <div className="text-4xl mb-2">{accessStatus === 'Allowed' ? '✅' : '⚠️'}</div>
           <p className="text-white text-xl font-bold">{worker.first_name} {worker.last_name}</p>
-          <p className="text-green-100 text-sm mt-1">כניסה מאושרת לאתר</p>
-          <p className="text-green-200 text-xs mt-1">ת.ז. {worker.id_number}</p>
+          <p className="text-white/80 text-sm mt-1">{accessStatus === 'Allowed' ? 'כניסה מאושרת לאתר' : 'פורטל עובד — יש לחדש הדרכה'}</p>
+          <p className="text-white/60 text-xs mt-1">ת.ז. {worker.id_number}</p>
         </div>
 
         {/* Training status */}

@@ -41,7 +41,7 @@ function GateForm() {
   }, [tab]);
 
   function openPortal(data) {
-    sessionStorage.setItem('worker_session', JSON.stringify(data.worker));
+    sessionStorage.setItem('worker_session', JSON.stringify({ worker: data.worker, access_status: data.access_status }));
     navigate('/worker-portal');
   }
 
@@ -50,8 +50,7 @@ function GateForm() {
     try {
       const { ok, data } = await checkWorkerByGoogle(response.credential);
       if (!ok) { setError(data.error || 'משתמש לא נמצא במערכת'); return; }
-      if (data.access_status === 'Allowed') openPortal(data);
-      else setError('כניסה נדחתה — הדרכת הבטיחות פגה. פנה למנהל.');
+      openPortal(data);
     } catch { setError('שגיאת תקשורת עם השרת'); }
     finally { setBusy(false); }
   }
@@ -63,8 +62,7 @@ function GateForm() {
     try {
       const { ok, data } = await checkWorker(idNumber.trim());
       if (!ok) { setError(data.error || 'עובד לא נמצא במערכת'); return; }
-      if (data.access_status === 'Allowed') openPortal(data);
-      else setError('כניסה נדחתה — הדרכת הבטיחות פגה. פנה למנהל.');
+      openPortal(data);
     } catch { setError('שגיאת תקשורת עם השרת'); }
     finally { setBusy(false); }
   }

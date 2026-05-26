@@ -11,8 +11,8 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-// GET /api/certifications/worker/:workerId
-router.get('/worker/:workerId', requireAuth, async (req, res) => {
+// GET /api/certifications/worker/:workerId — public (used by worker portal)
+router.get('/worker/:workerId', async (req, res) => {
   const { rows } = await pool.query(
     'SELECT * FROM worker_certifications WHERE worker_id = $1',
     [Number(req.params.workerId)]
