@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>היתר עבודה חמה</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #f5f5f5; color: #1a1a1a; direction: rtl; }
+  .page { max-width: 800px; margin: 20px auto; background: #fff; border: 2px solid #c0392b; border-radius: 8px; overflow: hidden; }
+  .header { background: #c0392b; color: #fff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; font-weight: bold; }
+  .badge { background: #fff; color: #c0392b; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-top: 4px; display: inline-block; }
+  .body { padding: 20px 24px; }
+  .section { margin-bottom: 18px; }
+  .section-title { font-size: 13px; font-weight: bold; color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 4px; margin-bottom: 12px; }
+  .row { display: grid; gap: 12px; margin-bottom: 10px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+  .field .line { border-bottom: 1px solid #999; min-height: 28px; padding: 4px 2px; font-size: 13px; }
+  .work-types { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .type-box { border: 2px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
+  .type-box .icon { font-size: 20px; }
+  .type-box .label { font-size: 11px; font-weight: bold; margin-top: 4px; }
+  .type-box.selected { border-color: #c0392b; background: #fdecea; }
+  .checklist { border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+  .check-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 14px; border-bottom: 1px solid #eee; font-size: 13px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row:nth-child(even) { background: #fdf8f8; }
+  .check-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+  .warning-box { background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #664d03; margin-bottom: 16px; }
+  .warning-box strong { display: block; font-size: 13px; margin-bottom: 4px; }
+  .fire-watch { background: #fdecea; border: 2px solid #e74c3c; border-radius: 8px; padding: 14px; }
+  .fire-watch-title { font-size: 13px; font-weight: bold; color: #c0392b; margin-bottom: 10px; }
+  .time-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .sig-box { border: 1px solid #bbb; border-radius: 6px; padding: 12px; text-align: center; }
+  .sig-box .sig-label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 6px; }
+  .sig-box .sig-line { border-bottom: 1px solid #999; height: 40px; margin-bottom: 6px; }
+  .sig-box .sig-name { font-size: 10px; color: #777; }
+  .print-btn { display: block; margin: 0 auto 20px; padding: 10px 32px; background: #c0392b; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  @media print {
+    body { background: #fff; }
+    .page { border: none; margin: 0; border-radius: 0; }
+    .print-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>🔥 היתר עבודה חמה</h1>
+      <div>Hot Work Permit — ריתוך / חיתוך / שריפה</div>
+      <div class="badge">חובה לחדש בכל יום עבודה</div>
+    </div>
+    <div style="font-size:40px">🔥</div>
+  </div>
+
+  <div class="body">
+    <div class="warning-box">
+      <strong>⚠️ אזהרת בטיחות קריטית</strong>
+      היתר זה חייב להיות ממולא, חתום ונמצא בידי שומר האש לפני תחילת כל עבודה חמה. אין לבצע עבודות ריתוך/חיתוך ללא היתר זה.
+    </div>
+
+    <div class="section">
+      <div class="section-title">פרטי היתר</div>
+      <div class="row row-3">
+        <div class="field">
+          <label>מספר היתר</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>תאריך</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>תוקף עד שעה</label>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="row row-2">
+        <div class="field">
+          <label>מיקום מדויק / קומה / חדר</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>שם מבצע העבודה</label>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">סוג העבודה החמה</div>
+      <div class="work-types">
+        <div class="type-box"><div class="icon">⚡</div><div class="label">ריתוך חשמלי</div></div>
+        <div class="type-box"><div class="icon">🔥</div><div class="label">ריתוך גז / להבה</div></div>
+        <div class="type-box"><div class="icon">✂️</div><div class="label">חיתוך זוויתן</div></div>
+        <div class="type-box"><div class="icon">💥</div><div class="label">אחר (פרט)</div></div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label>פירוט / סוג נוסף</label>
+        <div class="line"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">בדיקות חובה לפני תחילת עבודה חמה</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> האזור נוקה מחומרים דליקים ברדיוס 10 מטר</label>
+        <label class="check-row"><input type="checkbox"> פתחי ניקוז / ביוב מכוסים ואטומים</label>
+        <label class="check-row"><input type="checkbox"> מטפה כיבוי אש (לפחות 6 ק"ג) ממוקם בסמוך לאתר העבודה</label>
+        <label class="check-row"><input type="checkbox"> שומר אש מינוי וידאו — מצוי ועירני לכל משך העבודה</label>
+        <label class="check-row"><input type="checkbox"> רשתות ניצוצות הוצבו מתחת לנקודת הריתוך/חיתוך</label>
+        <label class="check-row"><input type="checkbox"> מחיצות/מגנים להגנה על אזורים סמוכים</label>
+        <label class="check-row"><input type="checkbox"> אוורור מספק באזור העבודה</label>
+        <label class="check-row"><input type="checkbox"> ציוד מגן אישי לריתוך: מסכה, כפפות, סינר, נעלי בטיחות</label>
+        <label class="check-row"><input type="checkbox"> מערכת גז / חשמל נבדקה ותקינה ללא נזילות</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="fire-watch">
+        <div class="fire-watch-title">🧯 שומר אש — פרטים ואחריות</div>
+        <div class="row row-2">
+          <div class="field">
+            <label>שם שומר האש</label>
+            <div class="line" style="background:white"></div>
+          </div>
+          <div class="field">
+            <label>מספר ת.ז</label>
+            <div class="line" style="background:white"></div>
+          </div>
+        </div>
+        <div style="font-size:12px; margin-top:8px; background:#fff; border-radius:4px; padding:8px 10px;">
+          שומר האש חייב להישאר באתר <strong>30 דקות לאחר סיום</strong> העבודה החמה כדי לוודא שאין התלקחות מושהית.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">זמני עבודה</div>
+      <div class="time-grid">
+        <div class="field">
+          <label>שעת התחלה</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>שעת סיום (בפועל)</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>סיום מעקב אש</label>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">בדיקה לאחר עבודה</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> אזור העבודה נבדק — אין שרידי גחלת או ניצוצות</label>
+        <label class="check-row"><input type="checkbox"> כל הציוד נותק ואוחסן בבטחה</label>
+        <label class="check-row"><input type="checkbox"> שומר האש אישר סגירה לאחר 30 דקות</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">חתימות</div>
+      <div class="sig-grid">
+        <div class="sig-box">
+          <div class="sig-label">ממונה בטיחות</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-label">מבצע העבודה</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-label">שומר האש</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<br>
+<button class="print-btn" onclick="window.print()">🖨️ הדפס היתר עבודה חמה</button>
+</body>
+</html>

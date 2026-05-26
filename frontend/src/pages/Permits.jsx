@@ -97,6 +97,38 @@ export default function Permits() {
     setPermits(prev => prev.filter(p => p.id !== id));
   }
 
+  function printAllPermits() {
+    const fmt = d => d ? new Date(d).toLocaleDateString('he-IL') : '—';
+    const rows = permits.map(p => {
+      const d = daysUntil(p.expiry_date);
+      const statusTxt = d === null ? 'ללא תאריך' : d < 0 ? 'פג תוקף' : d <= 30 ? `פג בעוד ${d} ימים` : 'בתוקף';
+      const docCell = p.document_url ? `<a href="${p.document_url}" target="_blank">פתח מסמך</a>` : '—';
+      return `<tr>
+        <td style="border:1px solid #ddd;padding:7px">${p.permit_type}</td>
+        <td style="border:1px solid #ddd;padding:7px;font-weight:bold">${p.title}</td>
+        <td style="border:1px solid #ddd;padding:7px">${p.issuing_authority || '—'}</td>
+        <td style="border:1px solid #ddd;padding:7px">${fmt(p.issue_date)}</td>
+        <td style="border:1px solid #ddd;padding:7px">${fmt(p.expiry_date)}</td>
+        <td style="border:1px solid #ddd;padding:7px">${statusTxt}</td>
+        <td style="border:1px solid #ddd;padding:7px">${docCell}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">
+      <title>היתרים ואישורים</title>
+      <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px}h1{font-size:18px}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}th{background:#1e3a5f;color:#fff;padding:8px;border:1px solid #ddd}@media print{button{display:none}}</style>
+    </head><body>
+      <h1>🦺 SafetyOS — היתרים ואישורים</h1>
+      <p style="font-size:13px">תאריך הדפסה: ${new Date().toLocaleDateString('he-IL')} | סה״כ: ${permits.length} היתרים</p>
+      <table><thead><tr>
+        <th>סוג</th><th>כותרת</th><th>רשות מנפיקה</th><th>הנפקה</th><th>תפוגה</th><th>סטטוס</th><th>מסמך</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+      <br><button onclick="window.print()" style="padding:10px 24px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">🖨️ הדפס</button>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+  }
+
   const total   = permits.length;
   const valid   = permits.filter(p => { const d = daysUntil(p.expiry_date); return d !== null && d > 30; }).length;
   const soon    = permits.filter(p => { const d = daysUntil(p.expiry_date); return d !== null && d >= 0 && d <= 30; }).length;
@@ -119,10 +151,16 @@ export default function Permits() {
           <p className="text-sm text-gray-500 mt-0.5">רישיונות, היתרים ואישורים תקפים לאתר</p>
         </div>
         {canWrite && (
-          <button onClick={openNew}
-            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-            + היתר חדש
-          </button>
+          <div className="flex gap-2">
+            <button onClick={printAllPermits}
+              className="border border-blue-200 text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5">
+              📥 הורד
+            </button>
+            <button onClick={openNew}
+              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              + היתר חדש
+            </button>
+          </div>
         )}
       </div>
 
@@ -227,16 +265,19 @@ export default function Permits() {
                   {/* Spacer + doc button at bottom */}
                   <div className="mt-auto pt-1">
                     {!isDel ? (
-                      <button
-                        disabled={!hasDoc}
-                        onClick={() => hasDoc && window.open(permit.document_url, '_blank', 'noopener')}
-                        className={`w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition ${
-                          hasDoc
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}>
-                        📄 {hasDoc ? 'פתח מסמך' : 'אין מסמך מקושר'}
-                      </button>
+                      hasDoc ? (
+                        <button
+                          onClick={() => window.open(permit.document_url, '_blank', 'noopener')}
+                          className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+                          📄 פתח מסמך
+                        </button>
+                      ) : canWrite ? (
+                        <button
+                          onClick={() => openEdit(permit)}
+                          className="w-full py-2 rounded-xl text-xs border border-dashed border-gray-300 text-gray-400 hover:border-blue-300 hover:text-blue-500 transition">
+                          + הוסף קישור למסמך
+                        </button>
+                      ) : null
                     ) : (
                       <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                         <p className="text-xs font-semibold text-red-700 text-center mb-2">למחוק היתר זה?</p>

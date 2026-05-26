@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>היתר עבודה יומי</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #f5f5f5; color: #1a1a1a; direction: rtl; }
+  .page { max-width: 800px; margin: 20px auto; background: #fff; border: 2px solid #1e3a5f; border-radius: 8px; overflow: hidden; }
+  .header { background: #1e3a5f; color: #fff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; font-weight: bold; }
+  .header .logo { font-size: 32px; }
+  .badge { background: #e74c3c; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-top: 4px; display: inline-block; }
+  .body { padding: 20px 24px; }
+  .section { margin-bottom: 18px; }
+  .section-title { font-size: 13px; font-weight: bold; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 4px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .row { display: grid; gap: 12px; margin-bottom: 10px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+  .field .line { border-bottom: 1px solid #999; min-height: 28px; padding: 4px 2px; font-size: 13px; }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .check-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .check-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+  .workers-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .workers-table th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: right; }
+  .workers-table td { border: 1px solid #ddd; padding: 6px 10px; min-height: 28px; }
+  .workers-table tr:nth-child(even) td { background: #f8f9fa; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sig-box { border: 1px solid #bbb; border-radius: 6px; padding: 14px; text-align: center; }
+  .sig-box .sig-label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 8px; }
+  .sig-box .sig-line { border-bottom: 1px solid #999; height: 40px; margin-bottom: 8px; }
+  .sig-box .sig-name { font-size: 11px; color: #777; }
+  .print-btn { display: block; margin: 0 auto 20px; padding: 10px 32px; background: #1e3a5f; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  .print-btn:hover { background: #2a4e7f; }
+  .alert-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #664d03; margin-bottom: 16px; }
+  .num-field { display: flex; align-items: center; justify-content: space-between; background: #f0f4f8; border-radius: 6px; padding: 8px 14px; }
+  .num-field span { font-size: 12px; color: #555; }
+  .num-field strong { font-size: 15px; color: #1e3a5f; }
+  @media print {
+    body { background: #fff; }
+    .page { border: none; margin: 0; border-radius: 0; }
+    .print-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>היתר עבודה יומי</h1>
+      <div>Daily Work Permit</div>
+      <div class="badge">לא תקף ללא חתימת ממונה בטיחות</div>
+    </div>
+    <div class="logo">🦺</div>
+  </div>
+
+  <div class="body">
+    <div class="alert-box">
+      ⚠️ <strong>חובה:</strong> היתר זה חייב להיות ממולא וחתום על ידי ממונה הבטיחות לפני תחילת כל יום עבודה. העתק ישמר באתר.
+    </div>
+
+    <div class="section">
+      <div class="section-title">פרטי היתר</div>
+      <div class="row row-3">
+        <div class="field">
+          <label>מספר היתר</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>תאריך</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>שעת תחילת עבודה</label>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="row row-2">
+        <div class="field">
+          <label>שם האתר / פרויקט</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>מיקום / קומה / אזור</label>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>תיאור העבודה המתוכננת</label>
+        <div class="line" style="min-height:44px"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">אנשי מקצוע מבצעים</div>
+      <div class="row row-2">
+        <div class="field">
+          <label>שם מנהל העבודה</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>חברה / קבלן</label>
+          <div class="line"></div>
+        </div>
+      </div>
+      <table class="workers-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>שם מלא</th>
+            <th>מספר ת.ז</th>
+            <th>תפקיד</th>
+            <th>אישור הדרכה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td></td><td></td><td></td><td style="text-align:center">☐</td></tr>
+          <tr><td>2</td><td></td><td></td><td></td><td style="text-align:center">☐</td></tr>
+          <tr><td>3</td><td></td><td></td><td></td><td style="text-align:center">☐</td></tr>
+          <tr><td>4</td><td></td><td></td><td></td><td style="text-align:center">☐</td></tr>
+          <tr><td>5</td><td></td><td></td><td></td><td style="text-align:center">☐</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">בדיקות בטיחות מוקדמות</div>
+      <div class="checks">
+        <label class="check-item"><input type="checkbox"> כל העובדים קיבלו ציוד מגן אישי</label>
+        <label class="check-item"><input type="checkbox"> נוהל חירום הוסבר לצוות</label>
+        <label class="check-item"><input type="checkbox"> מוצאי חירום סומנו ופנויים</label>
+        <label class="check-item"><input type="checkbox"> ערכת עזרה ראשונה נגישה ומאובזרת</label>
+        <label class="check-item"><input type="checkbox"> ציוד נבדק ותקין</label>
+        <label class="check-item"><input type="checkbox"> אזור עבודה מסומן ומאובטח</label>
+        <label class="check-item"><input type="checkbox"> תיאום עם קבלנים אחרים באתר</label>
+        <label class="check-item"><input type="checkbox"> הדרכת בטיחות ייעודית בוצעה</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">ציוד מגן אישי נדרש</div>
+      <div class="checks">
+        <label class="check-item"><input type="checkbox"> קסדת בטיחות</label>
+        <label class="check-item"><input type="checkbox"> נעלי בטיחות</label>
+        <label class="check-item"><input type="checkbox"> אפוד זוהר</label>
+        <label class="check-item"><input type="checkbox"> כפפות</label>
+        <label class="check-item"><input type="checkbox"> משקפי מגן</label>
+        <label class="check-item"><input type="checkbox"> רתמת בטיחות (בגובה)</label>
+        <label class="check-item"><input type="checkbox"> מגן פנים</label>
+        <label class="check-item"><input type="checkbox"> מגן שמיעה</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">הנחיות מיוחדות / סיכונים ידועים</div>
+      <div class="field">
+        <div class="line" style="min-height:52px"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">חתימות ואישורים</div>
+      <div class="sig-grid">
+        <div class="sig-box">
+          <div class="sig-label">ממונה בטיחות</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______________&nbsp;&nbsp;&nbsp; שעה: _______</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-label">מנהל עבודה</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______________&nbsp;&nbsp;&nbsp; שעה: _______</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<br>
+<button class="print-btn" onclick="window.print()">🖨️ הדפס היתר</button>
+</body>
+</html>

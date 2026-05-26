@@ -113,6 +113,37 @@ export default function WorkerCertifications() {
     return w ? `${w.first_name} ${w.last_name}` : `עובד #${id}`;
   };
 
+  function printWorkerCerts(wid, wCerts) {
+    const name = workerName(wid);
+    const rows = wCerts.map(c => {
+      const typeInfo = CERT_MAP[c.cert_type] || { label: c.cert_type, icon: '📄' };
+      const fmt = d => d ? new Date(d).toLocaleDateString('he-IL') : '—';
+      const status = expiryStatus(c.expiry_date);
+      return `<tr>
+        <td style="border:1px solid #ddd;padding:8px">${typeInfo.icon} ${typeInfo.label}</td>
+        <td style="border:1px solid #ddd;padding:8px">${c.cert_number || '—'}</td>
+        <td style="border:1px solid #ddd;padding:8px">${c.issuing_authority || '—'}</td>
+        <td style="border:1px solid #ddd;padding:8px">${fmt(c.issue_date)}</td>
+        <td style="border:1px solid #ddd;padding:8px;font-weight:bold">${fmt(c.expiry_date)}</td>
+        <td style="border:1px solid #ddd;padding:8px">${c.notes || '—'}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">
+      <title>הסמכות — ${name}</title>
+      <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px}h1{font-size:18px}table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}th{background:#1e3a5f;color:#fff;padding:8px;border:1px solid #ddd}@media print{button{display:none}}</style>
+    </head><body>
+      <h1>🦺 SafetyOS — הסמכות עובד</h1>
+      <p style="font-size:14px">עובד: <strong>${name}</strong> &nbsp;|&nbsp; תאריך הדפסה: ${new Date().toLocaleDateString('he-IL')}</p>
+      <table><thead><tr>
+        <th>סוג הסמכה</th><th>מספר</th><th>מוסד מנפיק</th><th>תאריך הנפקה</th><th>תוקף עד</th><th>הערות</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+      <br><button onclick="window.print()" style="padding:10px 24px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">🖨️ הדפס</button>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+  }
+
   const filtered = certs.filter(c =>
     (!filterWorker || String(c.worker_id) === filterWorker) &&
     (!filterType   || c.cert_type === filterType)
@@ -202,6 +233,12 @@ export default function WorkerCertifications() {
           <h2 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
             <span className="text-base">👤</span> {workerName(wid)}
             <span className="text-xs font-normal text-gray-400">({wCerts.length} הסמכות)</span>
+            {canWrite && (
+              <button onClick={() => printWorkerCerts(wid, wCerts)}
+                className="mr-auto text-xs font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-100 px-2.5 py-1 rounded-full transition flex items-center gap-1">
+                📥 הורד
+              </button>
+            )}
           </h2>
           <div className="space-y-2">
             {wCerts.map(cert => {

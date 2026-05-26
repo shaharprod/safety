@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>אישור ממונה בטיחות לתחילת עבודה</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #f5f5f5; color: #1a1a1a; direction: rtl; }
+  .page { max-width: 800px; margin: 20px auto; background: #fff; border: 2px solid #1a6b3a; border-radius: 8px; overflow: hidden; }
+  .header { background: #1a6b3a; color: #fff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; font-weight: bold; }
+  .badge { background: #fff; color: #1a6b3a; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-top: 4px; display: inline-block; }
+  .body { padding: 20px 24px; }
+  .section { margin-bottom: 18px; }
+  .section-title { font-size: 13px; font-weight: bold; color: #1a6b3a; border-bottom: 2px solid #1a6b3a; padding-bottom: 4px; margin-bottom: 12px; }
+  .row { display: grid; gap: 12px; margin-bottom: 10px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+  .field .line { border-bottom: 1px solid #999; min-height: 28px; padding: 4px 2px; font-size: 13px; }
+  .checklist { border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+  .check-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 13px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row:nth-child(even) { background: #f8f9fa; }
+  .check-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+  .check-row .note-line { flex: 1; border-bottom: 1px dashed #bbb; min-height: 20px; margin-right: 8px; }
+  .status-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .status-box { border: 2px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; }
+  .status-box.green { border-color: #1a6b3a; background: #e8f5e9; }
+  .status-box.yellow { border-color: #f39c12; background: #fef9e7; }
+  .status-box.red { border-color: #e74c3c; background: #fdecea; }
+  .status-box .icon { font-size: 24px; margin-bottom: 4px; }
+  .status-box .label { font-size: 12px; font-weight: bold; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sig-box { border: 1px solid #bbb; border-radius: 6px; padding: 14px; text-align: center; }
+  .sig-box .sig-label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 8px; }
+  .sig-box .sig-line { border-bottom: 1px solid #999; height: 50px; margin-bottom: 8px; }
+  .sig-box .sig-name { font-size: 11px; color: #777; }
+  .highlight { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 6px; padding: 10px 14px; font-size: 12px; margin-bottom: 14px; }
+  .print-btn { display: block; margin: 0 auto 20px; padding: 10px 32px; background: #1a6b3a; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  @media print {
+    body { background: #fff; }
+    .page { border: none; margin: 0; border-radius: 0; }
+    .print-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>אישור ממונה בטיחות לתחילת עבודה</h1>
+      <div>Safety Officer Start-of-Work Approval</div>
+      <div class="badge">✅ חובה לפני כניסת עובדים לשטח</div>
+    </div>
+    <div style="font-size:36px">🦺</div>
+  </div>
+
+  <div class="body">
+
+    <div class="section">
+      <div class="section-title">פרטי האישור</div>
+      <div class="row row-3">
+        <div class="field">
+          <label>תאריך</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>שעת אישור</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>מספר אישור</label>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="row row-2">
+        <div class="field">
+          <label>שם האתר / פרויקט</label>
+          <div class="line"></div>
+        </div>
+        <div class="field">
+          <label>שם ממונה הבטיחות</label>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">בדיקות חובה לפני אישור תחילת עבודה</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> כל העובדים בעלי הדרכת בטיחות בתוקף</label>
+        <label class="check-row"><input type="checkbox"> ציוד מגן אישי מלא הונפק לכל עובד</label>
+        <label class="check-row"><input type="checkbox"> היתר עבודה יומי מולא וחתום</label>
+        <label class="check-row"><input type="checkbox"> ערכת עזרה ראשונה במקום, מאובזרת ונגישה</label>
+        <label class="check-row"><input type="checkbox"> מוצאי חירום פנויים וסומנים</label>
+        <label class="check-row"><input type="checkbox"> גדרות ומחסומי בטיחות הוצבו כנדרש</label>
+        <label class="check-row"><input type="checkbox"> ציוד הבנייה/העבודה נבדק ותקין</label>
+        <label class="check-row"><input type="checkbox"> נוהל חירום ואיש קשר הוגדרו והוסברו</label>
+        <label class="check-row"><input type="checkbox"> תנאי מזג אוויר מאפשרים ביצוע עבודה בטוחה</label>
+        <label class="check-row"><input type="checkbox"> תיאום עם קבלנים נוספים באתר בוצע</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">החלטת ממונה הבטיחות</div>
+      <div class="status-grid">
+        <div class="status-box green">
+          <div class="icon">✅</div>
+          <div class="label">אושר — ניתן להתחיל</div>
+        </div>
+        <div class="status-box yellow">
+          <div class="icon">⚠️</div>
+          <div class="label">אושר עם הגבלות</div>
+        </div>
+        <div class="status-box red">
+          <div class="icon">🛑</div>
+          <div class="label">נדחה — אסור להתחיל</div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="field">
+          <label>הערות / הנחיות מיוחדות</label>
+          <div class="line" style="min-height:50px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">חתימות</div>
+      <div class="sig-grid">
+        <div class="sig-box">
+          <div class="sig-label">ממונה בטיחות — אישור</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______________ | ת.ז: ___________</div>
+        </div>
+        <div class="sig-box">
+          <div class="sig-label">מנהל עבודה — קיבלתי</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">שם: _______________ | שעה: ___________</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<br>
+<button class="print-btn" onclick="window.print()">🖨️ הדפס אישור</button>
+</body>
+</html>

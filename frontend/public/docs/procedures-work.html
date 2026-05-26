@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>נהלי בטיחות — עבודה כללית</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#1a1a1a;direction:rtl}
+  .page{max-width:800px;margin:20px auto;background:#fff;border:2px solid #1e3a5f;border-radius:8px;overflow:hidden}
+  .header{background:#1e3a5f;color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}
+  .header h1{font-size:19px;font-weight:bold}.header p{font-size:12px;opacity:.8;margin-top:3px}
+  .meta{background:#eef2f7;padding:12px 24px;display:flex;gap:24px;font-size:12px;border-bottom:1px solid #d0d8e4}
+  .meta span{color:#555}.meta strong{color:#1e3a5f}
+  .body{padding:20px 24px}
+  .cat{margin-bottom:20px}
+  .cat-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:13px}
+  .cat-blue{background:#dbeafe;color:#1e40af}.cat-amber{background:#fef3c7;color:#92400e}.cat-green{background:#dcfce7;color:#166534}
+  .checklist{border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
+  .check-row{display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid #f3f4f6;font-size:13px}
+  .check-row:last-child{border-bottom:none}
+  .check-row:nth-child(even){background:#fafafa}
+  .check-row input{width:17px;height:17px;flex-shrink:0;margin-top:2px;cursor:pointer}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+  .field label{display:block;font-size:11px;font-weight:bold;color:#555;margin-bottom:3px}
+  .field .line{border-bottom:1px solid #999;min-height:26px}
+  .sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+  .sig-box{border:1px solid #bbb;border-radius:6px;padding:12px;text-align:center}
+  .sig-label{font-size:11px;font-weight:bold;color:#555;margin-bottom:6px}
+  .sig-line{border-bottom:1px solid #999;height:40px;margin-bottom:6px}
+  .sig-name{font-size:10px;color:#777}
+  .sec-title{font-size:13px;font-weight:bold;color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:4px;margin-bottom:10px;margin-top:18px}
+  .print-btn{display:block;margin:0 auto 20px;padding:10px 32px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer}
+  @media print{body{background:#fff}.page{border:none;margin:0;border-radius:0}.print-btn{display:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div><h1>🦺 נהלי בטיחות — עבודה כללית</h1><p>General Work Safety Procedures</p></div>
+    <div style="font-size:36px">📋</div>
+  </div>
+  <div class="meta">
+    <span>תאריך: <strong id="d"></strong></span>
+    <span>אתר: <strong>_______________</strong></span>
+    <span>ממונה: <strong>_______________</strong></span>
+  </div>
+  <div class="body">
+
+    <div class="cat">
+      <div class="cat-header cat-blue">📋 היתרים ואישורים</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> היתר עבודה חתום ע"י ממונה בטיחות — לפני תחילת כל יום עבודה</label>
+        <label class="check-row"><input type="checkbox"> אישור ממונה בטיחות לתחילת עבודה — תאריך, שעה וחתימה</label>
+        <label class="check-row"><input type="checkbox"> היתר עבודה חמה (ריתוך / חיתוך) — חתום, אם קיים בעבודה זו</label>
+      </div>
+    </div>
+
+    <div class="cat">
+      <div class="cat-header cat-amber">📌 נהלים מוקדמים</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> הדרכת בטיחות ייעודית לעובדים לפני תחילת עבודה — תיעוד חתום</label>
+        <label class="check-row"><input type="checkbox"> הצגת גבולות האתר, מוצאי חירום וסיכונים לכל הצוות</label>
+        <label class="check-row"><input type="checkbox"> בדיקת ציוד מגן אישי לכל עובד לפני כניסה לשטח</label>
+        <label class="check-row"><input type="checkbox"> הגדרת נוהל חירום, תפקידים ומיקום ערכת עזרה ראשונה</label>
+      </div>
+    </div>
+
+    <div class="cat">
+      <div class="cat-header cat-green">📄 תיעוד נדרש</div>
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox"> ציוד מגן אישי הונפק ואושר לכל עובד — רשימה חתומה</label>
+        <label class="check-row"><input type="checkbox"> רשימת נוכחות עובדים עם אישורי הדרכת בטיחות</label>
+        <label class="check-row"><input type="checkbox"> טופס בדיקת ציוד יומי לפני שימוש — חתום על ידי אחראי</label>
+        <label class="check-row"><input type="checkbox"> יומן בטיחות אתר — רישום תקינות, חריגות ואירועים</label>
+      </div>
+    </div>
+
+    <div class="sec-title">הערות</div>
+    <div class="field"><div class="line" style="min-height:50px"></div></div>
+
+    <div class="sec-title">חתימות</div>
+    <div class="sig-grid">
+      <div class="sig-box"><div class="sig-label">ממונה בטיחות</div><div class="sig-line"></div><div class="sig-name">שם: _______________ | שעה: _______</div></div>
+      <div class="sig-box"><div class="sig-label">מנהל עבודה</div><div class="sig-line"></div><div class="sig-name">שם: _______________ | שעה: _______</div></div>
+    </div>
+  </div>
+</div>
+<br>
+<button class="print-btn" onclick="window.print()">🖨️ הדפס רשימת בדיקה</button>
+<script>document.getElementById('d').textContent=new Date().toLocaleDateString('he-IL')</script>
+</body>
+</html>
