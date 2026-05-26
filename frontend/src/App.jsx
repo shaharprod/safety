@@ -112,22 +112,20 @@ function AppLayout() {
             )}
             <button
               onClick={() => setShowChangePw(true)}
-              className="text-blue-200 hover:text-white transition text-sm px-2 py-1 rounded hover:bg-blue-800"
+              className="hidden md:block text-blue-200 hover:text-white transition text-sm px-2 py-1 rounded hover:bg-blue-800"
               title="שנה סיסמה"
             >
               🔐
             </button>
             <button
               onClick={handleLogout}
-              className="text-blue-200 hover:text-white transition text-sm px-2 py-1 rounded hover:bg-blue-800"
+              className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition"
               title="התנתק"
             >
-              ⬅️ יציאה
+              <span className="hidden md:inline">יציאה</span>
+              <span>🚪</span>
             </button>
           </div>
-
-          {/* Mobile title */}
-          <span className="md:hidden text-sm text-blue-200">מערכת ניהול בטיחות</span>
         </div>
       </nav>
 
