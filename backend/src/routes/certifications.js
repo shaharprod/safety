@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
   const { worker_id, cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes } = req.body;
   if (!worker_id || !cert_type) return res.status(400).json({ error: 'worker_id and cert_type required' });
   const { rows } = await pool.query(
-    'INSERT INTO worker_certifications (worker_id, cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+    'INSERT INTO worker_certifications (worker_id, cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
     [Number(worker_id), cert_type, cert_number || '', issuing_authority || '', issue_date || null, expiry_date || null, notes || '']
   );
   res.status(201).json(rows[0]);
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   const { cert_type, cert_number, issuing_authority, issue_date, expiry_date, notes } = req.body;
   const { rows } = await pool.query(
-    'UPDATE worker_certifications SET cert_type = $1, cert_number = $2, issuing_authority = $3, issue_date = $4, expiry_date = $5, notes = $6 WHERE id = $7',
+    'UPDATE worker_certifications SET cert_type = $1, cert_number = $2, issuing_authority = $3, issue_date = $4, expiry_date = $5, notes = $6 WHERE id = $7 RETURNING *',
     [cert_type, cert_number || '', issuing_authority || '', issue_date || null, expiry_date || null, notes || '', Number(req.params.id)]
   );
   if (!rows.length) return res.status(404).json({ error: 'Not found' });

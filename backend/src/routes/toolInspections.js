@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
   const { tool_type, inspector_name, location, expiry_date } = req.body;
   if (!tool_type || !inspector_name) return res.status(400).json({ error: 'tool_type and inspector_name required' });
   const { rows } = await pool.query(
-    'INSERT INTO tool_inspections (tool_type, inspector_name, location, expiry_date) VALUES ($1, $2, $3, $4)',
+    'INSERT INTO tool_inspections (tool_type, inspector_name, location, expiry_date) VALUES ($1, $2, $3, $4) RETURNING *',
     [tool_type, inspector_name, location || '', expiry_date || null]
   );
   res.status(201).json(rows[0]);
@@ -40,7 +40,7 @@ router.get('/:id/items', async (req, res) => {
 router.post('/:id/items', async (req, res) => {
   const { tool_name, serial_number, condition, notes } = req.body;
   const { rows } = await pool.query(
-    'INSERT INTO tool_inspection_items (inspection_id, tool_name, serial_number, condition, notes) VALUES ($1, $2, $3, $4, $5)',
+    'INSERT INTO tool_inspection_items (inspection_id, tool_name, serial_number, condition, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *',
     [Number(req.params.id), tool_name, serial_number || '', condition || 'pending', notes || '']
   );
   res.status(201).json(rows[0]);
@@ -50,10 +50,11 @@ router.post('/:id/items', async (req, res) => {
 router.patch('/:id/items/:itemId', async (req, res) => {
   const { condition, notes, serial_number } = req.body;
   const { rows } = await pool.query(
-    'UPDATE tool_inspection_items SET condition = $1, notes = $2, serial_number = $3 WHERE id = $4',
+    'UPDATE tool_inspection_items SET condition = $1, notes = $2, serial_number = $3 WHERE id = $4 RETURNING *',
     [condition, notes || '', serial_number !== undefined ? serial_number : '', Number(req.params.itemId)]
   );
-  res.json(rows[0] || {});
+  if (!rows[0]) return res.status(404).json({ error: 'Item not found' });
+  res.json(rows[0]);
 });
 
 // DELETE /api/tool-inspections/:id/items/:itemId
@@ -65,10 +66,11 @@ router.delete('/:id/items/:itemId', async (req, res) => {
 // PATCH /api/tool-inspections/:id/close
 router.patch('/:id/close', async (req, res) => {
   const { rows } = await pool.query(
-    'UPDATE tool_inspections SET status = $1 WHERE id = $2',
-    ['Closed', Number(req.params.id)]
+    'UPDATE tool_inspections SET status = $1 WHERE id = $2 RETURNING *',
+    ['Done', Number(req.params.id)]
   );
-  res.json(rows[0] || {});
+  if (!rows[0]) return res.status(404).json({ error: 'Inspection not found' });
+  res.json(rows[0]);
 });
 
 export default router;

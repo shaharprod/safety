@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   const { name, location, start_date, end_date, manager_name, manager_phone, manager_email, status } = req.body;
   if (!name || !manager_name) return res.status(400).json({ error: 'name and manager_name required' });
   const { rows } = await pool.query(
-    'INSERT INTO projects (name, location, start_date, end_date, manager_name, manager_phone, manager_email, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+    'INSERT INTO projects (name, location, start_date, end_date, manager_name, manager_phone, manager_email, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
     [name, location || '', start_date || null, end_date || null, manager_name, manager_phone || '', manager_email || '', status || 'active']
   );
   res.status(201).json(rows[0]);
@@ -24,10 +24,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   const { name, location, start_date, end_date, manager_name, manager_phone, manager_email, status } = req.body;
   const { rows } = await pool.query(
-    'UPDATE projects SET name=$1, location=$2, start_date=$3, end_date=$4, manager_name=$5, manager_phone=$6, manager_email=$7, status=$8 WHERE id=$9',
+    'UPDATE projects SET name=$1, location=$2, start_date=$3, end_date=$4, manager_name=$5, manager_phone=$6, manager_email=$7, status=$8 WHERE id=$9 RETURNING *',
     [name, location || '', start_date || null, end_date || null, manager_name, manager_phone || '', manager_email || '', status || 'active', Number(req.params.id)]
   );
-  res.json(rows[0] || {});
+  if (!rows[0]) return res.status(404).json({ error: 'Project not found' });
+  res.json(rows[0]);
 });
 
 // DELETE /api/projects/:id
