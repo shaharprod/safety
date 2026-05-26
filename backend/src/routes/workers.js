@@ -26,7 +26,6 @@ router.post('/check', async (req, res) => {
 
   const worker = rows[0];
   const { access_status, days_since_training } = calcAccess(worker);
-  await pool.query('INSERT INTO site_access_logs (worker_id, access_status) VALUES ($1, $2)', [worker.id, access_status]);
   res.json({ worker, access_status, days_since_training });
 });
 
@@ -50,7 +49,6 @@ router.post('/check-google', async (req, res) => {
 
   const worker = rows[0];
   const { access_status, days_since_training } = calcAccess(worker);
-  await pool.query('INSERT INTO site_access_logs (worker_id, access_status) VALUES ($1, $2)', [worker.id, access_status]);
   res.json({ worker, access_status, days_since_training, google_name: name });
 });
 
