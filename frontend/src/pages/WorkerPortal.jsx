@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCertifications } from '../lib/api.js';
 
@@ -107,7 +107,7 @@ export default function WorkerPortal() {
           ← סיים וחזור לדף הכניסה
         </button>
 
-        <p className="text-center text-blue-800 text-xs">SafetyOS v2.9</p>
+        <p className="text-center text-blue-800 text-xs">SafetyOS v3.0</p>
       </div>
     </div>
   );
