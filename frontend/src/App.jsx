@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -86,7 +86,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.3</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.4</span>
           </span>
 
           {/* Desktop links */}
