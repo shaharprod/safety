@@ -1,78 +1,145 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { checkWorker, checkWorkerByGoogle } from '../lib/api.js';
-import WorkerCheckResult from '../components/WorkerCheckResult.jsx';
+import { checkWorker, checkWorkerByGoogle, getWorkerCertifications } from '../lib/api.js';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('he-IL');
+}
+
+function WorkerProfile({ result, certs }) {
+  const { worker } = result;
+  const days = worker.last_training_date
+    ? Math.floor((Date.now() - new Date(worker.last_training_date).getTime()) / 86_400_000)
+    : null;
+  const trainingOk = days !== null && days <= 365;
+
+  return (
+    <div className="mt-4 space-y-3">
+      {/* Worker identity */}
+      <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex items-center gap-3">
+        <span className="text-3xl">👷</span>
+        <div>
+          <p className="text-lg font-bold text-gray-800">{worker.first_name} {worker.last_name}</p>
+          <p className="text-sm text-gray-500">ת.ז: {worker.id_number}</p>
+        </div>
+      </div>
+
+      {/* Training */}
+      <div className={`rounded-xl border-2 p-3 ${trainingOk ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+        <p className="text-xs font-semibold text-gray-500 mb-0.5">הדרכת בטיחות</p>
+        {days === null
+          ? <p className="text-sm font-bold text-red-600">ללא הדרכה רשומה</p>
+          : <p className={`text-sm font-bold ${trainingOk ? 'text-green-700' : 'text-red-600'}`}>
+              {trainingOk ? `תקין — ${days} ימים מאז הדרכה` : `פג תוקף — ${days - 365} ימים אחרי תוקף`}
+            </p>
+        }
+        {worker.last_training_date && (
+          <p className="text-xs text-gray-400 mt-0.5">תאריך: {fmtDate(worker.last_training_date)}</p>
+        )}
+      </div>
+
+      {/* Height clearance */}
+      <div className={`rounded-xl border-2 p-3 ${worker.has_height_clearance ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+        <p className="text-xs font-semibold text-gray-500 mb-0.5">עבודה בגובה</p>
+        <p className={`text-sm font-bold ${worker.has_height_clearance ? 'text-green-700' : 'text-gray-500'}`}>
+          {worker.has_height_clearance ? '✅ אישור בתוקף' : '❌ אין אישור'}
+        </p>
+      </div>
+
+      {/* Certifications */}
+      {certs.length > 0 ? (
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <p className="text-xs font-semibold text-gray-500 mb-3">הסמכות</p>
+          <div className="space-y-2">
+            {certs.map(c => {
+              const expired = c.expiry_date && new Date(c.expiry_date) < new Date();
+              return (
+                <div key={c.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{c.cert_type}</p>
+                    {c.expiry_date && <p className="text-xs text-gray-400">תוקף: {fmtDate(c.expiry_date)}</p>}
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${expired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                    {expired ? 'פג' : 'תקין'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3 text-center text-sm text-gray-500">
+          אין הסמכות רשומות
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function GateControl() {
   const [idNumber, setIdNumber]   = useState('');
   const [result, setResult]       = useState(null);
+  const [certs, setCerts]         = useState([]);
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
-  const [tab, setTab]             = useState('id');  // 'id' | 'google'
+  const [tab, setTab]             = useState('id');
   const googleBtnRef              = useRef(null);
 
   useEffect(() => {
     if (tab !== 'google') return;
     if (!GOOGLE_CLIENT_ID) return;
-
     const gsi = window.google?.accounts?.id;
     if (!gsi) return;
-
     gsi.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredential,
       auto_select: false,
       cancel_on_tap_outside: false,
     });
-
     if (googleBtnRef.current) {
       gsi.renderButton(googleBtnRef.current, {
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        locale: 'he',
+        theme: 'outline', size: 'large', text: 'signin_with', locale: 'he',
         width: googleBtnRef.current.offsetWidth || 320,
       });
     }
   }, [tab]);
 
+  async function loadWorker(data) {
+    setResult(data);
+    try {
+      const workerCerts = await getWorkerCertifications(data.worker.id);
+      setCerts(workerCerts);
+    } catch {
+      setCerts([]);
+    }
+  }
+
   async function handleGoogleCredential(response) {
-    setLoading(true);
-    setError('');
-    setResult(null);
+    setLoading(true); setError(''); setResult(null); setCerts([]);
     try {
       const { ok, data } = await checkWorkerByGoogle(response.credential);
       if (!ok) setError(data.error || 'משתמש לא נמצא במערכת');
-      else setResult(data);
-    } catch {
-      setError('שגיאת תקשורת עם השרת');
-    } finally {
-      setLoading(false);
-    }
+      else await loadWorker(data);
+    } catch { setError('שגיאת תקשורת עם השרת'); }
+    finally { setLoading(false); }
   }
 
   async function handleIdCheck(e) {
     e.preventDefault();
     if (!idNumber.trim()) return;
-    setLoading(true);
-    setError('');
-    setResult(null);
+    setLoading(true); setError(''); setResult(null); setCerts([]);
     try {
       const { ok, data } = await checkWorker(idNumber.trim());
       if (!ok) setError(data.error || 'עובד לא נמצא במערכת');
-      else setResult(data);
-    } catch {
-      setError('שגיאת תקשורת עם השרת');
-    } finally {
-      setLoading(false);
-    }
+      else await loadWorker(data);
+    } catch { setError('שגיאת תקשורת עם השרת'); }
+    finally { setLoading(false); }
   }
 
   function reset() {
-    setResult(null);
-    setError('');
-    setIdNumber('');
+    setResult(null); setCerts([]); setError(''); setIdNumber('');
   }
 
   return (
@@ -96,7 +163,7 @@ export default function GateControl() {
           </button>
         </div>
 
-        {tab === 'id' && (
+        {tab === 'id' && !result && (
           <form onSubmit={handleIdCheck} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">מספר תעודת זהות</label>
@@ -108,6 +175,7 @@ export default function GateControl() {
                 placeholder="הכנס 9 ספרות..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 maxLength={9}
+                autoFocus
               />
             </div>
             <button
@@ -115,18 +183,17 @@ export default function GateControl() {
               disabled={loading || !idNumber.trim()}
               className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
             >
-              {loading ? 'בודק...' : 'בדוק כניסה'}
+              {loading ? 'מחפש...' : 'חפש עובד'}
             </button>
           </form>
         )}
 
-        {tab === 'google' && (
+        {tab === 'google' && !result && (
           <div className="space-y-4">
             {!GOOGLE_CLIENT_ID ? (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800 text-center">
                 <div className="font-semibold mb-1">הגדרה נדרשת</div>
-                <div>הוסף <code className="bg-yellow-100 px-1 rounded">VITE_GOOGLE_CLIENT_ID</code> לקובץ <code className="bg-yellow-100 px-1 rounded">.env</code> של ה-frontend</div>
-                <div className="mt-2 text-xs text-yellow-600">צור OAuth Client ID ב-Google Cloud Console</div>
+                <div>הוסף <code className="bg-yellow-100 px-1 rounded">VITE_GOOGLE_CLIENT_ID</code> לקובץ <code className="bg-yellow-100 px-1 rounded">.env</code></div>
               </div>
             ) : (
               <div>
@@ -146,12 +213,12 @@ export default function GateControl() {
 
         {result && (
           <>
-            <WorkerCheckResult result={result} />
+            <WorkerProfile result={result} certs={certs} />
             <button
               onClick={reset}
-              className="mt-3 w-full border border-gray-200 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+              className="mt-4 w-full border border-gray-200 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
             >
-              בדיקה חדשה
+              ← עובד אחר
             </button>
           </>
         )}
