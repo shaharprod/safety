@@ -107,8 +107,9 @@ export default function WorkerPortal() {
           ← סיים וחזור לדף הכניסה
         </button>
 
-        <p className="text-center text-blue-800 text-xs">SafetyOS v3.0</p>
+        <p className="text-center text-blue-800 text-xs">SafetyOS v3.2</p>
       </div>
     </div>
   );
 }
+

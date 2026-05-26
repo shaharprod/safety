@@ -242,3 +242,10 @@ export async function deleteProject(id) {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+export async function getAlerts() {
+  const res = await fetch('/api/alerts', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch alerts');
+  return res.json();
+}

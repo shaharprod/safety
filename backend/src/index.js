@@ -17,6 +17,7 @@ import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import { runMigrations } from './migrate.js';
 import { runSeed } from './seed.js';
+import alertsRouter from './routes/alerts.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/alerts', alertsRouter);
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/gate', workersRouter);
 app.use('/api/workers', workersRouter);

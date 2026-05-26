@@ -21,9 +21,11 @@ import Login from './pages/Login.jsx';
 import PublicGate from './pages/PublicGate.jsx';
 import WorkerPortal from './pages/WorkerPortal.jsx';
 import ChangePasswordModal from './components/ChangePasswordModal.jsx';
+import Alerts from './pages/Alerts.jsx';
 
 const NAV = [
   { to: '/dashboard', label: 'בקרה',     icon: '🏠', end: true },
+  { to: '/alerts',    label: 'התראות',   icon: '🔔'            },
   { to: '/audits',    label: 'בקרות',    icon: '📋'            },
   { to: '/report',    label: 'מפגע',     icon: '⚠️'            },
   { to: '/incident',  label: 'אירוע',    icon: '🔍'            },
@@ -83,7 +85,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.0</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.2</span>
           </span>
 
           {/* Desktop links */}
@@ -133,6 +135,7 @@ function AppLayout() {
         <Routes>
           <Route path="/"                element={<Dashboard />} />
           <Route path="/dashboard"       element={<Dashboard />} />
+          <Route path="/alerts"          element={<Alerts />} />
           <Route path="/report"          element={<FieldReport />} />
           <Route path="/gate"            element={<GateControl />} />
           <Route path="/audits"          element={<AuditsList />} />
