@@ -16,6 +16,7 @@ import certificationsRouter from './routes/certifications.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import { runMigrations } from './migrate.js';
+import { runSeed } from './seed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,10 +50,12 @@ export default app;
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 4000;
-  runMigrations().then(() => {
-    app.listen(PORT, () => console.log(`SafetyOS API running on port ${PORT}`));
-  }).catch(err => {
-    console.error('Startup failed:', err);
-    process.exit(1);
-  });
+  runMigrations()
+    .then(() => runSeed())
+    .then(() => {
+      app.listen(PORT, () => console.log(`SafetyOS API running on port ${PORT}`));
+    }).catch(err => {
+      console.error('Startup failed:', err);
+      process.exit(1);
+    });
 }
