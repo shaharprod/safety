@@ -151,7 +151,7 @@ function GateForm() {
           </Link>
         </div>
 
-        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v3.5</p>
+        <p className="text-center text-blue-800 text-xs mt-4">SafetyOS v3.6</p>
       </div>
     </div>
   );

@@ -5,73 +5,140 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 function fmtDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('he-IL');
+  return new Date(d).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86_400_000);
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000);
+}
+
+function ExpiryBadge({ expiryDate }) {
+  if (!expiryDate) return <span className="text-xs text-gray-400">ללא תאריך תפוגה</span>;
+  const days = daysUntil(expiryDate);
+  if (days < 0)
+    return <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full">פג תוקף לפני {Math.abs(days)} ימים</span>;
+  if (days <= 30)
+    return <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded-full">⚠️ פג בעוד {days} ימים</span>;
+  if (days <= 90)
+    return <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">בעוד {days} ימים</span>;
+  return <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">✓ בעוד {days} ימים</span>;
 }
 
 function WorkerProfile({ result, certs }) {
   const { worker } = result;
-  const days = worker.last_training_date
-    ? Math.floor((Date.now() - new Date(worker.last_training_date).getTime()) / 86_400_000)
-    : null;
-  const trainingOk = days !== null && days <= 365;
+  const trainDays = daysSince(worker.last_training_date);
+  const trainingOk = trainDays !== null && trainDays <= 365;
+  const trainingExpiresDays = trainingOk ? 365 - trainDays : null;
 
   return (
-    <div className="mt-4 space-y-3">
-      {/* Worker identity */}
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex items-center gap-3">
-        <span className="text-3xl">👷</span>
-        <div>
-          <p className="text-lg font-bold text-gray-800">{worker.first_name} {worker.last_name}</p>
-          <p className="text-sm text-gray-500">ת.ז: {worker.id_number}</p>
+    <div className="mt-4 space-y-4">
+
+      {/* Identity card */}
+      <div className="bg-gradient-to-l from-blue-700 to-blue-900 rounded-2xl p-5 text-white">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-3xl shrink-0">👷</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-2xl font-bold leading-tight">{worker.first_name} {worker.last_name}</p>
+            <p className="text-blue-200 text-sm mt-0.5">ת.ז: {worker.id_number}</p>
+            {worker.worker_role && (
+              <span className="inline-block mt-1.5 bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full">
+                {worker.worker_role === 'safety_officer' ? 'ממונה בטיחות' : worker.worker_role === 'project_manager' ? 'מנהל פרויקט' : 'עובד'}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Training */}
-      <div className={`rounded-xl border-2 p-3 ${trainingOk ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-        <p className="text-xs font-semibold text-gray-500 mb-0.5">הדרכת בטיחות</p>
-        {days === null
-          ? <p className="text-sm font-bold text-red-600">ללא הדרכה רשומה</p>
-          : <p className={`text-sm font-bold ${trainingOk ? 'text-green-700' : 'text-red-600'}`}>
-              {trainingOk ? `תקין — ${days} ימים מאז הדרכה` : `פג תוקף — ${days - 365} ימים אחרי תוקף`}
-            </p>
-        }
-        {worker.last_training_date && (
-          <p className="text-xs text-gray-400 mt-0.5">תאריך: {fmtDate(worker.last_training_date)}</p>
-        )}
+      {/* Two-column info grid */}
+      <div className="grid grid-cols-2 gap-3">
+
+        {/* Training status */}
+        <div className={`col-span-2 rounded-xl border-2 p-4 ${trainingOk ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-300'}`}>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">הדרכת בטיחות</p>
+              {trainDays === null ? (
+                <p className="text-base font-bold text-red-600">ללא הדרכה רשומה</p>
+              ) : trainingOk ? (
+                <>
+                  <p className="text-base font-bold text-green-700">תקינה ✅</p>
+                  <p className="text-sm text-green-600 mt-0.5">עוד {trainingExpiresDays} ימים לתפוגה</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-base font-bold text-red-600">פגה 🚫</p>
+                  <p className="text-sm text-red-500 mt-0.5">פגה לפני {trainDays - 365} ימים</p>
+                </>
+              )}
+            </div>
+            <div className="text-left shrink-0">
+              <p className="text-xs text-gray-400 mb-0.5">תאריך הדרכה</p>
+              <p className="text-sm font-medium text-gray-700">{fmtDate(worker.last_training_date)}</p>
+              {worker.last_training_date && (
+                <p className="text-xs text-gray-400 mt-0.5">{trainDays} ימים אחורה</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Height clearance */}
+        <div className={`rounded-xl border-2 p-4 ${worker.has_height_clearance ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">עבודה בגובה</p>
+          <p className={`text-base font-bold ${worker.has_height_clearance ? 'text-green-700' : 'text-gray-400'}`}>
+            {worker.has_height_clearance ? '✅ מאושר' : '❌ לא מאושר'}
+          </p>
+        </div>
+
+        {/* Cert count summary */}
+        <div className="rounded-xl border-2 border-blue-100 bg-blue-50 p-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">הסמכות</p>
+          <p className="text-2xl font-bold text-blue-700">{certs.length}</p>
+          <p className="text-xs text-blue-500 mt-0.5">
+            {certs.filter(c => !c.expiry_date || daysUntil(c.expiry_date) >= 0).length} בתוקף
+          </p>
+        </div>
       </div>
 
-      {/* Height clearance */}
-      <div className={`rounded-xl border-2 p-3 ${worker.has_height_clearance ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
-        <p className="text-xs font-semibold text-gray-500 mb-0.5">עבודה בגובה</p>
-        <p className={`text-sm font-bold ${worker.has_height_clearance ? 'text-green-700' : 'text-gray-500'}`}>
-          {worker.has_height_clearance ? '✅ אישור בתוקף' : '❌ אין אישור'}
-        </p>
-      </div>
-
-      {/* Certifications */}
+      {/* Certifications table */}
       {certs.length > 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs font-semibold text-gray-500 mb-3">הסמכות</p>
-          <div className="space-y-2">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <p className="text-sm font-semibold text-gray-700">פירוט הסמכות ואישורים</p>
+          </div>
+          <div className="divide-y divide-gray-100">
             {certs.map(c => {
-              const expired = c.expiry_date && new Date(c.expiry_date) < new Date();
+              const expDays = daysUntil(c.expiry_date);
+              const isExpired = c.expiry_date && expDays < 0;
               return (
-                <div key={c.id} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{c.cert_type}</p>
-                    {c.expiry_date && <p className="text-xs text-gray-400">תוקף: {fmtDate(c.expiry_date)}</p>}
+                <div key={c.id} className={`px-4 py-3.5 ${isExpired ? 'bg-red-50/50' : ''}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-800 text-sm">{c.cert_type}</p>
+                      {c.cert_number && <p className="text-xs text-gray-500 mt-0.5">מספר: {c.cert_number}</p>}
+                      {c.issuing_authority && <p className="text-xs text-gray-500">גוף מנפיק: {c.issuing_authority}</p>}
+                    </div>
+                    <ExpiryBadge expiryDate={c.expiry_date} />
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${expired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                    {expired ? 'פג' : 'תקין'}
-                  </span>
+                  <div className="mt-2 flex gap-4 text-xs text-gray-400">
+                    {c.issue_date && <span>הונפק: {fmtDate(c.issue_date)}</span>}
+                    {c.expiry_date && <span>תפוגה: {fmtDate(c.expiry_date)}</span>}
+                  </div>
+                  {c.notes && <p className="mt-1.5 text-xs text-gray-500 bg-gray-50 rounded px-2 py-1">{c.notes}</p>}
                 </div>
               );
             })}
           </div>
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3 text-center text-sm text-gray-500">
-          אין הסמכות רשומות
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 text-center">
+          <p className="text-2xl mb-1">📋</p>
+          <p className="text-sm text-gray-500">אין הסמכות רשומות לעובד זה</p>
         </div>
       )}
     </div>
@@ -143,25 +210,27 @@ export default function GateControl() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className={result ? 'max-w-2xl mx-auto' : 'max-w-md mx-auto'}>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">בקרת כניסה לאתר</h1>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         {/* Tab selector */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-5">
-          <button
-            onClick={() => { setTab('id'); reset(); }}
-            className={`flex-1 py-2 text-sm font-medium transition ${tab === 'id' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-          >
-            🪪 תעודת זהות
-          </button>
-          <button
-            onClick={() => { setTab('google'); reset(); }}
-            className={`flex-1 py-2 text-sm font-medium transition ${tab === 'google' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-          >
-            🔐 כניסה עם Google
-          </button>
-        </div>
+        {!result && (
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-5">
+            <button
+              onClick={() => { setTab('id'); reset(); }}
+              className={`flex-1 py-2 text-sm font-medium transition ${tab === 'id' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            >
+              🪪 תעודת זהות
+            </button>
+            <button
+              onClick={() => { setTab('google'); reset(); }}
+              className={`flex-1 py-2 text-sm font-medium transition ${tab === 'google' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            >
+              🔐 כניסה עם Google
+            </button>
+          </div>
+        )}
 
         {tab === 'id' && !result && (
           <form onSubmit={handleIdCheck} className="space-y-4">
@@ -216,9 +285,9 @@ export default function GateControl() {
             <WorkerProfile result={result} certs={certs} />
             <button
               onClick={reset}
-              className="mt-4 w-full border border-gray-200 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+              className="mt-5 w-full border border-gray-300 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
             >
-              ← עובד אחר
+              ← חיפוש עובד אחר
             </button>
           </>
         )}
