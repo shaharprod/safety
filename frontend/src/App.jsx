@@ -22,6 +22,7 @@ import PublicGate from './pages/PublicGate.jsx';
 import WorkerPortal from './pages/WorkerPortal.jsx';
 import ChangePasswordModal from './components/ChangePasswordModal.jsx';
 import Alerts from './pages/Alerts.jsx';
+import Permits from './pages/Permits.jsx';
 
 const NAV = [
   { to: '/dashboard', label: 'בקרה',     icon: '🏠', end: true },
@@ -34,6 +35,7 @@ const NAV = [
   { to: '/projects',  label: 'פרוייקטים',icon: '🏗️'            },
   { to: '/certs',       label: 'הסמכות',   icon: '🎓'            },
   { to: '/procedures', label: 'נהלים',    icon: '📄'            },
+  { to: '/permits',    label: 'היתרים',   icon: '📜'            },
   { to: '/reports',    label: 'דוחות',    icon: '📊'            },
   { to: '/admin',     label: 'אדמין',    icon: '⚙️'            },
 ];
@@ -86,7 +88,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.7</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v3.8</span>
           </span>
 
           {/* Desktop links */}
@@ -150,6 +152,7 @@ function AppLayout() {
           <Route path="/projects"        element={<Projects />} />
           <Route path="/certs"           element={<WorkerCertifications />} />
           <Route path="/procedures"      element={<Procedures />} />
+          <Route path="/permits"         element={<Permits />} />
           <Route path="/admin"           element={<AdminWorkers />} />
         </Routes>
       </main>

@@ -13,6 +13,7 @@ import activityRouter from './routes/activity.js';
 import toolInspectionsRouter from './routes/toolInspections.js';
 import projectsRouter from './routes/projects.js';
 import certificationsRouter from './routes/certifications.js';
+import permitsRouter from './routes/permits.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import { runMigrations } from './migrate.js';
@@ -40,6 +41,7 @@ app.use('/api/activity', activityRouter);
 app.use('/api/tool-inspections', toolInspectionsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/certifications', certificationsRouter);
+app.use('/api/permits', permitsRouter);
 
 // In production, serve the built React frontend from Express
 if (process.env.NODE_ENV === 'production') {

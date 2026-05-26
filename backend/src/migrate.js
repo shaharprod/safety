@@ -143,12 +143,36 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS company_permits (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL UNIQUE,
+  permit_type TEXT NOT NULL,
+  issuing_authority TEXT,
+  issue_date DATE,
+  expiry_date DATE,
+  document_url TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 `;
 
 export async function runMigrations() {
   if (!process.env.DATABASE_URL) return;
   try {
     await pool.query(MIGRATION_SQL);
+    // Seed sample company permits
+    await pool.query(`
+      INSERT INTO company_permits (title, permit_type, issuing_authority, issue_date, expiry_date, document_url, notes) VALUES
+        ('היתר בנייה - מגדל א׳',            'היתר בנייה',          'הוועדה המקומית לתכנון ובנייה תל אביב', '2024-03-01', '2026-08-28', '', 'היתר לבניית מגדל מגורים 22 קומות'),
+        ('אישור כיבוי אש - אתר ראשי',       'אישור כיבוי אש',      'כבאות והצלה לישראל - מחוז דן',        '2025-01-15', '2026-07-14', '', 'אישור מערכות גילוי וכיבוי אש'),
+        ('אישור חשמל ראשי',                  'אישור חשמל',          'חברת חשמל לישראל',                    '2025-04-10', '2026-10-09', '', 'אישור חיבור חשמל זמני לאתר'),
+        ('היתר עבודה בגובה - עונת 2026',     'היתר עבודה בגובה',    'משרד העבודה - אגף הבטיחות',           '2026-01-01', '2026-06-10', '', 'היתר לעבודות גובה מעל 5 מטר'),
+        ('אישור בדיקת מנוף מגדלי',           'אישור בדיקת מנוף',    'מכון התקנים הישראלי',                 '2025-11-20', '2026-05-19', '', 'בדיקה תקופתית חצי-שנתית למנוף'),
+        ('אישור ביטוח אחריות מקצועית',        'אישור ביטוח',         'הפניקס חברה לביטוח',                  '2026-01-01', '2026-12-31', '', 'פוליסת ביטוח אחריות מעסיקים וצד שלישי'),
+        ('אישור סביבתי - טיפול בפסולת',       'אישור סביבתי',        'המשרד להגנת הסביבה',                  '2024-06-01', '2025-05-31', '', 'היתר פינוי ואחסון פסולת בנייה')
+      ON CONFLICT (title) DO NOTHING
+    `);
     // Patch: add 'admin' to role CHECK for existing DBs
     await pool.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check`);
     await pool.query(`ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('safety_officer', 'foreman', 'admin'))`);

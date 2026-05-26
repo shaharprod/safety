@@ -258,3 +258,25 @@ export async function getAlerts() {
   if (!res.ok) throw new Error('Failed to fetch alerts');
   return res.json();
 }
+
+// ── Company Permits ───────────────────────────────────────────────────────────
+export async function getPermits() {
+  const res = await fetch('/api/permits', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch permits');
+  return res.json();
+}
+export async function addPermit(data) {
+  const res = await fetch('/api/permits', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updatePermit(id, data) {
+  const res = await fetch(`/api/permits/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function deletePermit(id) {
+  const res = await fetch(`/api/permits/${id}`, { method: 'DELETE', headers: authHeader() });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
