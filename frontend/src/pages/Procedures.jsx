@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { AUDIT_TYPES, PERMIT_ITEMS, PERMIT_CATEGORIES, CHECKLIST_ITEMS } from '../lib/checklists.js';
+import { PROCEDURE_SUBJECTS, docForCategory } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
+
+// Resolve the dedicated, subject-specific document for a procedure item:
+// keep genuinely specific permit forms, otherwise use the per-subject doc.
+const resolveItemDoc = (domain, it) =>
+  it.doc && !it.doc.startsWith('/docs/procedures-') ? it.doc : docForCategory(domain, it.category);
 
 const DOMAIN_DOC = {
   work:           '/docs/procedures-work.html',
@@ -142,6 +148,23 @@ function DomainDetail({ typeKey, canWrite }) {
         )}
       </div>
 
+      {/* Detailed subject documents — a dedicated, specific page per subject */}
+      {(PROCEDURE_SUBJECTS[typeKey] || []).length > 0 && (
+        <div className="px-4 pt-4 pb-1 bg-indigo-50/40 border-b border-indigo-100">
+          <p className="text-xs font-bold text-indigo-800 mb-2 flex items-center gap-1.5">
+            <span>📚</span> מסמכים מפורטים לפי נושא
+          </p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {PROCEDURE_SUBJECTS[typeKey].map(s => (
+              <a key={s.slug} href={s.doc} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition">
+                📄 {s.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="divide-y divide-gray-100">
         {Object.entries(grouped).map(([cat, catItems]) => {
           if (!catItems.length) return null;
@@ -159,12 +182,10 @@ function DomainDetail({ typeKey, canWrite }) {
                       <span className="text-gray-300 mt-0.5 shrink-0">•</span>
                       <span>{it.item_text}</span>
                     </div>
-                    {it.doc && (
-                      <a href={it.doc} target="_blank" rel="noopener noreferrer"
-                        className="shrink-0 text-blue-600 hover:text-blue-800 text-xs bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full flex items-center gap-1 transition whitespace-nowrap mt-0.5">
-                        📋 מסמך
-                      </a>
-                    )}
+                    <a href={resolveItemDoc(typeKey, it)} target="_blank" rel="noopener noreferrer"
+                      className="shrink-0 text-blue-600 hover:text-blue-800 text-xs bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full flex items-center gap-1 transition whitespace-nowrap mt-0.5">
+                      📋 מסמך
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -194,9 +215,15 @@ function DomainDetail({ typeKey, canWrite }) {
                 <p className="text-xs font-semibold text-gray-500 mb-1.5">{cat}</p>
                 <ul className="space-y-1.5">
                   {rows.map((it, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-gray-300 mt-0.5 shrink-0">☐</span>
-                      <span>{it.item_text}</span>
+                    <li key={i} className="flex items-start justify-between gap-2 text-sm text-gray-700">
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        <span className="text-gray-300 mt-0.5 shrink-0">☐</span>
+                        <span>{it.item_text}</span>
+                      </div>
+                      <a href={docForCategory(typeKey, cat)} target="_blank" rel="noopener noreferrer"
+                        className="shrink-0 text-indigo-600 hover:text-indigo-800 text-xs bg-white border border-indigo-100 px-2 py-0.5 rounded-full flex items-center gap-1 transition whitespace-nowrap mt-0.5">
+                        📄 מסמך
+                      </a>
                     </li>
                   ))}
                 </ul>

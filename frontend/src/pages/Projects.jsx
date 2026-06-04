@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getProjects, addProject, updateProject, deleteProject } from '../lib/api.js';
+import { PROJECT_DOCS } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
 
 const EMPTY = { name: '', location: '', start_date: '', end_date: '', manager_name: '', manager_phone: '', manager_email: '', status: 'active' };
@@ -67,6 +68,21 @@ export default function Projects() {
             + פרוייקט חדש
           </button>
         )}
+      </div>
+
+      {/* Project safety documents — a detailed document per subject */}
+      <div className="mb-6 rounded-xl border border-teal-200 bg-teal-50/50 p-4">
+        <p className="text-xs font-bold text-teal-800 mb-2 flex items-center gap-1.5">
+          <span>📚</span> מסמכי בטיחות פרויקט
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {PROJECT_DOCS.map(d => (
+            <a key={d.slug} href={d.doc} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-teal-200 text-teal-800 hover:bg-teal-600 hover:text-white hover:border-teal-600 transition">
+              <span>{d.icon}</span> {d.title}
+            </a>
+          ))}
+        </div>
       </div>
 
       {loading && <p className="text-center text-gray-400 py-10">טוען...</p>}

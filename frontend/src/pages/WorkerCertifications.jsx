@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCertifications, getWorkers, addCertification, updateCertification, deleteCertification } from '../lib/api.js';
+import { CERT_TYPE_DOC } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
 
 const CERT_TYPES = [
@@ -259,6 +260,12 @@ export default function WorkerCertifications() {
                       {cert.issue_date && <span>הונפק: {new Date(cert.issue_date).toLocaleDateString('he-IL')}</span>}
                     </div>
                     {cert.notes && <p className="text-xs text-gray-500 mt-1">{cert.notes}</p>}
+                    {CERT_TYPE_DOC[cert.cert_type] && (
+                      <a href={CERT_TYPE_DOC[cert.cert_type]} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-purple-700 hover:text-purple-900 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full transition mt-1">
+                        📄 דרישות ההסמכה
+                      </a>
+                    )}
                   </div>
                   {canWrite && (
                     <div className="flex gap-1 shrink-0">

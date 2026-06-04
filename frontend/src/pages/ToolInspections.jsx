@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToolInspections, createToolInspection, getWorkers, getProjects } from '../lib/api.js';
+import { TOOL_TYPE_DOC } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
 
 const TOOL_TYPES = [
@@ -76,6 +77,21 @@ export default function ToolInspections() {
             + בדיקה חדשה
           </button>
         )}
+      </div>
+
+      {/* Inspection guides — a detailed document per equipment family */}
+      <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+        <p className="text-xs font-bold text-amber-800 mb-2 flex items-center gap-1.5">
+          <span>📚</span> מדריכי בדיקה מפורטים לפי סוג ציוד
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {TOOL_TYPES.map(t => (
+            <a key={t.value} href={TOOL_TYPE_DOC[t.value]} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-amber-200 text-amber-800 hover:bg-amber-600 hover:text-white hover:border-amber-600 transition">
+              <span>{t.icon}</span> {t.label}
+            </a>
+          ))}
+        </div>
       </div>
 
       {loading && <p className="text-center text-gray-400 py-10">טוען...</p>}

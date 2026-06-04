@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { getPermits, addPermit, updatePermit, deletePermit } from '../lib/api.js';
+import { PERMIT_TYPE_DOC } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
 
+// Permit/license types — one per safety topic (domain) plus cross-cutting approvals
 const PERMIT_TYPES = [
-  { value: 'היתר בנייה',        icon: '🏗️' },
-  { value: 'אישור כיבוי אש',    icon: '🔥' },
-  { value: 'אישור חשמל',        icon: '⚡' },
-  { value: 'היתר עבודה בגובה',  icon: '🪜' },
-  { value: 'אישור בדיקת מנוף',  icon: '🏗️' },
-  { value: 'אישור ביטוח',       icon: '📋' },
-  { value: 'אישור סביבתי',      icon: '🌿' },
-  { value: 'אחר',               icon: '📄' },
+  { value: 'מינוי ממונה בטיחות',      icon: '👷' },  // בטיחות בעבודה כללית
+  { value: 'היתר בנייה',              icon: '🏗️' },  // בטיחות אתר בנייה
+  { value: 'היתר עבודות תשתית',       icon: '⛏️' },  // עבודות תשתית
+  { value: 'רישיון עסק',              icon: '🏭' },  // בטיחות מפעל / תעשייה
+  { value: 'היתר עבודה בכביש',        icon: '🚦' },  // בטיחות בתנועה
+  { value: 'אישור כיבוי אש',          icon: '🔥' },  // בטיחות אש וחירום
+  { value: 'אישור חשמל',              icon: '⚡' },  // בטיחות חשמל
+  { value: 'היתר עבודה בגובה',        icon: '🪜' },  // פיגומים ועבודה בגובה
+  { value: 'אישור בדיקת מנוף',        icon: '🏗️' },  // ציוד הרמה
+  { value: 'היתר כניסה למרחב מוגבל',  icon: '🚪' },  // מרחבים מוגבלים
+  { value: 'רישיון חומרים מסוכנים',   icon: '☣️' },  // חומרים מסוכנים
+  { value: 'אישור סביבתי',            icon: '🌿' },  // איכות סביבה
+  { value: 'אישור בריאות תעסוקתית',   icon: '🩺' },  // ארגונומיה ועומס גופני
+  { value: 'אישור מוכנות לחירום',     icon: '🚨' },  // מוכנות לחירום ופינוי
+  { value: 'אישור ביטוח',             icon: '📋' },  // ביטוח
+  { value: 'אחר',                     icon: '📄' },
 ];
 
 const TYPE_ICON = Object.fromEntries(PERMIT_TYPES.map(t => [t.value, t.icon]));
@@ -206,6 +216,7 @@ export default function Permits() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {filtered.map(permit => {
             const icon    = TYPE_ICON[permit.permit_type] || '📄';
+            const typeDoc = PERMIT_TYPE_DOC[permit.permit_type];
             const hasDoc  = permit.document_url?.trim();
             const isDel   = confirmDel === permit.id;
             const dLeft   = daysUntil(permit.expiry_date);
@@ -259,6 +270,12 @@ export default function Permits() {
                     </div>
                     {permit.notes && (
                       <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{permit.notes}</p>
+                    )}
+                    {typeDoc && (
+                      <a href={typeDoc} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full transition mt-1">
+                        📄 מדריך לסוג היתר זה
+                      </a>
                     )}
                   </div>
 

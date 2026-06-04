@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { docForItemText } from '../lib/subjectDocs.js';
 
 export default function SafetyCheckItem({ item, auditId, onUpdate, num, variant }) {
   const isPermit = variant === 'permit';
+  const doc = docForItemText(item.item_text);
   const [status, setStatus] = useState(item.status || 'pending');
   const [note, setNote] = useState(item.notes || '');
   const [image, setImage] = useState(null);
@@ -30,9 +32,17 @@ export default function SafetyCheckItem({ item, auditId, onUpdate, num, variant 
     }`}>
       <div className="flex items-start gap-2 mb-3">
         {num && <span className="shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">{num}</span>}
-        <div>
+        <div className="flex-1">
           <p className="font-medium text-gray-800">{item.item_text}</p>
-          {item.category && <span className="text-xs text-gray-400 mt-0.5 block">{item.category}</span>}
+          <div className="flex items-center gap-2 mt-0.5">
+            {item.category && <span className="text-xs text-gray-400">{item.category}</span>}
+            {doc && (
+              <a href={doc} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition">
+                📄 מסמך מפורט
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
