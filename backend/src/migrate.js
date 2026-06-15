@@ -155,6 +155,32 @@ CREATE TABLE IF NOT EXISTS company_permits (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ── Safety directives — the coordination channel between the safety officer
+--    and the project (site) manager. The safety officer issues a directive on a
+--    specific project; the project manager acknowledges, executes and reports
+--    back; the safety officer verifies and closes. Each transition emails the
+--    other side.
+CREATE TABLE IF NOT EXISTS safety_directives (
+  id SERIAL PRIMARY KEY,
+  project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(50) DEFAULT 'אחר',
+  priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low','medium','high','urgent')),
+  status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open','acknowledged','reported','closed')),
+  due_date DATE,
+  issued_by VARCHAR(255),
+  assignee_name VARCHAR(255),
+  assignee_email VARCHAR(255),
+  report_notes TEXT,
+  close_notes TEXT,
+  acknowledged_at TIMESTAMP,
+  reported_at TIMESTAMP,
+  closed_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 `;
 
 export async function runMigrations() {
@@ -183,6 +209,20 @@ export async function runMigrations() {
         ('אישור בריאות תעסוקתית - בדיקות',    'אישור בריאות תעסוקתית',  'רופא תעסוקתי מוסמך',                  '2026-01-01', '2026-12-31', '/docs/permit-occupational-health.html', 'אישור ביצוע בדיקות רפואיות תקופתיות לעובדים'),
         ('אישור תכנית חירום ופינוי',          'אישור מוכנות לחירום',    'כבאות והצלה ופיקוד העורף',           '2026-02-01', '2027-02-01', '/docs/permit-emergency-readiness.html', 'תכנית חירום ופינוי מאושרת לאתר')
       ON CONFLICT (title) DO NOTHING
+    `);
+    // Seed sample safety directives on the earliest project (only if none exist)
+    await pool.query(`
+      INSERT INTO safety_directives
+        (project_id, title, description, category, priority, status, due_date, issued_by, assignee_name, assignee_email)
+      SELECT p.id, d.title, d.description, d.category, d.priority, d.status, CURRENT_DATE + d.due_offset, 'ממונה בטיחות אתר', p.manager_name, p.manager_email
+      FROM projects p
+      CROSS JOIN (VALUES
+        ('גידור פתח רצפה בקומה 3', 'נמצא פתח לא מגודר באזור פיר המעלית. נדרש גידור תקני ושילוט אזהרה לפני המשך עבודה.', 'מפגע', 'high', 'open', 2),
+        ('ריענון הדרכת עבודה בגובה', 'שלושה עובדי קבלן משנה ללא הדרכת גובה בתוקף. נדרשת הדרכה ותיעוד לפני עלייה לפיגום.', 'הדרכה', 'medium', 'acknowledged', 5),
+        ('בדיקת תקינות מנוף מגדל', 'תוקף בדיקת המנוף מסתיים החודש. יש לתאם בדיקת בודק מוסמך ולהעביר אישור.', 'ציוד', 'urgent', 'open', 1)
+      ) AS d(title, description, category, priority, status, due_offset)
+      WHERE NOT EXISTS (SELECT 1 FROM safety_directives)
+        AND p.created_at = (SELECT MIN(created_at) FROM projects)
     `);
     // Patch: add 'admin' to role CHECK for existing DBs
     await pool.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check`);

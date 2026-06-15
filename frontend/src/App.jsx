@@ -17,6 +17,7 @@ import ToolInspectionSession from './pages/ToolInspectionSession.jsx';
 import Projects from './pages/Projects.jsx';
 import WorkerCertifications from './pages/WorkerCertifications.jsx';
 import Procedures from './pages/Procedures.jsx';
+import Coordination from './pages/Coordination.jsx';
 import Login from './pages/Login.jsx';
 import PublicGate from './pages/PublicGate.jsx';
 import WorkerPortal from './pages/WorkerPortal.jsx';
@@ -33,6 +34,7 @@ const NAV = [
   { to: '/gate',      label: 'כניסה',    icon: '🔑'            },
   { to: '/tools',     label: 'כלים',     icon: '🔧'            },
   { to: '/projects',  label: 'פרוייקטים',icon: '🏗️'            },
+  { to: '/coordination', label: 'תיאום',  icon: '🤝'            },
   { to: '/certs',       label: 'הסמכות',   icon: '🎓'            },
   { to: '/procedures', label: 'נהלים',    icon: '📄'            },
   { to: '/permits',    label: 'היתרים',   icon: '📜'            },
@@ -88,7 +90,7 @@ function AppLayout() {
       <nav className="bg-blue-900 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-xl font-bold tracking-wide">
-            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v4.5</span>
+            🦺 SafetyOS <span className="text-xs font-normal text-blue-300 ml-1">v4.6</span>
           </span>
 
           {/* Desktop links */}
@@ -150,6 +152,7 @@ function AppLayout() {
           <Route path="/tools"           element={<ToolInspections />} />
           <Route path="/tool-inspection/:id" element={<ToolInspectionSession />} />
           <Route path="/projects"        element={<Projects />} />
+          <Route path="/coordination"    element={<Coordination />} />
           <Route path="/certs"           element={<WorkerCertifications />} />
           <Route path="/procedures"      element={<Procedures />} />
           <Route path="/permits"         element={<Permits />} />

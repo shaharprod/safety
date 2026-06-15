@@ -133,6 +133,28 @@ CREATE TABLE IF NOT EXISTS projects (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ── Safety directives — coordination channel safety officer ⇄ project manager ─
+CREATE TABLE IF NOT EXISTS safety_directives (
+  id SERIAL PRIMARY KEY,
+  project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(50) DEFAULT 'אחר',
+  priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low','medium','high','urgent')),
+  status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open','acknowledged','reported','closed')),
+  due_date DATE,
+  issued_by VARCHAR(255),
+  assignee_name VARCHAR(255),
+  assignee_email VARCHAR(255),
+  report_notes TEXT,
+  close_notes TEXT,
+  acknowledged_at TIMESTAMP,
+  reported_at TIMESTAMP,
+  closed_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ── Worker certifications ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS worker_certifications (
   id SERIAL PRIMARY KEY,

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getProjects, addProject, updateProject, deleteProject } from '../lib/api.js';
+import { useNavigate } from 'react-router-dom';
+import { getProjects, addProject, updateProject, deleteProject, getCoordinationSummary } from '../lib/api.js';
 import { PROJECT_DOCS } from '../lib/subjectDocs.js';
 import { useCanWrite } from '../lib/permissions.js';
 
@@ -15,7 +16,9 @@ const STATUS_COLOR = { active: 'bg-green-100 text-green-700', completed: 'bg-blu
 
 export default function Projects() {
   const canWrite = useCanWrite();
+  const navigate = useNavigate();
   const [projects, setProjects]     = useState([]);
+  const [coord, setCoord]           = useState({});
   const [loading, setLoading]       = useState(true);
   const [editId, setEditId]         = useState(null);
   const [form, setForm]             = useState(EMPTY);
@@ -27,7 +30,32 @@ export default function Projects() {
 
   async function load() {
     setLoading(true);
-    try { setProjects(await getProjects()); } finally { setLoading(false); }
+    try {
+      const [ps, summary] = await Promise.all([
+        getProjects(),
+        getCoordinationSummary().catch(() => ({})),
+      ]);
+      setProjects(ps);
+      setCoord(summary || {});
+    } finally { setLoading(false); }
+  }
+
+  function CoordBadge({ id }) {
+    const c = coord[id];
+    const overdue = c?.overdue || 0;
+    const open = c?.open_total || 0;
+    return (
+      <button onClick={() => navigate(`/coordination?project=${id}`)}
+        className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg border transition ${
+          overdue > 0 ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+            : open > 0 ? 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+            : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+        }`}>
+        🤝 תיאום
+        {open > 0 && <span className="bg-white/70 rounded-full px-1.5">{open}</span>}
+        {overdue > 0 && <span className="text-red-600">⚠{overdue}</span>}
+      </button>
+    );
   }
 
   function openNew() { setForm(EMPTY); setEditId(0); setError(''); }
@@ -108,6 +136,7 @@ export default function Projects() {
                   {p.manager_email && <p>📧 {p.manager_email}</p>}
                   {p.start_date && <p>🗓️ {new Date(p.start_date).toLocaleDateString('he-IL')} — {p.end_date ? new Date(p.end_date).toLocaleDateString('he-IL') : '...'}</p>}
                 </div>
+                <div className="mb-2"><CoordBadge id={p.id} /></div>
                 {canWrite && (
                   <div className="flex gap-2">
                     <button onClick={() => openEdit(p)}
@@ -159,12 +188,15 @@ export default function Projects() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {canWrite && (
-                        <div className="flex gap-2">
-                          <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
-                          <button onClick={() => setConfirmDel(p)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3">
+                        <CoordBadge id={p.id} />
+                        {canWrite && (
+                          <>
+                            <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-medium">עריכה</button>
+                            <button onClick={() => setConfirmDel(p)} className="text-red-500 hover:text-red-700 text-xs font-medium">מחיקה</button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

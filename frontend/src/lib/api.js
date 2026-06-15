@@ -252,6 +252,44 @@ export async function deleteProject(id) {
   return res.json();
 }
 
+// ── Safety Coordination (directives) ──────────────────────────────────────────
+export async function getDirectives(projectId) {
+  const q = projectId ? `?project_id=${projectId}` : '';
+  const res = await fetch(`/api/coordination${q}`, { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch directives');
+  return res.json();
+}
+export async function getCoordinationSummary() {
+  const res = await fetch('/api/coordination/summary', { headers: authHeader() });
+  if (!res.ok) throw new Error('Failed to fetch summary');
+  return res.json();
+}
+export async function addDirective(data) {
+  const res = await fetch('/api/coordination', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to create directive');
+  return res.json();
+}
+export async function updateDirective(id, data) {
+  const res = await fetch(`/api/coordination/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function updateDirectiveStatus(id, data) {
+  const res = await fetch(`/api/coordination/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to update status');
+  return res.json();
+}
+export async function deleteDirective(id) {
+  const res = await fetch(`/api/coordination/${id}`, { method: 'DELETE', headers: authHeader() });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function sendProjectBriefing(data) {
+  const res = await fetch('/api/coordination/briefing', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error((await res.json()).error || 'Failed to send briefing');
+  return res.json();
+}
+
 // ── Alerts ────────────────────────────────────────────────────────────────────
 export async function getAlerts() {
   const res = await fetch('/api/alerts', { headers: authHeader() });
